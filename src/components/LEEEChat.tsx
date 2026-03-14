@@ -205,7 +205,11 @@ export default function LEEEChat() {
         body: JSON.stringify({ action: 'extract', session_id: sessionId }),
       });
       const data = await res.json();
-      if (data.extraction) setExtraction(data.extraction);
+      if (data.extraction) {
+        setExtraction(data.extraction);
+        // Store for skills dashboard
+        localStorage.setItem('sis_last_extraction', JSON.stringify(data.extraction));
+      }
     } catch (e) {
       console.error('Extraction error:', e);
     } finally {
