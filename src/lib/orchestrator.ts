@@ -16,13 +16,13 @@ interface TransitionRule {
 }
 
 const TRANSITION_RULES: TransitionRule[] = [
-  // Opening → Story Select: after 2-4 turns of framing
+  // Opening → Story Select: after at least 3 warmup exchanges
   {
     from: 'opening',
     to: 'story_select',
     condition: (s) => {
       const openingTurns = s.messages.filter(m => m.moth_stage === 'opening' && m.role === 'user').length;
-      return openingTurns >= 2;
+      return openingTurns >= 3;
     }
   },
   // Story Select → Elicitation: user has chosen a domain
