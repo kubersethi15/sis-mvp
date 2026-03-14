@@ -69,6 +69,8 @@ Last updated: March 15, 2026
 | E14 | Gaming flag detection | 🔶 Partial | Basic flags; needs testing with fabricated stories |
 | E15 | Extraction results persistence to Supabase | ✅ Done | Full extraction saved to leee_extractions with audit trail |
 | E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | 🔶 Partial | Data stored; needs UI display for psychologist review |
+| E17 | Role-specific extraction (contextualised to vacancy) | ⬜ Todo | Ryan: "build evidence for that specific role" — extraction should factor in the vacancy requirements, not just generic skills |
+| E18 | Auto-extract from profile before LEEE | ⬜ Todo | Ryan: "automatically extract data from jobseeker profile as starting point then ask for additional evidence" — profile data feeds into Gate 2 before chatbot runs |
 
 ### Anti-Gaming
 
@@ -101,13 +103,14 @@ Last updated: March 15, 2026
 |---|------|--------|-------|
 | A1 | Employer profile creation | ✅ Done | API route + DB persistence |
 | A2 | Vacancy Design Module (JD upload/builder) | ✅ Done | AI-powered JD parser → competency blueprint |
-| A3 | Vacancy publishing (platform, PDF, QR) | 🔶 Partial | DB published; PDF/QR not yet |
+| A3 | Vacancy publishing (platform, PDF, QR) | 🔶 Partial | DB published; PDF/QR not yet. Ryan: QR/link leads directly to Gate 2 |
 | A4 | Pre-application eligibility filter | ⬜ Todo | Licenses, work auth, schedule, salary |
 | A5 | AI alignment assessment generation | ✅ Done | Compares blueprint vs jobseeker profile + LEEE |
 | A6 | Alignment score + competency fit map | ✅ Done | Score, fit map, strengths, gaps, inclusion notes |
 | A7 | Recruiter review dashboard | ✅ Done | Three-tab UI: upload, pipeline, review queue |
-| A8 | Matching engine (vacancy ↔ jobseeker) | ⬜ Todo | Skill overlap, evidence readiness, location, schedule |
-| A9 | Vacancy Q&A assistant (grounded, no hallucination) | ⬜ Todo | Jobseeker-facing pre-application chatbot |
+| A8 | Matching engine (vacancy ↔ jobseeker) | ⬜ Todo | Skill overlap, evidence readiness, location, schedule. Ryan: "similar to Upwork but more holistic" |
+| A9 | Vacancy Q&A assistant (grounded, no hallucination) | ⬜ Todo | Ryan: AI chatbot available to answer all vacancy questions before apply |
+| A10 | Alignment rating shown TO jobseeker | ⬜ Todo | Ryan: "reveals the alignment rating at the end of the assessment" — jobseeker sees their score too, not just recruiter |
 
 ---
 
