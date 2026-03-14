@@ -118,12 +118,13 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| R1 | AI simulation interface (basic) | ⬜ Todo | Novel scenario based on Layer 2 seeds from LEEE |
-| R2 | Structured interview interface | ⬜ Todo | AI-assisted interview with scoring |
-| R3 | Readiness index calculation | ⬜ Todo | Combined simulation + interview score |
-| R4 | Final Approver review dashboard | ⬜ Todo | View all gate outputs, approve/decline |
+| R1 | AI simulation interface (basic) | ✅ Done | API generates scenario from Layer 2 seeds, scores responses |
+| R2 | Structured interview interface | ✅ Done | API generates targeted questions from Gate 1+2 gaps, scores responses |
+| R3 | Readiness index calculation | ✅ Done | Combines all 3 gates into readiness score + recommendation |
+| R4 | Final Approver review dashboard | ✅ Done | Unified reviewer dashboard with G1/G2/G3 tabs + pipeline overview |
 | R5 | Integration with Jazzel's simulation (future) | ⬜ Todo | Defined interface; Jazzel plugs in |
 | R6 | Integration with Chamar's assessment (future) | ⬜ Todo | Defined interface; Chamar plugs in |
+| R7 | Feedback report for non-selected candidates | ✅ Done | Auto-generated: actions, alternative roles, skills to strengthen |
 
 ---
 
@@ -212,19 +213,19 @@ Last updated: March 15, 2026
 |----------|-------|------|---------|------|
 | Setup & Infrastructure | 10 | 8 | 0 | 2 |
 | LEEE Conversation Engine | 18 | 13 | 3 | 2 |
-| LEEE Extraction Pipeline | 16 | 9 | 4 | 3 |
+| LEEE Extraction Pipeline | 18 | 9 | 4 | 5 |
 | Anti-Gaming | 5 | 4 | 1 | 0 |
 | Jobseeker Profile (Gate 2A) | 6 | 1 | 0 | 5 |
-| Gate 1 — Alignment | 9 | 4 | 1 | 4 |
-| Gate 3 — Predictability | 6 | 0 | 0 | 6 |
+| Gate 1 — Alignment | 10 | 4 | 1 | 5 |
+| Gate 3 — Predictability | 7 | 5 | 0 | 2 |
 | Psychologist Validation | 6 | 0 | 0 | 6 |
-| Feedback & Onboarding | 3 | 0 | 0 | 3 |
-| Dashboards & Output | 5 | 0 | 0 | 5 |
+| Feedback & Onboarding | 3 | 1 | 0 | 2 |
+| Dashboards & Output | 5 | 1 | 0 | 4 |
 | UX Polish | 8 | 0 | 3 | 5 |
 | Testing & Validation | 9 | 0 | 0 | 9 |
-| **TOTAL** | **101** | **39** | **12** | **50** |
+| **TOTAL** | **105** | **46** | **12** | **47** |
 
-**39 done, 12 partial, 50 remaining — ~45% through the build**
+**46 done, 12 partial, 47 remaining — ~52% through the build**
 
 ---
 
