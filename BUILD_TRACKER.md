@@ -3,7 +3,7 @@
 ## Deadline: Jakarta Conference, April 13–16, 2026
 ## Pilot Employer: Cebuana Lhuillier
 
-Last updated: March 14, 2026
+Last updated: March 15, 2026
 
 ---
 
@@ -15,11 +15,11 @@ Last updated: March 14, 2026
 | S2 | GitHub repo | ✅ Done | github.com/kubersethi15/sis-mvp |
 | S3 | Database schema designed | ✅ Done | Full 3-gate schema in schema.sql |
 | S4 | TypeScript types | ✅ Done | types/index.ts mirrors schema |
-| S5 | Supabase project created | ⬜ Todo | Create project at supabase.com |
-| S6 | Schema deployed to Supabase | ⬜ Todo | Run schema.sql in Supabase SQL editor |
-| S7 | PSF skills taxonomy loaded into DB | ⬜ Todo | 8 skills with proficiency descriptors (skills-taxonomy.ts ready, needs DB load) |
+| S5 | Supabase project created | ✅ Done | ftdnpsrbnjkvazspmenv.supabase.co |
+| S6 | Schema deployed to Supabase | ✅ Done | All tables + enums + indexes created |
+| S7 | PSF skills taxonomy loaded into DB | ✅ Done | 8 skills seeded via schema-supabase.sql |
 | S8 | Supabase auth configured | ⬜ Todo | Email/password for MVP |
-| S9 | Environment variables configured | 🔶 Partial | Anthropic key ✅, Supabase keys ⬜ |
+| S9 | Environment variables configured | ✅ Done | All 4 keys set (Anthropic + Supabase URL/anon/service) |
 | S10 | Deployment setup (Vercel) | ⬜ Todo | For Jakarta demo |
 
 ---
@@ -31,20 +31,20 @@ Last updated: March 14, 2026
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | L1 | System prompt (Aya persona) | ✅ Done | Warm tita tone, Moth structure, hard rules |
-| L2 | System prompt — natural conversation flow | ✅ Done | Follow emotional threads, menu as fallback |
+| L2 | System prompt — natural conversation flow | ✅ Done | 5+ exchange warmup, follow threads, menu as last resort |
 | L3 | Dynamic context injection per turn | ✅ Done | Stage, skills, gaps, suggested prompts |
 | L4 | Conversation orchestrator | ✅ Done | Moth stage transitions, state management |
 | L5 | Question Bank as structured data | ✅ Done | 98 prompts, trilingual, with metadata |
 | L6 | Adaptive question selection | ✅ Done | Based on stage + skill gaps + user comfort |
 | L7 | Mid-session skill gap scan | ✅ Done | Lightweight prompt, <2 sec |
-| L8 | Chat API route (Claude integration) | ✅ Done | /api/chat with session management |
+| L8 | Chat API route (Claude integration) | ✅ Done | /api/chat with Supabase persistence |
 | L9 | Chat UI component | ✅ Done | LEEEChat.tsx with stage progress + skill badges |
 | L10 | Welcome screen with language selection | ✅ Done | English, Taglish, Filipino options |
 | L11 | Taglish/code-switching handling | 🔶 Partial | Prompt instructs to mirror language; needs testing |
 | L12 | Accessibility mode (low literacy, ND, TS) | ⬜ Todo | Shorter prompts, simpler language when activated |
-| L13 | Session persistence to Supabase | ⬜ Todo | Currently in-memory; needs DB connection |
-| L14 | Message persistence to Supabase | ⬜ Todo | Store all messages with Moth stage + prompt ID |
-| L15 | Session resume after disconnect | ⬜ Todo | Load from DB, continue where stopped |
+| L13 | Session persistence to Supabase | ✅ Done | Sessions created/updated in leee_sessions |
+| L14 | Message persistence to Supabase | ✅ Done | All messages saved with moth_stage + turn_number |
+| L15 | Session resume after disconnect | ✅ Done | Orchestrator rebuilds from DB on server restart |
 | L16 | Timer / session duration tracking | 🔶 Partial | Orchestrator tracks; needs UI display |
 | L17 | Wellbeing monitoring (distress detection) | 🔶 Partial | Prompt instructs; needs explicit detection logic |
 | L18 | Story completion detection | 🔶 Partial | Basic turn counting; needs STAR+E+R completeness check |
@@ -67,8 +67,8 @@ Last updated: March 14, 2026
 | E12 | Layer 2 seed scenario generation | ✅ Done | In extraction output |
 | E13 | Layer 3 assessment recommendations | ✅ Done | In extraction output |
 | E14 | Gaming flag detection | 🔶 Partial | Basic flags; needs testing with fabricated stories |
-| E15 | Extraction results persistence to Supabase | ⬜ Todo | Store full extraction with audit trail |
-| E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | 🔶 Partial | Schema designed; needs full implementation |
+| E15 | Extraction results persistence to Supabase | ✅ Done | Full extraction saved to leee_extractions with audit trail |
+| E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | 🔶 Partial | Data stored; needs UI display for psychologist review |
 
 ### Anti-Gaming
 
@@ -207,9 +207,9 @@ Last updated: March 14, 2026
 
 | Category | Total | Done | Partial | Todo |
 |----------|-------|------|---------|------|
-| Setup & Infrastructure | 10 | 4 | 1 | 5 |
-| LEEE Conversation Engine | 18 | 10 | 5 | 3 |
-| LEEE Extraction Pipeline | 16 | 8 | 5 | 3 |
+| Setup & Infrastructure | 10 | 8 | 0 | 2 |
+| LEEE Conversation Engine | 18 | 13 | 3 | 2 |
+| LEEE Extraction Pipeline | 16 | 9 | 4 | 3 |
 | Anti-Gaming | 5 | 4 | 1 | 0 |
 | Jobseeker Profile (Gate 2A) | 6 | 1 | 0 | 5 |
 | Gate 1 — Alignment | 9 | 0 | 0 | 9 |
@@ -219,9 +219,9 @@ Last updated: March 14, 2026
 | Dashboards & Output | 5 | 0 | 0 | 5 |
 | UX Polish | 8 | 0 | 3 | 5 |
 | Testing & Validation | 9 | 0 | 0 | 9 |
-| **TOTAL** | **101** | **27** | **15** | **59** |
+| **TOTAL** | **101** | **35** | **11** | **55** |
 
-**27 done, 15 partial, 59 remaining — ~35% through the build**
+**35 done, 11 partial, 55 remaining — ~40% through the build**
 
 ---
 
