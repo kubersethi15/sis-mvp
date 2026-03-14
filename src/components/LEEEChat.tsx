@@ -217,6 +217,41 @@ export default function LEEEChat() {
     }
   };
 
+  // Finish session early (user-initiated)
+  const handleFinishSession = useCallback(async () => {
+    if (!session.sessionId || isLoading) return;
+    setIsLoading(true);
+    try {
+      // Send a closing signal
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: session.sessionId,
+          message: '[User chose to finish the conversation]',
+        }),
+      });
+      const data = await res.json();
+
+      const aiMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: data.message,
+        stage: 'closing',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      setSession(prev => ({ ...prev, status: 'completed', stage: 'closing' }));
+
+      // Auto-trigger extraction
+      if (session.sessionId) runExtraction(session.sessionId);
+    } catch (error) {
+      console.error('Finish error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session.sessionId, isLoading]);
+
   // Handle enter key
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -455,9 +490,19 @@ export default function LEEEChat() {
               </button>
             </div>
 
-            <p className="text-xs text-slate-400 mt-2 text-center">
-              Story {session.storiesCompleted + 1} of 3 • You can skip any question
-            </p>
+            <div className="flex items-center justify-between mt-2 px-1">
+              <p className="text-xs text-slate-400">
+                Story {session.storiesCompleted + 1} of 3 • You can skip any question
+              </p>
+              {messages.length >= 6 && (
+                <button
+                  onClick={handleFinishSession}
+                  className="text-xs text-slate-400 hover:text-slate-600 underline transition-colors"
+                >
+                  Finish conversation
+                </button>
+              )}
+            </div>
           </div>
         </footer>
       )}
@@ -470,8 +515,33 @@ export default function LEEEChat() {
             onClick={() => session.sessionId && runExtraction(session.sessionId)}
             className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
           >
-            View My Skills Profile
+            ✨ Discover My Superpowers
           </button>
+        </footer>
+      )}
+
+      {/* EXTRACTING STATE */}
+      {isExtracting && (
+        <footer className="flex-none border-t border-slate-200 bg-white p-4 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <div className="animate-spin w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full" />
+            <p className="text-sm text-slate-600">Analyzing your stories and discovering your skills...</p>
+          </div>
+        </footer>
+      )}
+
+      {/* EXTRACTION COMPLETE */}
+      {extraction && (
+        <footer className="flex-none border-t border-slate-200 bg-white p-4 text-center">
+          <p className="text-sm text-slate-600 mb-2">
+            ✨ {extraction.skills_profile?.length || 0} skills discovered from your stories!
+          </p>
+          <a
+            href="/skills"
+            className="inline-block px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
+          >
+            View My Skills Profile →
+          </a>
         </footer>
       )}
     </div>

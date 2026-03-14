@@ -375,9 +375,11 @@ export class LEEEOrchestrator {
   // Check if session should end
   shouldEndSession(): boolean {
     const duration = this.getSessionDurationMinutes();
+    const totalUserTurns = this.state.messages.filter(m => m.role === 'user').length;
     return (
       this.state.currentStage === 'closing' ||
       duration >= 20 ||
+      totalUserTurns >= 30 || // Hard limit: 30 user messages max
       this.state.userDistressLevel >= 3
     );
   }
