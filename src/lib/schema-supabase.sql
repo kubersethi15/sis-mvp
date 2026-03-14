@@ -99,7 +99,7 @@ CREATE TABLE jobseeker_profiles (
   preferred_location TEXT,
   salary_expectations JSONB DEFAULT '{}',
   portfolio_items JSONB DEFAULT '[]',
-  references JSONB DEFAULT '[]',
+  reference_contacts JSONB DEFAULT '[]',
   riasec_scores JSONB DEFAULT '{}',
   high5_strengths JSONB DEFAULT '[]',
   saboteur_scores JSONB DEFAULT '{}',
