@@ -99,13 +99,13 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| A1 | Employer profile creation | ⬜ Todo | Organization, industry, work arrangements, reviewers |
-| A2 | Vacancy Design Module (JD upload/builder) | ⬜ Todo | AI-assisted; parse JD into competency blueprint |
-| A3 | Vacancy publishing (platform, PDF, QR) | ⬜ Todo | Structured announcement |
+| A1 | Employer profile creation | ✅ Done | API route + DB persistence |
+| A2 | Vacancy Design Module (JD upload/builder) | ✅ Done | AI-powered JD parser → competency blueprint |
+| A3 | Vacancy publishing (platform, PDF, QR) | 🔶 Partial | DB published; PDF/QR not yet |
 | A4 | Pre-application eligibility filter | ⬜ Todo | Licenses, work auth, schedule, salary |
-| A5 | AI alignment assessment generation | ⬜ Todo | Compare vacancy blueprint vs jobseeker profile |
-| A6 | Alignment score + competency fit map | ⬜ Todo | Auto-generated output for Recruiter |
-| A7 | Recruiter review dashboard | ⬜ Todo | View alignment, decide proceed/hold/reroute/stop |
+| A5 | AI alignment assessment generation | ✅ Done | Compares blueprint vs jobseeker profile + LEEE |
+| A6 | Alignment score + competency fit map | ✅ Done | Score, fit map, strengths, gaps, inclusion notes |
+| A7 | Recruiter review dashboard | ✅ Done | Three-tab UI: upload, pipeline, review queue |
 | A8 | Matching engine (vacancy ↔ jobseeker) | ⬜ Todo | Skill overlap, evidence readiness, location, schedule |
 | A9 | Vacancy Q&A assistant (grounded, no hallucination) | ⬜ Todo | Jobseeker-facing pre-application chatbot |
 
@@ -212,16 +212,16 @@ Last updated: March 15, 2026
 | LEEE Extraction Pipeline | 16 | 9 | 4 | 3 |
 | Anti-Gaming | 5 | 4 | 1 | 0 |
 | Jobseeker Profile (Gate 2A) | 6 | 1 | 0 | 5 |
-| Gate 1 — Alignment | 9 | 0 | 0 | 9 |
+| Gate 1 — Alignment | 9 | 4 | 1 | 4 |
 | Gate 3 — Predictability | 6 | 0 | 0 | 6 |
 | Psychologist Validation | 6 | 0 | 0 | 6 |
 | Feedback & Onboarding | 3 | 0 | 0 | 3 |
 | Dashboards & Output | 5 | 0 | 0 | 5 |
 | UX Polish | 8 | 0 | 3 | 5 |
 | Testing & Validation | 9 | 0 | 0 | 9 |
-| **TOTAL** | **101** | **35** | **11** | **55** |
+| **TOTAL** | **101** | **39** | **12** | **50** |
 
-**35 done, 11 partial, 55 remaining — ~40% through the build**
+**39 done, 12 partial, 50 remaining — ~45% through the build**
 
 ---
 
