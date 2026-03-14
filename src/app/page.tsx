@@ -34,6 +34,30 @@ export default function Home() {
             </p>
             <span className="text-xs text-blue-600 font-medium mt-3 block">Gate 1 — Alignment Dashboard →</span>
           </Link>
+
+          <Link
+            href="/reviewer"
+            className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all text-left"
+          >
+            <span className="text-3xl mb-3 block">✅</span>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Reviewer</h2>
+            <p className="text-sm text-gray-500">
+              Three-gate pipeline view. Review candidates at each stage with human-in-the-loop decisions.
+            </p>
+            <span className="text-xs text-purple-600 font-medium mt-3 block">All Gates — Reviewer Dashboard →</span>
+          </Link>
+
+          <Link
+            href="/skills"
+            className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:shadow-lg transition-all text-left"
+          >
+            <span className="text-3xl mb-3 block">✨</span>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Skills Profile</h2>
+            <p className="text-sm text-gray-500">
+              View your discovered superpowers — skills extracted from your lived experience with full evidence.
+            </p>
+            <span className="text-xs text-yellow-600 font-medium mt-3 block">Your Superpowers Dashboard →</span>
+          </Link>
         </div>
 
         <p className="text-xs text-gray-400 mt-8">Pilot: Cebuana Lhuillier — Jakarta Conference Demo</p>
