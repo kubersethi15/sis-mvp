@@ -18,7 +18,7 @@ Last updated: March 15, 2026
 | S5 | Supabase project created | ✅ Done | ftdnpsrbnjkvazspmenv.supabase.co |
 | S6 | Schema deployed to Supabase | ✅ Done | All tables + enums + indexes created |
 | S7 | PSF skills taxonomy loaded into DB | ✅ Done | 8 skills seeded via schema-supabase.sql |
-| S8 | Supabase auth configured | ⬜ Todo | Email/password for MVP |
+| S8 | Supabase auth configured | ✅ Done | Email/password via Supabase Auth, auto-creates profiles |
 | S9 | Environment variables configured | ✅ Done | All 4 keys set (Anthropic + Supabase URL/anon/service) |
 | S10 | Deployment setup (Vercel) | ⬜ Todo | For Jakarta demo |
 
@@ -225,7 +225,7 @@ Last updated: March 15, 2026
 | Testing & Validation | 9 | 0 | 0 | 9 |
 | **TOTAL** | **105** | **67** | **8** | **30** |
 
-**78 done, 8 partial, 19 remaining — ~82% through the build**
+**80 done, 8 partial, 17 remaining — ~84% through the build**
 
 ---
 
