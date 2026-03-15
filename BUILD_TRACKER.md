@@ -111,6 +111,9 @@ Last updated: March 15, 2026
 | A8 | Matching engine (vacancy ↔ jobseeker) | ✅ Done | 6-factor holistic scoring: skills, profile, location, compensation, accessibility, readiness |
 | A9 | Vacancy Q&A assistant (grounded, no hallucination) | ✅ Done | AI chatbot on vacancy page, grounded in vacancy data only |
 | A10 | Alignment rating shown TO jobseeker | ✅ Done | Check My Alignment button on vacancy page shows score + strengths + gaps |
+| A11 | AI JD improvement recommendations for employers | ⬜ Todo | AI reviews JD and suggests: add compensation, add human-centric skills, add accessibility info, improve clarity. Helps employers write better JDs. |
+| A12 | Employer auth + dashboard (login, manage vacancies) | ⬜ Todo | Employer login flow, vacancy management, applicant pipeline view |
+| A13 | Vacancy PDF export + QR code generation | ⬜ Todo | Ryan: QR/link leads directly to Gate 2. Export vacancy as PDF with QR. |
 
 ---
 
