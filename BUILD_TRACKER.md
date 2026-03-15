@@ -45,9 +45,9 @@ Last updated: March 15, 2026
 | L13 | Session persistence to Supabase | ✅ Done | Sessions created/updated in leee_sessions |
 | L14 | Message persistence to Supabase | ✅ Done | All messages saved with moth_stage + turn_number |
 | L15 | Session resume after disconnect | ✅ Done | Orchestrator rebuilds from DB on server restart |
-| L16 | Timer / session duration tracking | 🔶 Partial | Orchestrator tracks; needs UI display |
-| L17 | Wellbeing monitoring (distress detection) | 🔶 Partial | Prompt instructs; needs explicit detection logic |
-| L18 | Story completion detection | 🔶 Partial | Basic turn counting; needs STAR+E+R completeness check |
+| L16 | Timer / session duration tracking | ✅ Done | Timer displayed in header (mm:ss) |
+| L17 | Wellbeing monitoring (distress detection) | ✅ Done | Keyword detection: crisis (L3) auto-ends, distress (L2) careful handling |
+| L18 | Story completion detection | ✅ Done | Checks for context, action, outcome, reflection signals |
 
 ### Extraction Pipeline
 
@@ -55,7 +55,7 @@ Last updated: March 15, 2026
 |---|------|--------|-------|
 | E1 | Extraction prompt (post-session) | ✅ Done | Full STAR+E+R + JSON output schema |
 | E2 | Extraction API route | ✅ Done | /api/extract endpoint |
-| E3 | Extraction results display in UI | 🔶 Partial | Basic display exists; needs polishing |
+| E3 | Extraction results display in UI | ✅ Done | Skills dashboard + psychologist audit trail |
 | E4 | Stage 1: Narrative segmentation | 🔶 Partial | Handled by extraction prompt; no separate stage |
 | E5 | Stage 2: Behavioral evidence extraction (STAR+E+R) | ✅ Done | In extraction prompt |
 | E6 | Stage 3: Skill mapping to PSF taxonomy | ✅ Done | In extraction prompt |
@@ -68,7 +68,7 @@ Last updated: March 15, 2026
 | E13 | Layer 3 assessment recommendations | ✅ Done | In extraction output |
 | E14 | Gaming flag detection | 🔶 Partial | Basic flags; needs testing with fabricated stories |
 | E15 | Extraction results persistence to Supabase | ✅ Done | Full extraction saved to leee_extractions with audit trail |
-| E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | 🔶 Partial | Data stored; needs UI display for psychologist review |
+| E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | ✅ Done | Full display in psychologist validation page |
 | E17 | Role-specific extraction (contextualised to vacancy) | ⬜ Todo | Ryan: "build evidence for that specific role" — extraction should factor in the vacancy requirements, not just generic skills |
 | E18 | Auto-extract from profile before LEEE | ⬜ Todo | Ryan: "automatically extract data from jobseeker profile as starting point then ask for additional evidence" — profile data feeds into Gate 2 before chatbot runs |
 
@@ -168,12 +168,12 @@ Last updated: March 15, 2026
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | U1 | Mobile-responsive design | ⬜ Todo | Mobile-first for PH users |
-| U2 | Chat UX polish (animations, typing indicator) | 🔶 Partial | Basic exists; needs polish |
+| U2 | Chat UX polish (animations, typing indicator) | ✅ Done | Typing dots, timer, progress bar, gradient bubbles |
 | U3 | Progress visualization during conversation | 🔶 Partial | Stage indicator exists; needs story arc visual |
 | U4 | Skills revealed animation (post-extraction) | ⬜ Todo | "Superpowers discovered" moment |
 | U5 | Accessibility (screen reader, keyboard nav) | ⬜ Todo | WCAG compliance |
 | U6 | Low-bandwidth optimization | ⬜ Todo | Minimal assets, progressive loading |
-| U7 | Loading states and error handling | 🔶 Partial | Basic loading; needs graceful error UX |
+| U7 | Loading states and error handling | ✅ Done | Error messages, extraction retry, loading spinners |
 | U8 | Branding and visual identity | ⬜ Todo | Virtualahan branding for Jakarta |
 
 ---
@@ -223,9 +223,9 @@ Last updated: March 15, 2026
 | Dashboards & Output | 5 | 1 | 0 | 4 |
 | UX Polish | 8 | 0 | 3 | 5 |
 | Testing & Validation | 9 | 0 | 0 | 9 |
-| **TOTAL** | **105** | **60** | **8** | **37** |
+| **TOTAL** | **105** | **67** | **8** | **30** |
 
-**60 done, 8 partial, 37 remaining — ~63% through the build**
+**67 done, 8 partial, 30 remaining — ~70% through the build**
 
 ---
 
