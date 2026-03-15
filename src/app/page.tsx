@@ -60,15 +60,15 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/employer"
+            href="/employer-dashboard"
             className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all text-left"
           >
             <span className="text-3xl mb-3 block">🏢</span>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">Employer</h2>
             <p className="text-sm text-gray-500">
-              Upload a job description. See AI-powered alignment assessment and manage your pipeline.
+              Manage vacancies, view applicants, track the hiring pipeline across all 3 gates.
             </p>
-            <span className="text-xs text-blue-600 font-medium mt-3 block">Gate 1 — Alignment Dashboard →</span>
+            <span className="text-xs text-blue-600 font-medium mt-3 block">Employer Dashboard →</span>
           </Link>
 
           <Link

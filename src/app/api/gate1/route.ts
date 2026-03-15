@@ -112,6 +112,9 @@ async function parseJD(body: any) {
 
   const blueprint = JSON.parse(match[0]);
 
+  // Generate JD improvement recommendations (A11)
+  const recommendations = generateJDRecommendations(jd_text, blueprint);
+
   // Update vacancy with parsed blueprint if vacancy_id provided
   if (vacancy_id) {
     await db().from('vacancies').update({
@@ -122,7 +125,61 @@ async function parseJD(body: any) {
     }).eq('id', vacancy_id);
   }
 
-  return NextResponse.json({ blueprint });
+  return NextResponse.json({ blueprint, recommendations });
+}
+
+// AI-powered JD improvement recommendations (A11)
+function generateJDRecommendations(jdText: string, blueprint: any): Array<{ type: string; priority: 'high' | 'medium' | 'low'; recommendation: string }> {
+  const recs: Array<{ type: string; priority: 'high' | 'medium' | 'low'; recommendation: string }> = [];
+  const lower = jdText.toLowerCase();
+
+  // Check for compensation info
+  if (!lower.includes('salary') && !lower.includes('compensation') && !lower.includes('php') && !lower.includes('₱') && !lower.includes('pay')) {
+    recs.push({ type: 'compensation', priority: 'high', recommendation: 'Add compensation or salary range. Transparent pay information increases qualified applications by 30% and builds trust with candidates.' });
+  }
+
+  // Check for benefits
+  if (!lower.includes('benefit') && !lower.includes('hmo') && !lower.includes('insurance') && !lower.includes('leave') && !lower.includes('13th month')) {
+    recs.push({ type: 'benefits', priority: 'medium', recommendation: 'Consider listing benefits (HMO, leave, 13th month pay). Filipino jobseekers strongly value benefits transparency.' });
+  }
+
+  // Check for accessibility/inclusion language
+  if (!lower.includes('pwd') && !lower.includes('disabil') && !lower.includes('accessible') && !lower.includes('inclusive') && !lower.includes('accommodation')) {
+    recs.push({ type: 'accessibility', priority: 'high', recommendation: 'Add accessibility and inclusion information. Mention PWD accommodations, accessible facilities, or inclusive hiring practices. This significantly increases applications from qualified PWD candidates.' });
+  }
+
+  // Check for human-centric skills
+  const hcSkills = blueprint?.competency_blueprint?.human_centric_skills || blueprint?.human_centric_skills || [];
+  if (hcSkills.length === 0) {
+    recs.push({ type: 'human_skills', priority: 'high', recommendation: 'This JD focuses on technical/hard skills but doesn\'t mention human-centric skills like communication, teamwork, problem-solving, or adaptability. Adding these helps SIS match candidates more effectively and signals what you truly value in employees.' });
+  }
+
+  // Check for work arrangement clarity
+  if (!lower.includes('remote') && !lower.includes('onsite') && !lower.includes('on-site') && !lower.includes('hybrid') && !lower.includes('work from home') && !lower.includes('wfh')) {
+    recs.push({ type: 'work_arrangement', priority: 'medium', recommendation: 'Specify the work arrangement (remote, onsite, hybrid). This is one of the top filters jobseekers use when browsing vacancies.' });
+  }
+
+  // Check JD length
+  if (jdText.length < 200) {
+    recs.push({ type: 'detail', priority: 'medium', recommendation: 'This JD is quite brief. Consider adding more detail about daily responsibilities, team structure, growth opportunities, and company culture. Richer JDs attract better-matched candidates.' });
+  }
+
+  // Check for growth/training mention
+  if (!lower.includes('training') && !lower.includes('growth') && !lower.includes('development') && !lower.includes('career') && !lower.includes('learn')) {
+    recs.push({ type: 'growth', priority: 'low', recommendation: 'Consider mentioning training, career growth, or development opportunities. This is especially attractive to entry-level and career-transitioning candidates.' });
+  }
+
+  // Check for unnecessarily restrictive requirements
+  const essReqs = blueprint?.essential_requirements || [];
+  const hasStrictEdu = essReqs.some((r: any) => {
+    const text = (r.requirement || r || '').toLowerCase();
+    return text.includes('4-year') || text.includes('bachelor') || text.includes('college graduate');
+  });
+  if (hasStrictEdu) {
+    recs.push({ type: 'inclusion', priority: 'medium', recommendation: 'Consider whether a 4-year degree is truly essential, or if equivalent experience/training could be accepted. Flexible education requirements expand your talent pool and are more inclusive of non-traditional learners and PWD candidates.' });
+  }
+
+  return recs;
 }
 
 // ============================================================

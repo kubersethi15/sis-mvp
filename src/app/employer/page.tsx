@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 // ============================================================
 // TYPES
@@ -63,10 +63,13 @@ export default function EmployerDashboard() {
     return data.employer;
   }, []);
 
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+
   // Parse JD
   const handleParseJD = useCallback(async () => {
     if (!jdText.trim()) return;
     setIsProcessing(true);
+    setRecommendations([]);
 
     try {
       // Ensure employer exists
@@ -81,6 +84,7 @@ export default function EmployerDashboard() {
       });
       const parseData = await parseRes.json();
       setBlueprint(parseData.blueprint);
+      setRecommendations(parseData.recommendations || []);
 
       // Create vacancy
       const vacRes = await fetch('/api/gate1', {
@@ -262,13 +266,35 @@ export default function EmployerDashboard() {
 
                 {/* Status */}
                 {vacancy && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg flex items-center gap-2">
-                    <span className="text-blue-600">✅</span>
-                    <span className="text-sm text-blue-700 font-medium">
-                      Vacancy created and published — ID: {vacancy.id?.substring(0, 8)}...
-                    </span>
-                  </div>
+                  <VacancySharePanel vacancyId={vacancy.id} />
                 )}
+              </div>
+            )}
+
+            {/* AI RECOMMENDATIONS FOR JD IMPROVEMENT */}
+            {recommendations.length > 0 && (
+              <div className="bg-white rounded-lg border border-amber-200 p-6">
+                <h2 className="text-lg font-semibold text-amber-700 mb-2">💡 AI Recommendations to Improve This JD</h2>
+                <p className="text-xs text-gray-500 mb-4">These suggestions help attract better-matched candidates and make the vacancy more inclusive.</p>
+                <div className="space-y-3">
+                  {recommendations.map((rec: any, i: number) => (
+                    <div key={i} className={`flex items-start gap-3 p-3 rounded-lg ${
+                      rec.priority === 'high' ? 'bg-red-50 border border-red-100' :
+                      rec.priority === 'medium' ? 'bg-amber-50 border border-amber-100' :
+                      'bg-gray-50 border border-gray-100'
+                    }`}>
+                      <span className={`text-sm mt-0.5 ${
+                        rec.priority === 'high' ? 'text-red-500' : rec.priority === 'medium' ? 'text-amber-500' : 'text-gray-400'
+                      }`}>
+                        {rec.priority === 'high' ? '🔴' : rec.priority === 'medium' ? '🟡' : '🔵'}
+                      </span>
+                      <div>
+                        <span className="text-xs font-medium text-gray-500 uppercase">{rec.type.replace(/_/g, ' ')}</span>
+                        <p className="text-sm text-gray-700 mt-0.5">{rec.recommendation}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -323,6 +349,97 @@ export default function EmployerDashboard() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// VACANCY SHARE PANEL — QR code, link copy, PDF print
+// ============================================================
+
+function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
+  const [shareData, setShareData] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/vacancy-export', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_share_data', vacancy_id: vacancyId }),
+    }).then(r => r.json()).then(setShareData).catch(console.error);
+  }, [vacancyId]);
+
+  const copyLink = () => {
+    if (shareData?.share_url) {
+      navigator.clipboard.writeText(shareData.share_url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const printVacancy = () => {
+    if (!shareData?.print_data) return;
+    const d = shareData.print_data;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`
+      <html><head><title>${d.title} — ${d.employer}</title>
+      <style>body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#333}
+      h1{font-size:24px;margin-bottom:4px} .employer{color:#666;font-size:14px;margin-bottom:20px}
+      .section{margin:16px 0} .section h3{font-size:13px;text-transform:uppercase;color:#888;margin-bottom:8px}
+      .req{padding:4px 0;font-size:14px} .skill-badge{display:inline-block;background:#f0f0f0;padding:4px 10px;border-radius:20px;font-size:12px;margin:2px}
+      .qr{text-align:center;margin:30px 0} .qr img{width:200px} .footer{font-size:11px;color:#aaa;text-align:center;margin-top:30px;border-top:1px solid #eee;padding-top:10px}
+      @media print{body{margin:20px}}</style></head><body>
+      <h1>${d.title}</h1>
+      <div class="employer">${d.employer} • ${d.location || ''} • ${d.work_arrangement || ''}</div>
+      <p>${d.description || ''}</p>
+      ${d.essential_requirements?.length ? `<div class="section"><h3>Requirements</h3>${d.essential_requirements.map((r: any) => `<div class="req">• ${r.requirement || r}</div>`).join('')}</div>` : ''}
+      ${d.human_centric_skills?.length ? `<div class="section"><h3>Skills We Value</h3>${d.human_centric_skills.map((s: any) => `<span class="skill-badge">${s.skill || s}</span>`).join(' ')}</div>` : ''}
+      ${d.compensation?.range ? `<div class="section"><h3>Compensation</h3><p>${d.compensation.range}</p></div>` : ''}
+      ${d.inclusion_statement ? `<div class="section"><h3>Inclusion</h3><p>${d.inclusion_statement}</p></div>` : ''}
+      <div class="qr"><h3>Apply Now — Scan QR Code</h3><img src="${d.qr_code_url}" alt="QR Code" /><p style="font-size:12px;color:#666">${d.share_url}</p></div>
+      <div class="footer">Powered by Skills Intelligence System — Virtualahan Inc.</div>
+      </body></html>
+    `);
+    win.document.close();
+    setTimeout(() => win.print(), 500);
+  };
+
+  if (!shareData) return <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-600">✅ Vacancy published. Loading share options...</div>;
+
+  return (
+    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-blue-600">✅</span>
+        <span className="text-sm text-blue-700 font-semibold">Vacancy Published!</span>
+      </div>
+
+      <div className="flex items-center gap-3 mb-3">
+        {/* QR Code */}
+        <img src={shareData.qr_code_url} alt="QR Code" className="w-20 h-20 rounded-lg border border-blue-200" />
+        <div className="flex-1">
+          <p className="text-xs text-gray-500 mb-1">Share this vacancy:</p>
+          <div className="flex items-center gap-2">
+            <input type="text" value={shareData.share_url} readOnly
+              className="flex-1 px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg text-gray-600" />
+            <button onClick={copyLink}
+              className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              {copied ? '✅ Copied!' : '📋 Copy'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <button onClick={printVacancy}
+          className="px-3 py-1.5 text-xs bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+          🖨️ Print / Save as PDF
+        </button>
+        <a href={shareData.share_url} target="_blank"
+          className="px-3 py-1.5 text-xs bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+          🔗 Open Vacancy Page
+        </a>
+      </div>
+      <p className="text-[10px] text-gray-400 mt-2">QR code leads jobseekers directly to the vacancy with AI Q&A and Apply button.</p>
     </div>
   );
 }
