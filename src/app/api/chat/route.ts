@@ -128,12 +128,46 @@ export async function POST(req: NextRequest) {
 
 async function handleStart(body: any) {
   const supabase = db();
-  const userId = await ensureDemoUser();
+
+  // Try to use provided user_id or find existing profile user
+  let userId = body.user_id;
+  if (!userId && body.jobseeker_profile_id) {
+    const { data: prof } = await supabase.from('jobseeker_profiles').select('user_id').eq('id', body.jobseeker_profile_id).single();
+    if (prof) userId = prof.user_id;
+  }
+  if (!userId) userId = await ensureDemoUser();
+
+  // Fetch profile data for context injection (E18: auto-extract from profile)
+  let profileContext = '';
+  if (body.jobseeker_profile_id) {
+    const { data: profile } = await supabase.from('jobseeker_profiles')
+      .select('*, user_profiles(full_name)')
+      .eq('id', body.jobseeker_profile_id).single();
+    if (profile) {
+      const name = profile.user_profiles?.full_name || 'Unknown';
+      const workStr = (profile.work_history || []).map((w: any) => `${w.role} at ${w.company}`).join(', ');
+      const eduStr = (profile.education || []).map((e: any) => `${e.degree} from ${e.institution}`).join(', ');
+      const skillsStr = (profile.skills_inventory || []).join(', ');
+      profileContext = `\n\n## CANDIDATE CONTEXT (from profile — use to personalize conversation)\n- Name: ${name}\n- Work experience: ${workStr || 'None listed'}\n- Education: ${eduStr || 'None listed'}\n- Skills: ${skillsStr || 'None listed'}\n- Disability: ${profile.disability_type || 'Not disclosed'}\n- Career goals: ${profile.career_goals || 'Not specified'}\nUse this context to ask more relevant, personalized questions. If they mention something from their profile, connect it naturally.`;
+    }
+  }
+
+  // Fetch vacancy context for role-specific extraction (E17)
+  let vacancyContext = '';
+  if (body.vacancy_id) {
+    const { data: vacancy } = await supabase.from('vacancies').select('title, description, competency_blueprint, essential_requirements').eq('id', body.vacancy_id).single();
+    if (vacancy) {
+      const hcSkills = (vacancy.competency_blueprint?.human_centric_skills || []).map((s: any) => s.skill).join(', ');
+      vacancyContext = `\n\n## ROLE CONTEXT (for role-specific evidence building)\n- Role: ${vacancy.title}\n- Description: ${vacancy.description}\n- Key human-centric skills needed: ${hcSkills}\nWhen probing stories, gently steer toward experiences that would demonstrate skills relevant to this role. Do NOT mention the role or skills directly — just prioritize story domains that would surface relevant evidence.`;
+    }
+  }
 
   const { data: session, error } = await supabase
     .from('leee_sessions')
     .insert({
       user_id: userId,
+      jobseeker_id: body.jobseeker_profile_id || null,
+      application_id: body.application_id || null,
       status: 'active',
       current_stage: 'opening',
       stories_completed: 0,
@@ -158,9 +192,19 @@ async function handleStart(body: any) {
   };
 
   const orchestrator = new LEEEOrchestrator(leeeSession);
+
+  // Inject profile and vacancy context into the orchestrator's dynamic context
+  if (profileContext || vacancyContext) {
+    (orchestrator as any)._extraContext = profileContext + vacancyContext;
+  }
+
   orchestrators.set(session.id, orchestrator);
 
-  return NextResponse.json({ session_id: session.id, session_status: 'active', stage: 'opening' });
+  return NextResponse.json({
+    session_id: session.id, session_status: 'active', stage: 'opening',
+    has_profile_context: !!profileContext,
+    has_vacancy_context: !!vacancyContext,
+  });
 }
 
 async function rebuildOrchestrator(sessionId: string): Promise<LEEEOrchestrator | null> {

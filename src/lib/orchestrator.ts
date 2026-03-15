@@ -390,7 +390,8 @@ export class LEEEOrchestrator {
 
   // Build the full system message for the LLM
   buildSystemMessage(): string {
-    return LEEE_SYSTEM_PROMPT + '\n\n' + this.buildDynamicContext();
+    const extraContext = (this as any)._extraContext || '';
+    return LEEE_SYSTEM_PROMPT + '\n\n' + this.buildDynamicContext() + extraContext;
   }
 
   // Build messages array for LLM API call

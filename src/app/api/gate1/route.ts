@@ -21,6 +21,8 @@ export async function POST(req: NextRequest) {
       case 'run_alignment': return runAlignment(body);
       case 'reviewer_decision': return reviewerDecision(body);
       case 'get_pipeline': return getPipeline(body);
+      case 'eligibility_check': return eligibilityCheck(body);
+      case 'combined_evidence': return combinedEvidence(body);
       default:
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
     }
@@ -350,3 +352,77 @@ Output JSON only:
   "inclusion_notes": "any relevant notes about disability accommodations or non-traditional experience value"
 }
 `;
+
+// ============================================================
+// ELIGIBILITY CHECK (A4)
+// ============================================================
+
+async function eligibilityCheck(body: any) {
+  const { vacancy_id, jobseeker_id } = body;
+  const supabase = db();
+
+  const { data: vacancy } = await supabase.from('vacancies').select('*').eq('id', vacancy_id).single();
+  const { data: jobseeker } = await supabase.from('jobseeker_profiles').select('*, user_profiles(*)').eq('id', jobseeker_id).single();
+
+  if (!vacancy || !jobseeker) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const checks: Array<{ requirement: string; met: boolean; reason: string }> = [];
+
+  for (const req of (vacancy.essential_requirements || [])) {
+    const reqText = req.requirement || req;
+    const type = req.type || 'unknown';
+
+    if (type === 'qualification') {
+      const hasEdu = (jobseeker.education || []).some((e: any) => e.status === 'completed' && e.degree);
+      checks.push({ requirement: reqText, met: hasEdu, reason: hasEdu ? 'Education requirement appears met' : 'No completed degree found' });
+    } else if (type === 'location') {
+      const prefLoc = (jobseeker.preferred_location || '').toLowerCase();
+      const locationMatch = prefLoc && (reqText.toLowerCase().includes(prefLoc) || prefLoc.includes('anywhere'));
+      checks.push({ requirement: reqText, met: locationMatch, reason: locationMatch ? 'Location matches' : `Preferred: ${jobseeker.preferred_location || 'not set'}` });
+    } else if (type === 'schedule') {
+      checks.push({ requirement: reqText, met: true, reason: 'Needs confirmation' });
+    } else {
+      const skills = (jobseeker.skills_inventory || []).map((s: string) => s.toLowerCase());
+      const hasSkill = skills.some((s: string) => reqText.toLowerCase().includes(s));
+      checks.push({ requirement: reqText, met: hasSkill, reason: hasSkill ? 'Skill found in profile' : 'Not listed in profile' });
+    }
+  }
+
+  return NextResponse.json({
+    eligible: checks.filter(c => !c.met).length <= 1,
+    checks,
+    summary: checks.every(c => c.met) ? 'All requirements met' : `${checks.filter(c => !c.met).length} gap(s) found`,
+  });
+}
+
+// ============================================================
+// COMBINED EVIDENCE VIEW (P6)
+// ============================================================
+
+async function combinedEvidence(body: any) {
+  const { application_id } = body;
+  const supabase = db();
+
+  const { data: app } = await supabase.from('applications').select('*').eq('id', application_id).single();
+  if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const { data: jobseeker } = await supabase.from('jobseeker_profiles').select('*, user_profiles(full_name)').eq('id', app.jobseeker_id).single();
+  const { data: vacancy } = await supabase.from('vacancies').select('title, competency_blueprint').eq('id', app.vacancy_id).single();
+  const { data: g1 } = await supabase.from('gate1_results').select('*').eq('application_id', application_id).limit(1).single();
+
+  let leeeData = null;
+  const { data: sessions } = await supabase.from('leee_sessions')
+    .select('id').eq('user_id', jobseeker?.user_id).eq('status', 'completed').order('created_at', { ascending: false }).limit(1);
+  if (sessions?.length) {
+    const { data: ext } = await supabase.from('leee_extractions').select('*').eq('session_id', sessions[0].id).limit(1).single();
+    leeeData = ext;
+  }
+
+  return NextResponse.json({
+    candidate: { name: jobseeker?.user_profiles?.full_name, disability: jobseeker?.disability_type, location: jobseeker?.preferred_location },
+    vacancy: { title: vacancy?.title, skills_needed: vacancy?.competency_blueprint?.human_centric_skills },
+    profile_evidence: { work_history: jobseeker?.work_history || [], education: jobseeker?.education || [], certifications: jobseeker?.certifications || [], skills: jobseeker?.skills_inventory || [] },
+    leee_evidence: leeeData ? { skills_profile: leeeData.skills_profile, narrative: leeeData.narrative_summary, episodes: leeeData.episodes, gaming_flags: leeeData.gaming_flags } : null,
+    alignment: g1 ? { score: g1.alignment_score, strengths: g1.strengths, gaps: g1.gaps } : null,
+  });
+}
