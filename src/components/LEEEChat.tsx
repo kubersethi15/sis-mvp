@@ -444,9 +444,9 @@ export default function LEEEChat() {
               </div>
               <div className="bg-white/80 backdrop-blur-sm border border-stone-100 px-5 py-3.5 rounded-2xl rounded-bl-md shadow-sm">
                 <div className="flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-amber-300" style={{ animation: 'bounce 1.4s ease-in-out infinite' }} />
-                  <div className="w-2 h-2 rounded-full bg-orange-300" style={{ animation: 'bounce 1.4s ease-in-out 0.2s infinite' }} />
-                  <div className="w-2 h-2 rounded-full bg-rose-300" style={{ animation: 'bounce 1.4s ease-in-out 0.4s infinite' }} />
+                  <div className="w-2 h-2 rounded-full bg-amber-300" style={{ animation: 'aya-bounce 1.4s ease-in-out infinite' }} />
+                  <div className="w-2 h-2 rounded-full bg-orange-300" style={{ animation: 'aya-bounce 1.4s ease-in-out 0.2s infinite' }} />
+                  <div className="w-2 h-2 rounded-full bg-rose-300" style={{ animation: 'aya-bounce 1.4s ease-in-out 0.4s infinite' }} />
                 </div>
               </div>
             </div>
@@ -605,7 +605,7 @@ export default function LEEEChat() {
       )}
 
       {/* CSS Animations */}
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes breathe {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.04); }
@@ -621,11 +621,11 @@ export default function LEEEChat() {
         @keyframes fadeOut {
           to { opacity: 0; transform: translateY(-5px); }
         }
-        @keyframes bounce {
+        @keyframes aya-bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-6px); }
         }
-      `}</style>
+      `}} />
     </div>
   );
 }
