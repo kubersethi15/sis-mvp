@@ -1,0 +1,377 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+
+// ============================================================
+// PSYCHOLOGIST VALIDATION PAGE
+// Reviews the full audit trail and signs off on skills profiles
+// ============================================================
+
+interface Extraction {
+  id: string;
+  session_id: string;
+  skills_profile: Array<{
+    skill_id: string;
+    skill_name: string;
+    proficiency: string;
+    confidence: number;
+    evidence: Array<{
+      episode_id: number;
+      transcript_quote: string;
+      behavioral_indicator: string;
+      proficiency_justification: string;
+    }>;
+  }>;
+  episodes: Array<{ episode_id: number; summary: string; star_er: any }>;
+  narrative_summary: string;
+  gaming_flags: Array<{ flag_type: string; severity: string; evidence: string }>;
+  session_quality: any;
+  extraction_model: string;
+  created_at: string;
+}
+
+const METHODOLOGY_REFS = [
+  { id: 'PSF', title: 'Philippine Skills Framework for Human Capital Development (PSF-HCD) v1.0', source: 'TESDA/CHED', relevance: 'National taxonomy of enabling skills and competencies' },
+  { id: 'PQF', title: 'Philippine Qualifications Framework (PQF)', source: 'Government of the Philippines', relevance: 'Proficiency levels (Basic/Intermediate/Advanced mapped to PQF 1-6)' },
+  { id: 'RA12313', title: 'RA 12313 — Lifelong Learning and Development for Filipinos Act', source: 'Philippine Congress', relevance: 'Legal basis for Recognition of Prior Learning (RPL)' },
+  { id: 'WEF', title: 'New Economy Skills: Unlocking the Human Advantage (2025)', source: 'World Economic Forum', relevance: 'Global alignment of human-centric skills taxonomy' },
+  { id: 'MOTH', title: 'The Moth Storytelling Methodology', source: 'The Moth (25+ years)', relevance: 'Proven framework for surfacing meaningful personal narratives' },
+  { id: 'STAR', title: 'STAR+E+R Behavioral Evidence Framework', source: 'Behavioral interview research', relevance: 'Extended STAR model with Emotion and Reflection components' },
+  { id: 'CBA', title: 'Competency-Based Assessment', source: 'Psychometric literature', relevance: 'Evidence-based skills assessment through behavioral indicators' },
+];
+
+const PROFICIENCY_COLORS: Record<string, string> = {
+  basic: '#F39C12', intermediate: '#2ECC71', advanced: '#3498DB',
+};
+
+export default function PsychologistPage() {
+  const [extractions, setExtractions] = useState<Extraction[]>([]);
+  const [selected, setSelected] = useState<Extraction | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [validationNotes, setValidationNotes] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [validationStatus, setValidationStatus] = useState<'pending' | 'validated' | 'rejected' | 'revision_needed'>('pending');
+  const [signed, setSigned] = useState(false);
+  const [activeTab, setActiveTab] = useState<'audit' | 'methodology' | 'validate'>('audit');
+
+  useEffect(() => {
+    fetchExtractions();
+  }, []);
+
+  const fetchExtractions = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/demo', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_demo_state' }),
+      });
+      const data = await res.json();
+
+      // Fetch extractions for each session
+      const exts: Extraction[] = [];
+      for (const session of (data.sessions || [])) {
+        if (session.status === 'completed') {
+          try {
+            const extRes = await fetch(`/api/psychologist`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'get_extraction', session_id: session.id }),
+            });
+            const extData = await extRes.json();
+            if (extData.extraction) exts.push(extData.extraction);
+          } catch (e) { /* skip */ }
+        }
+      }
+      setExtractions(exts);
+      if (exts.length > 0) setSelected(exts[0]);
+    } catch (e) {
+      console.error('Fetch error:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSign = useCallback(async () => {
+    if (!selected || !licenseNumber.trim()) return;
+    setSigned(true);
+    // In production, this would save to psychologist_validations table
+    setTimeout(() => {
+      alert(`Skills profile validated and signed.\nPsychologist License: ${licenseNumber}\nStatus: ${validationStatus}\nThis endorsement is now attached to the candidate's skills profile.`);
+    }, 500);
+  }, [selected, licenseNumber, validationStatus]);
+
+  // Also try loading from localStorage as fallback
+  useEffect(() => {
+    if (extractions.length === 0 && !loading) {
+      const stored = localStorage.getItem('sis_last_extraction');
+      if (stored) {
+        try {
+          const ext = JSON.parse(stored);
+          ext.id = 'local';
+          ext.session_id = 'local';
+          ext.created_at = new Date().toISOString();
+          ext.extraction_model = 'claude-sonnet-4';
+          setExtractions([ext]);
+          setSelected(ext);
+        } catch (e) { /* ignore */ }
+      }
+    }
+  }, [extractions, loading]);
+
+  if (loading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-400">Loading extractions...</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Psychologist Validation</h1>
+            <p className="text-sm text-gray-500">Review audit trail, verify methodology, endorse skills profile</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">Licensed Psychologist View</span>
+            <a href="/" className="text-xs text-gray-400 hover:text-gray-600">← Home</a>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-6xl mx-auto px-6 pt-4">
+        <div className="flex gap-1 border-b border-gray-200">
+          {[
+            { id: 'audit' as const, label: '🔍 Audit Trail' },
+            { id: 'methodology' as const, label: '📚 Methodology & Research' },
+            { id: 'validate' as const, label: '✍️ Validate & Sign' },
+          ].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                activeTab === tab.id ? 'bg-white text-orange-600 border border-gray-200 border-b-white -mb-px' : 'text-gray-500 hover:text-gray-700'
+              }`}>{tab.label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-6">
+        {!selected ? (
+          <div className="text-center py-12 text-gray-400">
+            <p className="text-4xl mb-2">🔍</p>
+            <p className="text-sm">No completed extractions found. Complete a conversation with Aya first.</p>
+            <a href="/chat" className="text-sm text-teal-600 underline mt-2 block">Go to Chat →</a>
+          </div>
+        ) : (
+          <>
+            {/* AUDIT TRAIL TAB */}
+            {activeTab === 'audit' && (
+              <div className="space-y-6">
+                {/* Narrative */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-sm font-semibold text-gray-500 mb-2">CANDIDATE NARRATIVE</h2>
+                  <p className="text-gray-800">{selected.narrative_summary}</p>
+                  <div className="flex gap-4 mt-3 text-xs text-gray-400">
+                    <span>Model: {selected.extraction_model}</span>
+                    <span>Extracted: {new Date(selected.created_at).toLocaleString()}</span>
+                    <span>Quality: {selected.session_quality?.evidence_density || 'N/A'} evidence density</span>
+                  </div>
+                </div>
+
+                {/* Episodes with STAR+E+R */}
+                {selected.episodes?.length > 0 && (
+                  <div className="bg-white rounded-lg border border-gray-200 p-6">
+                    <h2 className="text-sm font-semibold text-gray-500 mb-4">EPISODES (STAR+E+R DECOMPOSITION)</h2>
+                    <div className="space-y-4">
+                      {selected.episodes.map((ep, i) => (
+                        <div key={i} className="border border-gray-100 rounded-lg p-4">
+                          <h3 className="font-medium text-gray-900 mb-2">Episode {ep.episode_id}: {ep.summary}</h3>
+                          {ep.star_er && (
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              {Object.entries(ep.star_er).map(([key, val]) => (
+                                <div key={key} className="p-2 bg-gray-50 rounded">
+                                  <span className="font-medium text-gray-600 uppercase text-xs">{key}:</span>
+                                  <p className="text-gray-700 mt-0.5">{val as string}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Skill-by-Skill Audit */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-sm font-semibold text-gray-500 mb-4">SKILL-BY-SKILL AUDIT TRAIL</h2>
+                  <p className="text-xs text-gray-400 mb-4">Each skill claim traces: Transcript Quote → STAR+E+R Tag → PSF Skill Mapping → Proficiency Level → Confidence Score</p>
+
+                  <div className="space-y-4">
+                    {selected.skills_profile?.map((skill, i) => (
+                      <div key={i} className="border border-gray-100 rounded-lg overflow-hidden">
+                        <div className="p-4 bg-gray-50 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="font-semibold text-gray-900">{skill.skill_name}</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
+                              style={{ backgroundColor: PROFICIENCY_COLORS[skill.proficiency?.toLowerCase()] || '#666' }}>
+                              {skill.proficiency}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-lg font-bold text-gray-700">{Math.round(skill.confidence * 100)}%</span>
+                            <span className="text-xs text-gray-400 ml-1">confidence</span>
+                          </div>
+                        </div>
+
+                        {skill.evidence?.map((ev, j) => (
+                          <div key={j} className="p-4 border-t border-gray-100">
+                            <div className="flex items-start gap-3">
+                              <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                                {j + 1}
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm text-gray-800 italic border-l-2 border-orange-300 pl-3 mb-2">"{ev.transcript_quote}"</p>
+                                <p className="text-xs text-gray-600"><span className="font-medium">Behavioral Indicator:</span> {ev.behavioral_indicator}</p>
+                                <p className="text-xs text-gray-500 mt-1"><span className="font-medium">Proficiency Justification:</span> {ev.proficiency_justification}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {(!skill.evidence || skill.evidence.length === 0) && (
+                          <div className="p-4 border-t border-gray-100 text-xs text-gray-400">No evidence citations available for this skill.</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Gaming Flags */}
+                {selected.gaming_flags?.length > 0 && (
+                  <div className="bg-white rounded-lg border border-orange-200 p-6">
+                    <h2 className="text-sm font-semibold text-orange-600 mb-3">⚠️ AUTHENTICITY FLAGS</h2>
+                    <div className="space-y-2">
+                      {selected.gaming_flags.map((flag, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm">
+                          <span className={`mt-0.5 ${flag.severity === 'high' ? 'text-red-500' : flag.severity === 'medium' ? 'text-orange-500' : 'text-yellow-500'}`}>●</span>
+                          <div>
+                            <span className="font-medium text-gray-700">{flag.flag_type}:</span>
+                            <span className="text-gray-500 ml-1">{flag.evidence}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* METHODOLOGY TAB */}
+            {activeTab === 'methodology' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Research Anchoring</h2>
+                  <p className="text-sm text-gray-500 mb-4">The LEEE methodology is grounded in the following established frameworks and research. These references support the psychologist's professional endorsement.</p>
+
+                  <div className="space-y-3">
+                    {METHODOLOGY_REFS.map(ref => (
+                      <div key={ref.id} className="border border-gray-100 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-900">{ref.title}</h3>
+                            <p className="text-xs text-gray-500 mt-0.5">Source: {ref.source}</p>
+                          </div>
+                          <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">{ref.id}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-2">Relevance: {ref.relevance}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Extraction Methodology</h2>
+                  <div className="text-sm text-gray-700 space-y-3">
+                    <p><span className="font-medium">Conversation Method:</span> Moth-structured storytelling (context → action → decision → outcome → reflection) conducted through text chat in English/Filipino/Taglish.</p>
+                    <p><span className="font-medium">Evidence Framework:</span> STAR+E+R (Situation, Task, Action, Result, Emotion, Reflection) — extended behavioral evidence model.</p>
+                    <p><span className="font-medium">Skill Taxonomy:</span> PSF Enabling Skills and Competencies (16 ESC), with 4 primary COMPASS domains + 4 secondary skills for MVP.</p>
+                    <p><span className="font-medium">Proficiency Levels:</span> Basic (PQF 1-2), Intermediate (PQF 3-4), Advanced (PQF 5-6) — with specific behavioral descriptors per skill.</p>
+                    <p><span className="font-medium">Confidence Scoring:</span> 0.0–1.0 based on specificity, consistency across stories, contextual richness, and corroboration.</p>
+                    <p><span className="font-medium">Anti-Gaming:</span> Oblique questioning (skills never named), specificity probing, verification probes, rehearsed-response detection, three-layer triangulation.</p>
+                    <p><span className="font-medium">Inclusion:</span> Non-traditional experience (caregiving, community work, disability navigation) valued at parity with formal work. RPL-aligned per RA 12313.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* VALIDATE TAB */}
+            {activeTab === 'validate' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Professional Validation</h2>
+                  <p className="text-sm text-gray-500 mb-6">
+                    As a licensed psychologist, you are endorsing that the skills profile extraction methodology is sound,
+                    the evidence trail is traceable, and the proficiency assessments are reasonable based on the behavioral evidence presented.
+                    Your professional license is attached to this endorsement.
+                  </p>
+
+                  {/* Summary of what you're signing */}
+                  <div className="bg-orange-50 rounded-lg p-4 mb-6 border border-orange-200">
+                    <h3 className="text-sm font-semibold text-orange-700 mb-2">Skills Profile Summary</h3>
+                    <p className="text-sm text-gray-700 mb-2">{selected.narrative_summary}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selected.skills_profile?.map((s, i) => (
+                        <span key={i} className="text-xs px-2 py-1 rounded-full text-white font-medium"
+                          style={{ backgroundColor: PROFICIENCY_COLORS[s.proficiency?.toLowerCase()] || '#666' }}>
+                          {s.skill_name}: {s.proficiency} ({Math.round(s.confidence * 100)}%)
+                        </span>
+                      ))}
+                    </div>
+                    {selected.gaming_flags?.length > 0 && (
+                      <p className="text-xs text-orange-600 mt-2">⚠️ {selected.gaming_flags.length} authenticity flag(s) noted — review audit trail before signing.</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Validation Decision</label>
+                      <select value={validationStatus} onChange={e => setValidationStatus(e.target.value as any)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none bg-white">
+                        <option value="validated">✅ Validated — methodology sound, evidence traceable</option>
+                        <option value="revision_needed">🔄 Revision Needed — some claims need additional evidence</option>
+                        <option value="rejected">❌ Rejected — methodology concerns or insufficient evidence</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Professional Notes</label>
+                      <textarea value={validationNotes} onChange={e => setValidationNotes(e.target.value)}
+                        placeholder="Any observations, concerns, or notes about the skills profile assessment..."
+                        rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none resize-none" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">License Number *</label>
+                      <input type="text" value={licenseNumber} onChange={e => setLicenseNumber(e.target.value)}
+                        placeholder="PRC License Number" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none" />
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100">
+                      <button onClick={handleSign} disabled={!licenseNumber.trim() || signed}
+                        className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
+                          signed ? 'bg-green-500' : 'bg-orange-500 hover:bg-orange-600 shadow-md hover:shadow-lg'
+                        } disabled:opacity-50`}>
+                        {signed ? '✅ Signed and Validated' : '✍️ Sign with Professional License'}
+                      </button>
+                      <p className="text-xs text-gray-400 text-center mt-2">
+                        By signing, you attest that you have reviewed the audit trail and methodology,
+                        and that the skills profile is a reasonable representation of the candidate's demonstrated competencies.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

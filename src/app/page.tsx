@@ -60,6 +60,18 @@ export default function Home() {
           </Link>
 
           <Link
+            href="/psychologist"
+            className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-orange-300 hover:shadow-lg transition-all text-left"
+          >
+            <span className="text-3xl mb-3 block">🧠</span>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Psychologist</h2>
+            <p className="text-sm text-gray-500">
+              Review audit trails, verify methodology, and professionally validate skills profiles.
+            </p>
+            <span className="text-xs text-orange-600 font-medium mt-3 block">Post-Gate — Validation & Sign-off →</span>
+          </Link>
+
+          <Link
             href="/skills"
             className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:shadow-lg transition-all text-left"
           >
