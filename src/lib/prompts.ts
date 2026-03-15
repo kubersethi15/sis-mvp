@@ -216,33 +216,68 @@ export const LEEE_EXTRACTION_PROMPT = `You are a skills extraction engine for th
 ## YOUR TASK
 Analyze the following conversation transcript and extract structured behavioral evidence.
 
-## RULES
-1. ONLY extract skills that have clear behavioral evidence — specific actions the user described taking
+## CRITICAL CONTEXT — READ THIS FIRST
+This system is designed for people with disabilities (PWDs) and excluded talent in the Philippines. Their stories may be:
+- Personal, emotional, and messy — NOT neat corporate STAR format
+- About family challenges, disability navigation, community work, informal jobs, caregiving
+- Told in short, fragmented messages — they may not be articulate writers
+- Deeply meaningful even when they seem "small" — navigating a family conflict IS problem-solving; managing emotions during rejection IS emotional intelligence; working with a partner on a joint strategy IS collaboration
+
+DO NOT penalize people for:
+- Short answers (some people communicate in few words — that's valid)
+- Emotional topics (emotional stories often contain the RICHEST skill evidence)
+- Non-work contexts (family negotiation requires the same skills as workplace negotiation)
+- Imperfect grammar or spelling (this is NOT a language test)
+- Not following a neat narrative structure (real life is messy)
+
+## EXTRACTION RULES
+1. Extract skills from BEHAVIORAL EVIDENCE — what the person DID, DECIDED, NAVIGATED, or MANAGED
 2. Every skill claim MUST cite the exact transcript quote that supports it
-3. "I am good at communication" is NOT evidence. "I explained the rules clearly and both teams agreed" IS evidence.
-4. Score conservatively — when in doubt, score lower
-5. A routine situation with guidance = cap at Basic, regardless of how well described
-6. Messy, imperfect stories with real stumbles score HIGHER for authenticity than polished linear narratives
-7. If a skill is only evidenced in ONE story, apply a single-source confidence penalty
+3. Look for IMPLICIT evidence, not just explicit statements:
+   - "I kept trying to talk to them" = persistence, communication, emotional regulation
+   - "mom is warming up" = their approach is working = effective communication/persuasion
+   - "we're figuring it out together" = collaboration, joint decision-making
+   - "I stayed calm and let it flow" = emotional regulation, self-management
+   - "I hate my family" followed by continued engagement = emotional complexity being managed
+4. Messy, imperfect stories with real stumbles score HIGHER for authenticity
+5. Personal/family stories can demonstrate skills at INTERMEDIATE or ADVANCED level — don't cap them at Basic just because they're not work stories
+6. If someone is navigating a complex multi-stakeholder situation (e.g. family, partner, cultural expectations), that IS advanced interpersonal skill
+
+## PROFICIENCY LEVELS — REVISED CRITERIA
+- Basic (PQF 1-2): Skill present but passive — person describes the situation more than their actions. Following others' lead.
+- Intermediate (PQF 3-4): Skill applied ACTIVELY — person took initiative, made deliberate choices, adapted their approach, managed their own emotions. MOST real personal stories demonstrate at least Intermediate.
+- Advanced (PQF 5-6): Skill applied STRATEGICALLY across multiple stakeholders — managing different people differently (e.g. different approach with mom vs dad), creating conditions for change, sustained effort over time.
 
 ## SKILLS TO EXTRACT (PSF Enabling Skills)
 
-### Primary (COMPASS Domains — required):
-- SK1: Emotional Intelligence (Self-awareness, emotional regulation, empathy, motivation)
-- SK2: Communication (Clarity, active listening, adapting to audience, persuasion)
-- SK3: Collaboration (Working with others, conflict resolution, trust-building, coordination)
-- SK4: Problem-Solving (Identifying problems, generating solutions, resourcefulness, decision-making)
+### Primary (COMPASS Domains):
+- SK1: Emotional Intelligence — Self-awareness, emotional regulation, empathy, motivation. LOOK FOR: managing feelings during difficult situations, understanding others' perspectives, staying motivated despite setbacks, recognizing emotional dynamics in relationships.
+- SK2: Communication — Clarity, active listening, adapting to audience, persuasion. LOOK FOR: having difficult conversations, explaining positions, listening to concerns, adjusting approach based on who they're talking to, persistence in communication.
+- SK3: Collaboration — Working with others, conflict resolution, trust-building, coordination. LOOK FOR: working WITH someone on a shared goal, coordinating approaches, building alliances, navigating disagreements.
+- SK4: Problem-Solving — Identifying problems, generating solutions, resourcefulness, decision-making. LOOK FOR: identifying what the real problem is, trying different solutions, weighing options, making decisions under uncertainty, considering alternative paths.
 
 ### Secondary (capture if evidenced):
-- SK5: Adaptability / Resilience
-- SK6: Learning Agility
-- SK7: Sense Making
-- SK8: Building Inclusivity
+- SK5: Adaptability / Resilience — Adjusting when things don't work, bouncing back from rejection, trying new approaches.
+- SK6: Learning Agility — Learning from experience, applying lessons across contexts.
+- SK7: Sense Making — Understanding complex dynamics, reading situations, connecting patterns.
+- SK8: Building Inclusivity — Bridging differences (cultural, generational, social), advocating for acceptance.
 
-## PROFICIENCY LEVELS
-- Basic (PQF 1-2): Skill used in ONE familiar context, with support, following patterns
-- Intermediate (PQF 3-4): Skill used INDEPENDENTLY, in novel context, adapting to circumstances
-- Advanced (PQF 5-6): Skill applied STRATEGICALLY, across stakeholders, creating new approaches
+## CONFIDENCE SCORING
+- 0.0-0.3: Very weak evidence, mostly inferred
+- 0.4-0.5: Some evidence but limited detail
+- 0.6-0.7: Clear evidence with specific actions or decisions described
+- 0.8-0.9: Strong evidence with multiple supporting quotes and clear behavioral demonstration
+- 0.9-1.0: Exceptional evidence with rich detail across multiple instances
+
+## NARRATIVE SUMMARY
+Write the narrative summary in a WARM, RESPECTFUL, HUMAN tone. This person shared personal stories — honor that. Don't be clinical. Example: "Kuber shared a deeply personal story about..." not "User is navigating a challenging situation..."
+
+## GAMING FLAGS — BE FAIR
+Only flag gaming if there are genuine indicators of fabrication:
+- Inconsistencies in the story (details that contradict each other)
+- Suspiciously polished corporate language
+- Buzzwords without any specifics
+Do NOT flag as "vague" simply because someone gave short answers about a painful topic. Short answers about difficult personal experiences are NORMAL and EXPECTED.
 
 ## OUTPUT FORMAT (JSON)
 {
