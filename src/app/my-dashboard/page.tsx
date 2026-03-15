@@ -1,0 +1,329 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+// ============================================================
+// JOBSEEKER DASHBOARD
+// The central hub: profile status, LEEE session, matching vacancies,
+// applications, skills profile — all in one place
+// ============================================================
+
+interface DashboardData {
+  user: { name: string; email: string } | null;
+  profile: any | null;
+  leeeSession: { id: string; status: string; stories: number } | null;
+  extraction: any | null;
+  applications: any[];
+  matches: any[];
+}
+
+export default function MyDashboard() {
+  const [data, setData] = useState<DashboardData>({
+    user: null, profile: null, leeeSession: null, extraction: null, applications: [], matches: [],
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { loadDashboard(); }, []);
+
+  const loadDashboard = async () => {
+    setLoading(true);
+    try {
+      const profileId = localStorage.getItem('sis_jobseeker_profile_id');
+      const userId = localStorage.getItem('sis_user_id');
+
+      let profile = null;
+      let user = null;
+
+      // Get profile
+      if (profileId) {
+        const res = await fetch('/api/profile', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get', profile_id: profileId }),
+        });
+        const d = await res.json();
+        profile = d.profile;
+        user = profile?.user_profiles ? { name: profile.user_profiles.full_name, email: profile.user_profiles.email } : null;
+      }
+
+      // Get LEEE session
+      let leeeSession = null;
+      let extraction = null;
+      const storedExtraction = localStorage.getItem('sis_last_extraction');
+      if (storedExtraction) {
+        try { extraction = JSON.parse(storedExtraction); } catch (e) {}
+      }
+      const sessionId = localStorage.getItem('sis_last_session_id');
+      if (sessionId) {
+        leeeSession = { id: sessionId, status: extraction ? 'completed' : 'active', stories: extraction?.session_quality?.stories_completed || 0 };
+      }
+
+      // Get matches
+      let matches: any[] = [];
+      if (profileId) {
+        try {
+          const matchRes = await fetch('/api/match', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'match_for_jobseeker', jobseeker_profile_id: profileId }),
+          });
+          const matchData = await matchRes.json();
+          matches = (matchData.matches || []).slice(0, 5);
+        } catch (e) {}
+      }
+
+      // Get applications
+      let applications: any[] = [];
+      try {
+        const appRes = await fetch('/api/demo', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_demo_state' }),
+        });
+        const appData = await appRes.json();
+        applications = (appData.applications || []).filter((a: any) => profileId && a.jobseeker_id === profileId);
+      } catch (e) {}
+
+      setData({ user, profile, leeeSession, extraction, applications, matches });
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  const profileCompletion = data.profile?.completion_percentage || 0;
+  const hasProfile = !!data.profile;
+  const hasLEEE = !!data.extraction;
+  const skillsCount = data.extraction?.skills_profile?.length || 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
+        <div className="text-stone-400">Loading your dashboard...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
+      {/* Header */}
+      <header className="bg-white/60 backdrop-blur-md border-b border-amber-100/50 px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-lg shadow-md">🦋</div>
+            <div>
+              <h1 className="text-lg font-bold text-stone-800" style={{ fontFamily: "'Nunito', sans-serif" }}>
+                {data.user?.name ? `Kumusta, ${data.user.name.split(' ')[0]}!` : 'My Dashboard'}
+              </h1>
+              <p className="text-xs text-stone-400">Skills Intelligence System</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/profile" className="text-xs text-amber-600 hover:text-amber-700 font-medium">Edit Profile</Link>
+            <Link href="/" className="text-xs text-stone-400 hover:text-stone-600">Home</Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
+
+        {/* JOURNEY PROGRESS */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-stone-500 mb-4">YOUR JOURNEY</h2>
+          <div className="grid grid-cols-4 gap-3">
+            {[
+              { step: 1, label: 'Create Profile', done: hasProfile, icon: '👤', href: '/profile', description: profileCompletion > 0 ? `${profileCompletion}% complete` : 'Tell us about yourself' },
+              { step: 2, label: 'Tell Your Story', done: hasLEEE, icon: '🦋', href: '/chat', description: hasLEEE ? `${skillsCount} skills discovered` : 'Chat with Aya' },
+              { step: 3, label: 'Browse Jobs', done: data.matches.length > 0, icon: '📋', href: '/vacancy', description: data.matches.length > 0 ? `${data.matches.length} matches` : 'Find matching vacancies' },
+              { step: 4, label: 'Apply & Grow', done: data.applications.length > 0, icon: '🚀', href: '/vacancy', description: data.applications.length > 0 ? `${data.applications.length} application(s)` : 'Start your journey' },
+            ].map((s) => (
+              <Link key={s.step} href={s.href}
+                className={`p-4 rounded-xl border text-center transition-all hover:shadow-md hover:scale-[1.02] ${
+                  s.done ? 'bg-amber-50 border-amber-200' : 'bg-white border-stone-200 hover:border-amber-200'
+                }`}>
+                <div className="text-2xl mb-2">{s.done ? '✅' : s.icon}</div>
+                <div className="text-xs font-semibold text-stone-700">{s.label}</div>
+                <div className="text-[10px] text-stone-400 mt-1">{s.description}</div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-4 h-2 bg-stone-100 rounded-full overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-1000"
+              style={{ width: `${[hasProfile, hasLEEE, data.matches.length > 0, data.applications.length > 0].filter(Boolean).length * 25}%` }} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          {/* SKILLS SNAPSHOT */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-stone-500">YOUR SUPERPOWERS</h2>
+              {hasLEEE && <Link href="/skills" className="text-xs text-amber-600 hover:text-amber-700">View Full Profile →</Link>}
+            </div>
+
+            {hasLEEE ? (
+              <div className="space-y-3">
+                {data.extraction.skills_profile?.slice(0, 4).map((skill: any, i: number) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-sm">
+                      {['💛', '💬', '🤝', '🧩', '🌊', '📚', '🔮', '♿'][i] || '⭐'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs font-medium text-stone-700">{skill.skill_name}</span>
+                        <span className="text-[10px] text-amber-600 font-medium">{skill.proficiency} • {Math.round(skill.confidence * 100)}%</span>
+                      </div>
+                      <div className="w-full bg-stone-100 rounded-full h-1.5">
+                        <div className="h-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-400"
+                          style={{ width: `${skill.confidence * 100}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {data.extraction.skills_profile?.length > 4 && (
+                  <p className="text-[10px] text-stone-400 text-center">+{data.extraction.skills_profile.length - 4} more skills</p>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-3xl mb-2">🦋</p>
+                <p className="text-sm text-stone-500 mb-3">Your superpowers haven't been discovered yet</p>
+                <Link href="/chat"
+                  className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
+                  Talk to Aya →
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* PROFILE SNAPSHOT */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-stone-500">YOUR PROFILE</h2>
+              <Link href="/profile" className="text-xs text-amber-600 hover:text-amber-700">Edit →</Link>
+            </div>
+
+            {hasProfile ? (
+              <div className="space-y-3">
+                {/* Completion */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-stone-500">Profile Completion</span>
+                      <span className="text-xs font-bold text-amber-600">{profileCompletion}%</span>
+                    </div>
+                    <div className="w-full bg-stone-100 rounded-full h-2">
+                      <div className="h-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400"
+                        style={{ width: `${profileCompletion}%` }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick facts */}
+                <div className="space-y-2 text-xs text-stone-600">
+                  {data.profile.preferred_location && (
+                    <div className="flex items-center gap-2">📍 {data.profile.preferred_location}</div>
+                  )}
+                  {data.profile.work_history?.length > 0 && (
+                    <div className="flex items-center gap-2">💼 {data.profile.work_history.length} work experience(s)</div>
+                  )}
+                  {data.profile.education?.length > 0 && (
+                    <div className="flex items-center gap-2">🎓 {data.profile.education.length} education record(s)</div>
+                  )}
+                  {data.profile.certifications?.length > 0 && (
+                    <div className="flex items-center gap-2">📜 {data.profile.certifications.length} certification(s)</div>
+                  )}
+                  {data.profile.disability_type && (
+                    <div className="flex items-center gap-2">♿ {data.profile.disability_type}</div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-3xl mb-2">👤</p>
+                <p className="text-sm text-stone-500 mb-3">Create your profile to get started</p>
+                <Link href="/profile"
+                  className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
+                  Create Profile →
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* MATCHING VACANCIES */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-stone-500">JOBS FOR YOU</h2>
+            <Link href="/vacancy" className="text-xs text-amber-600 hover:text-amber-700">Browse All →</Link>
+          </div>
+
+          {data.matches.length > 0 ? (
+            <div className="space-y-3">
+              {data.matches.map((match: any, i: number) => (
+                <Link key={i} href="/vacancy"
+                  className="flex items-center justify-between p-3 rounded-xl border border-stone-100 hover:border-amber-200 hover:bg-amber-50/50 transition-all">
+                  <div>
+                    <div className="text-sm font-medium text-stone-800">{match.title}</div>
+                    <div className="text-xs text-stone-400">{match.employer} • {match.location || 'Location not set'}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {match.accessibility_friendly && <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">♿</span>}
+                    <div className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
+                      match.match_score >= 70 ? 'bg-green-100 text-green-700' :
+                      match.match_score >= 40 ? 'bg-amber-100 text-amber-700' :
+                      'bg-stone-100 text-stone-500'
+                    }`}>
+                      {match.match_score}% match
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-stone-400">
+              <p className="text-sm">{hasProfile ? 'No vacancies available yet' : 'Create your profile to see matching jobs'}</p>
+            </div>
+          )}
+        </div>
+
+        {/* APPLICATIONS */}
+        {data.applications.length > 0 && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-stone-500 mb-4">YOUR APPLICATIONS</h2>
+            <div className="space-y-2">
+              {data.applications.map((app: any, i: number) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-stone-100">
+                  <span className="text-sm text-stone-700">Application {app.id?.substring(0, 8)}...</span>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    app.status === 'selected' ? 'bg-green-100 text-green-700' :
+                    app.status?.includes('passed') ? 'bg-blue-100 text-blue-700' :
+                    app.status?.includes('pending') ? 'bg-amber-100 text-amber-700' :
+                    'bg-stone-100 text-stone-500'
+                  }`}>
+                    {app.status?.replace(/_/g, ' ')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* QUICK ACTIONS */}
+        <div className="grid grid-cols-3 gap-3">
+          <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
+            <span className="text-xl">🦋</span>
+            <p className="text-xs font-medium text-stone-700 mt-1">Talk to Aya</p>
+          </Link>
+          <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
+            <span className="text-xl">✨</span>
+            <p className="text-xs font-medium text-stone-700 mt-1">My Skills</p>
+          </Link>
+          <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
+            <span className="text-xl">📋</span>
+            <p className="text-xs font-medium text-stone-700 mt-1">Browse Jobs</p>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

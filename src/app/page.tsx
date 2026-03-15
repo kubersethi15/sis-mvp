@@ -2,13 +2,25 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
       <div className="max-w-2xl mx-auto px-6 text-center">
-        <div className="w-16 h-16 bg-teal-500 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-2xl text-white font-bold">S</span>
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center mx-auto mb-6 text-3xl shadow-lg">
+          🦋
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Skills Intelligence System</h1>
-        <p className="text-gray-500 mb-8">Virtualahan Inc. — MVP Demo</p>
+        <h1 className="text-3xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>Skills Intelligence System</h1>
+        <p className="text-stone-500 mb-4">Virtualahan Inc. — MVP Demo</p>
+
+        {/* Primary CTA — Jobseeker Flow */}
+        <div className="mb-6">
+          <Link href="/auth"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all text-lg"
+            style={{ fontFamily: "'Nunito', sans-serif" }}>
+            Get Started as Jobseeker →
+          </Link>
+          <p className="text-xs text-stone-400 mt-2">
+            Or <Link href="/my-dashboard" className="text-amber-600 underline">go to dashboard</Link> if you're already signed in
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
