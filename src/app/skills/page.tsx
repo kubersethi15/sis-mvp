@@ -274,6 +274,98 @@ export default function SkillsDashboard() {
           </div>
         )}
 
+        {/* SKILL GAP VISUALIZATION */}
+        {skills.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <h2 className="text-sm font-semibold text-gray-500 mb-3">SKILL GAPS — WHAT WASN'T EVIDENCED</h2>
+            <p className="text-xs text-gray-400 mb-4">Skills that weren't demonstrated in your stories. These aren't weaknesses — you may simply not have had the chance to show them.</p>
+            {(() => {
+              const allSkills = ['Emotional Intelligence', 'Communication', 'Collaboration', 'Problem-Solving', 'Adaptability / Resilience', 'Learning Agility', 'Sense Making', 'Building Inclusivity'];
+              const evidenced = skills.map(s => s.skill_name);
+              const gaps = allSkills.filter(s => !evidenced.includes(s));
+              if (gaps.length === 0) return <p className="text-sm text-green-600">🎉 All core skills were demonstrated! Great coverage.</p>;
+              return (
+                <div className="space-y-2">
+                  {gaps.map((gap, i) => {
+                    const cfg = SKILL_CONFIG[gap] || { icon: '⭐', color: '#999', bgColor: '#f5f5f5' };
+                    return (
+                      <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg opacity-40" style={{ backgroundColor: cfg.bgColor }}>{cfg.icon}</div>
+                        <div className="flex-1">
+                          <span className="text-sm text-gray-500">{gap}</span>
+                          <p className="text-xs text-gray-400">Not yet evidenced — try sharing a story about this next time</p>
+                        </div>
+                        <div className="w-full max-w-[120px] bg-gray-100 rounded-full h-2">
+                          <div className="h-2 rounded-full bg-gray-200" style={{ width: '0%' }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* SKILLS PASSPORT EXPORT (JSON for Randy) */}
+        {skills.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-gray-500">SKILLS PASSPORT</h2>
+              <button
+                onClick={() => {
+                  const passport = {
+                    version: '1.0',
+                    framework: 'PSF-HCD',
+                    pqf_aligned: true,
+                    generated_at: new Date().toISOString(),
+                    candidate: { stories_completed: quality?.stories_completed, evidence_density: quality?.evidence_density, overall_confidence: quality?.overall_confidence },
+                    skills: skills.map(s => ({
+                      skill_id: s.skill_id, skill_name: s.skill_name,
+                      proficiency: s.proficiency?.toLowerCase(),
+                      pqf_level: s.proficiency?.toLowerCase() === 'basic' ? '1-2' : s.proficiency?.toLowerCase() === 'intermediate' ? '3-4' : '5-6',
+                      confidence: s.confidence,
+                      evidence_count: s.evidence?.length || 0,
+                    })),
+                    narrative: extraction.narrative_summary,
+                    gaps: (() => {
+                      const all = ['SK1','SK2','SK3','SK4','SK5','SK6','SK7','SK8'];
+                      const found = skills.map(s => s.skill_id);
+                      return all.filter(s => !found.includes(s));
+                    })(),
+                  };
+                  const blob = new Blob([JSON.stringify(passport, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'skills-passport.json';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors"
+              >
+                📥 Export JSON
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">PQF-aligned, machine-readable skills passport. Compatible with Randy's HR Intelligence System.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {skills.map((s, i) => (
+                <div key={i} className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                  <span className="font-medium">{s.skill_id}</span>
+                  <span className="text-gray-400 mx-1">|</span>
+                  <span>{s.skill_name}</span>
+                  <span className="text-gray-400 mx-1">|</span>
+                  <span className="font-medium" style={{ color: PROFICIENCY_CONFIG[s.proficiency?.toLowerCase() as keyof typeof PROFICIENCY_CONFIG]?.color || '#666' }}>
+                    {s.proficiency}
+                  </span>
+                  <span className="text-gray-400 mx-1">|</span>
+                  <span>PQF {s.proficiency?.toLowerCase() === 'basic' ? '1-2' : s.proficiency?.toLowerCase() === 'intermediate' ? '3-4' : '5-6'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Audit Trail Note */}
         <div className="text-center py-4">
           <p className="text-xs text-gray-400">
