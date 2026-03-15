@@ -182,14 +182,14 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| T1 | Test with Ryan's 10 simulated transcripts | ⬜ Todo | Verify extraction produces correct skill signals |
+| T1 | Test with Ryan's 10 simulated transcripts | ⬜ Todo | Need Ryan's actual transcripts |
 | T2 | Test with 7 real jobseeker profiles | ⬜ Todo | Verify fair, accurate skills profiles across diverse backgrounds |
 | T3 | Test-retest reliability (same transcript 5x) | ⬜ Todo | Scores within ±5% |
 | T4 | Anti-gaming test (fabricated stories) | ⬜ Todo | System flags 50%+ of fakes |
 | T5 | Taglish conversation test | ⬜ Todo | Full session in Taglish |
 | T6 | Accessibility test (screen reader) | ⬜ Todo | Core functions usable |
-| T7 | End-to-end flow test (all 3 gates) | ⬜ Todo | Full pipeline demo run |
-| T8 | Cebuana Lhuillier JD test | ⬜ Todo | Real JDs through Gate 1 alignment |
+| T7 | End-to-end flow test (all 3 gates) | ✅ Done | Full pipeline demo run |
+| T8 | Cebuana Lhuillier JD test | ✅ Done | Real JDs through Gate 1 alignment |
 | T9 | User acceptance testing with Ryan's team | ⬜ Todo | 5-8 team members do full sessions |
 
 ---
@@ -225,7 +225,7 @@ Last updated: March 15, 2026
 | Testing & Validation | 9 | 0 | 0 | 9 |
 | **TOTAL** | **105** | **67** | **8** | **30** |
 
-**67 done, 8 partial, 30 remaining — ~70% through the build**
+**69 done, 8 partial, 28 remaining — ~72% through the build**
 
 ---
 
