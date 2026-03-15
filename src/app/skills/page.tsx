@@ -156,7 +156,8 @@ export default function SkillsDashboard() {
           <div className="space-y-4">
             {skills.map((skill) => {
               const config = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', color: '#666', bgColor: '#f5f5f5' };
-              const prof = PROFICIENCY_CONFIG[skill.proficiency];
+              const profKey = (skill.proficiency || 'basic').toLowerCase() as keyof typeof PROFICIENCY_CONFIG;
+              const prof = PROFICIENCY_CONFIG[profKey] || PROFICIENCY_CONFIG.basic;
               const isExpanded = expandedSkill === skill.skill_id;
 
               return (
