@@ -88,9 +88,9 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| P1 | Jobseeker profile creation form | ⬜ Todo | Basic info, disability, education, work history |
-| P2 | Jobseeker profile DB storage | ✅ Done | Schema designed with all fields |
-| P3 | Profile completeness tracking | ⬜ Todo | Percentage indicator |
+| P1 | Jobseeker profile creation form | ✅ Done | 4-step form: basic info, work history, education, skills & goals |
+| P2 | Jobseeker profile DB storage | ✅ Done | API route with create/update/get + Supabase persistence |
+| P3 | Profile completeness tracking | ✅ Done | Auto-calculated percentage from filled fields |
 | P4 | Evidence repository (upload portfolio/certs) | ⬜ Todo | File upload to Supabase storage |
 | P5 | Psychometric data display (RIASEC, HIGH5) | ⬜ Todo | From Employment Accelerator intake |
 | P6 | Combined evidence view (profile + LEEE) | ⬜ Todo | Hiring Manager review screen |
@@ -223,9 +223,9 @@ Last updated: March 15, 2026
 | Dashboards & Output | 5 | 1 | 0 | 4 |
 | UX Polish | 8 | 0 | 3 | 5 |
 | Testing & Validation | 9 | 0 | 0 | 9 |
-| **TOTAL** | **105** | **46** | **12** | **47** |
+| **TOTAL** | **105** | **49** | **12** | **44** |
 
-**46 done, 12 partial, 47 remaining — ~52% through the build**
+**49 done, 12 partial, 44 remaining — ~55% through the build**
 
 ---
 
