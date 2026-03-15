@@ -143,35 +143,69 @@ async function advanceGate(body: any) {
   const { data: app } = await db().from('applications').select('*').eq('id', application_id).single();
   if (!app) return NextResponse.json({ error: 'Application not found' }, { status: 404 });
 
-  // Run Gate 1 alignment
+  // Run Gate 1 alignment — direct implementation
   if (target_gate === 1) {
-    const alignRes = await fetch(`${getBaseUrl()}/api/gate1`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'run_alignment',
-        application_id,
-        vacancy_id: app.vacancy_id,
-        jobseeker_id: app.jobseeker_id,
-      }),
-    });
-    const alignData = await alignRes.json();
+    const supabase = db();
+    const { data: vacancy } = await supabase.from('vacancies').select('*').eq('id', app.vacancy_id).single();
+    const { data: jobseeker } = await supabase.from('jobseeker_profiles').select('*, user_profiles(*)').eq('id', app.jobseeker_id).single();
 
-    // Auto-advance for demo (Recruiter auto-approves)
-    if (alignData.alignment) {
-      await fetch(`${getBaseUrl()}/api/gate1`, {
+    const alignPrompt = `You are an alignment assessor. Compare this vacancy against this jobseeker profile. Be fair and inclusive — value non-traditional experience.
+
+Vacancy: ${vacancy?.title || 'Unknown'} — ${vacancy?.description || ''}
+Requirements: ${JSON.stringify(vacancy?.essential_requirements || [])}
+Competencies: ${JSON.stringify(vacancy?.competency_blueprint || {})}
+
+Jobseeker: ${jobseeker?.user_profiles?.full_name || 'Unknown'}
+Work History: ${JSON.stringify(jobseeker?.work_history || [])}
+Education: ${JSON.stringify(jobseeker?.education || [])}
+Skills: ${JSON.stringify(jobseeker?.skills_inventory || [])}
+
+Output JSON only:
+{
+  "alignment_score": 0-100,
+  "strengths": [{"area": "description", "evidence": "what supports it"}],
+  "gaps": [{"area": "description", "severity": "critical|moderate|minor", "trainable": true}],
+  "recommendation": "proceed|hold|reroute|not_recommended",
+  "recommendation_rationale": "2-3 sentence explanation"
+}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'reviewer_decision',
-          gate1_result_id: alignData.alignment.id,
-          decision: 'passed',
-          notes: 'Demo auto-advance',
-        }),
+        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role: 'user', content: alignPrompt }] }),
       });
-    }
+      const aiData = await res.json();
+      const text = aiData.content?.find((b: any) => b.type === 'text')?.text;
+      const match = text?.match(/\{[\s\S]*\}/);
+      const alignment = match ? JSON.parse(match[0]) : null;
 
-    return NextResponse.json({ status: 'gate1_complete', alignment: alignData });
+      // Save Gate 1 result
+      const { data: g1Result } = await supabase.from('gate1_results').insert({
+        application_id,
+        alignment_score: alignment?.alignment_score || 50,
+        competency_fit_map: {},
+        strengths: alignment?.strengths || [],
+        gaps: alignment?.gaps || [],
+        ai_recommendation: alignment?.recommendation_rationale || 'Pending',
+        reviewer_decision: 'passed',
+        reviewer_notes: 'Demo auto-advance',
+        reviewed_at: new Date().toISOString(),
+      }).select().single();
+
+      // Update application
+      await supabase.from('applications').update({
+        status: 'gate1_passed',
+        current_gate: 1,
+        gate1_started_at: new Date().toISOString(),
+        gate1_completed_at: new Date().toISOString(),
+      }).eq('id', application_id);
+
+      return NextResponse.json({ status: 'gate1_complete', alignment: { alignment: g1Result } });
+    } catch (e: any) {
+      console.error('Gate 1 error:', e);
+      return NextResponse.json({ status: 'gate1_error', error: e.message }, { status: 500 });
+    }
   }
 
   // Link LEEE session to Gate 2
@@ -228,25 +262,85 @@ async function advanceGate(body: any) {
     return NextResponse.json({ status: 'gate2_complete', gate2: g2 });
   }
 
-  // Run Gate 3
+  // Run Gate 3 — direct implementation (avoids internal fetch SSL issues)
   if (target_gate === 3) {
-    // Generate simulation
-    const simRes = await fetch(`${getBaseUrl()}/api/gate3`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'generate_simulation', application_id }),
-    });
-    const simData = await simRes.json();
+    const supabase = db();
 
-    // Calculate readiness
-    const readyRes = await fetch(`${getBaseUrl()}/api/gate3`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'calculate_readiness', application_id }),
-    });
-    const readyData = await readyRes.json();
+    // Get vacancy and gate data for context
+    const { data: vacancy } = await supabase.from('vacancies').select('*').eq('id', app.vacancy_id).single();
+    const { data: g1 } = await supabase.from('gate1_results').select('*').eq('application_id', application_id).limit(1).single();
+    const { data: g2 } = await supabase.from('gate2_results').select('*').eq('application_id', application_id).limit(1).single();
 
-    return NextResponse.json({ status: 'gate3_complete', simulation: simData, readiness: readyData });
+    // Build readiness assessment directly
+    const readinessPrompt = `You are a readiness assessor for the Skills Intelligence System. Based on the data below, calculate a readiness index for this candidate.
+
+Vacancy: ${vacancy?.title || 'Unknown'} — ${vacancy?.description || ''}
+Gate 1 Alignment: Score ${g1?.alignment_score || 'N/A'}/100, Strengths: ${JSON.stringify(g1?.strengths || [])}, Gaps: ${JSON.stringify(g1?.gaps || [])}
+Gate 2 Evidence: Rating ${g2?.evidence_rating || 'N/A'}, Skills Profile: ${JSON.stringify(g2?.leee_skills_profile || {})}
+
+Output JSON only:
+{
+  "readiness_index": 0-100,
+  "recommendation": "strongly_recommend|recommend|recommend_with_conditions|not_recommended",
+  "recommendation_rationale": "2-3 sentence explanation",
+  "success_conditions": ["conditions for success"],
+  "support_needs": ["what support may be needed"],
+  "risk_factors": ["potential concerns"],
+  "gate_summary": {
+    "gate1": "1-sentence alignment summary",
+    "gate2": "1-sentence evidence summary",
+    "gate3": "1-sentence predictability summary"
+  }
+}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY!,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          messages: [{ role: 'user', content: readinessPrompt }],
+        }),
+      });
+      const aiData = await res.json();
+      const text = aiData.content?.find((b: any) => b.type === 'text')?.text;
+      const match = text?.match(/\{[\s\S]*\}/);
+      const readiness = match ? JSON.parse(match[0]) : null;
+
+      // Save Gate 3 results
+      await supabase.from('gate3_results').insert({
+        application_id,
+        simulation_results: { note: 'Simplified for MVP demo' },
+        interview_results: { note: 'Simplified for MVP demo' },
+        readiness_index: readiness?.readiness_index || 65,
+        success_conditions: readiness?.success_conditions || [],
+        support_needs: readiness?.support_needs || [],
+        ai_recommendation: readiness?.recommendation_rationale || 'Pending detailed assessment',
+        reviewer_decision: 'passed',
+        reviewer_notes: 'Demo auto-advance',
+        reviewed_at: new Date().toISOString(),
+      });
+
+      // Update application to selected
+      await supabase.from('applications').update({
+        status: 'selected',
+        current_gate: 4,
+        gate3_started_at: new Date().toISOString(),
+        gate3_completed_at: new Date().toISOString(),
+        final_decision_at: new Date().toISOString(),
+        final_outcome: 'selected',
+      }).eq('id', application_id);
+
+      return NextResponse.json({ status: 'gate3_complete', readiness });
+    } catch (e: any) {
+      console.error('Gate 3 error:', e);
+      return NextResponse.json({ status: 'gate3_error', error: e.message }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ error: 'Invalid target_gate' }, { status: 400 });
