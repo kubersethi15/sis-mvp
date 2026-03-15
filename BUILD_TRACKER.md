@@ -109,8 +109,8 @@ Last updated: March 15, 2026
 | A6 | Alignment score + competency fit map | ✅ Done | Score, fit map, strengths, gaps, inclusion notes |
 | A7 | Recruiter review dashboard | ✅ Done | Three-tab UI: upload, pipeline, review queue |
 | A8 | Matching engine (vacancy ↔ jobseeker) | ⬜ Todo | Skill overlap, evidence readiness, location, schedule. Ryan: "similar to Upwork but more holistic" |
-| A9 | Vacancy Q&A assistant (grounded, no hallucination) | ⬜ Todo | Ryan: AI chatbot available to answer all vacancy questions before apply |
-| A10 | Alignment rating shown TO jobseeker | ⬜ Todo | Ryan: "reveals the alignment rating at the end of the assessment" — jobseeker sees their score too, not just recruiter |
+| A9 | Vacancy Q&A assistant (grounded, no hallucination) | ✅ Done | AI chatbot on vacancy page, grounded in vacancy data only |
+| A10 | Alignment rating shown TO jobseeker | ✅ Done | Check My Alignment button on vacancy page shows score + strengths + gaps |
 
 ---
 
@@ -157,9 +157,9 @@ Last updated: March 15, 2026
 |---|------|--------|-------|
 | D1 | Jobseeker skills profile dashboard | ✅ Done | /skills page with proficiency bars, confidence, evidence |
 | D2 | Evidence locker view | ✅ Done | Click any skill to see transcript quotes + justification |
-| D3 | Skills Passport output (JSON for Randy) | ⬜ Todo | PQF-aligned, machine-readable |
+| D3 | Skills Passport output (JSON for Randy) | ✅ Done | PQF-aligned JSON export with skill_id, proficiency, PQF level, confidence |
 | D4 | Employer pipeline dashboard | ✅ Done | /reviewer shows real pipeline data with gate scores |
-| D5 | Skill gap visualization | ⬜ Todo | What wasn't evidenced + what to do next |
+| D5 | Skill gap visualization | ✅ Done | Shows unevidenced skills with encouragement to share more stories |
 
 ---
 
@@ -225,7 +225,7 @@ Last updated: March 15, 2026
 | Testing & Validation | 9 | 0 | 0 | 9 |
 | **TOTAL** | **105** | **67** | **8** | **30** |
 
-**69 done, 8 partial, 28 remaining — ~72% through the build**
+**73 done, 8 partial, 24 remaining — ~77% through the build**
 
 ---
 
