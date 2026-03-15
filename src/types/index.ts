@@ -140,6 +140,7 @@ export interface OrchestratorState {
   suggestedPromptIds: string[];
   evidenceThresholdMet: boolean;
   userDistressLevel: 0 | 1 | 2 | 3;
+  skills_gaps?: Record<string, boolean>;
 }
 
 // ============================================================

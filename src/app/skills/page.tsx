@@ -37,22 +37,27 @@ interface Extraction {
 // CONFIG
 // ============================================================
 
-const SKILL_CONFIG: Record<string, { icon: string; color: string; bgColor: string }> = {
-  'Emotional Intelligence': { icon: '💛', color: '#E67E22', bgColor: '#FEF3E2' },
-  'Communication': { icon: '💬', color: '#2E86C1', bgColor: '#EBF5FB' },
-  'Collaboration': { icon: '🤝', color: '#27AE60', bgColor: '#E8F8F5' },
-  'Problem-Solving': { icon: '🧩', color: '#8E44AD', bgColor: '#F4ECF7' },
-  'Adaptability / Resilience': { icon: '🌊', color: '#1ABC9C', bgColor: '#E8F6F3' },
-  'Learning Agility': { icon: '📚', color: '#E74C3C', bgColor: '#FDEDEC' },
-  'Sense Making': { icon: '🔮', color: '#34495E', bgColor: '#EBEDEF' },
-  'Building Inclusivity': { icon: '♿', color: '#16A085', bgColor: '#E8F6F3' },
+const SKILL_CONFIG: Record<string, { icon: string; gradient: string; color: string; bgColor: string }> = {
+  'Emotional Intelligence':    { icon: '💛', gradient: 'from-amber-400 to-orange-400',  color: '#E67E22', bgColor: '#FEF3E2' },
+  'Communication':             { icon: '💬', gradient: 'from-sky-400 to-blue-500',       color: '#2E86C1', bgColor: '#EBF5FB' },
+  'Collaboration':             { icon: '🤝', gradient: 'from-emerald-400 to-teal-500',   color: '#27AE60', bgColor: '#E8F8F5' },
+  'Problem-Solving':           { icon: '🧩', gradient: 'from-violet-400 to-purple-500',  color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Adaptability / Resilience': { icon: '🌊', gradient: 'from-cyan-400 to-teal-400',      color: '#1ABC9C', bgColor: '#E8F6F3' },
+  'Learning Agility':          { icon: '📚', gradient: 'from-rose-400 to-pink-500',      color: '#E74C3C', bgColor: '#FDEDEC' },
+  'Sense Making':              { icon: '🔮', gradient: 'from-indigo-400 to-violet-500',  color: '#34495E', bgColor: '#EBEDEF' },
+  'Building Inclusivity':      { icon: '♿', gradient: 'from-green-400 to-emerald-500',  color: '#16A085', bgColor: '#E8F6F3' },
 };
 
 const PROFICIENCY_CONFIG = {
-  basic: { label: 'Basic', color: '#F39C12', width: '33%', level: 1 },
-  intermediate: { label: 'Intermediate', color: '#2ECC71', width: '66%', level: 2 },
-  advanced: { label: 'Advanced', color: '#3498DB', width: '100%', level: 3 },
+  basic:        { label: 'Emerging',   badge: 'bg-amber-100 text-amber-700',   bar: 'from-amber-300 to-amber-400', width: '33%',  pqf: '1–2' },
+  intermediate: { label: 'Developing', badge: 'bg-sky-100 text-sky-700',       bar: 'from-sky-400 to-blue-400',    width: '66%',  pqf: '3–4' },
+  advanced:     { label: 'Proficient', badge: 'bg-emerald-100 text-emerald-700', bar: 'from-emerald-400 to-teal-400', width: '100%', pqf: '5–6' },
 };
+
+const ALL_SKILLS = [
+  'Emotional Intelligence', 'Communication', 'Collaboration', 'Problem-Solving',
+  'Adaptability / Resilience', 'Learning Agility', 'Sense Making', 'Building Inclusivity',
+];
 
 // ============================================================
 // COMPONENT
@@ -62,38 +67,36 @@ export default function SkillsDashboard() {
   const [extraction, setExtraction] = useState<Extraction | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedSkill, setExpandedSkill] = useState<string | null>(null);
-  const [showEvidence, setShowEvidence] = useState(false);
+  const [activeTab, setActiveTab] = useState<'skills' | 'evidence' | 'gaps' | 'passport'>('skills');
+  const [animatedBars, setAnimatedBars] = useState(false);
 
-  // Load most recent extraction from localStorage or URL param
   useEffect(() => {
-    // Check localStorage for last extraction
     const stored = localStorage.getItem('sis_last_extraction');
     if (stored) {
-      try {
-        setExtraction(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse stored extraction');
-      }
+      try { setExtraction(JSON.parse(stored)); } catch (e) {}
     }
     setLoading(false);
+    // Trigger bar animations after mount
+    setTimeout(() => setAnimatedBars(true), 300);
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Loading your skills profile...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #0F0C29, #302B63)' }}>
+        <div className="text-white/50 text-sm">Loading your skills profile...</div>
       </div>
     );
   }
 
   if (!extraction) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <p className="text-5xl mb-4">✨</p>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">No Skills Profile Yet</h1>
-          <p className="text-gray-500 mb-6">Complete a conversation with Aya first to discover your superpowers.</p>
-          <a href="/chat" className="px-6 py-2 bg-teal-500 text-white rounded-lg font-medium hover:bg-teal-600 transition-colors">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #FFF8F0, #FEF3E2, #F0F7F4)' }}>
+        <div className="text-center max-w-sm px-6">
+          <p className="text-6xl mb-5">🦋</p>
+          <h1 className="text-2xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>No Skills Profile Yet</h1>
+          <p className="text-stone-500 mb-8 text-[15px] leading-relaxed">Complete a conversation with Aya to discover the skills hidden in your lived experience.</p>
+          <a href="/chat" className="inline-block px-8 py-3.5 rounded-2xl font-semibold text-white shadow-lg transition-all hover:scale-[1.02]"
+            style={{ background: 'linear-gradient(135deg, #F4A261, #E76F51)', fontFamily: "'Nunito', sans-serif" }}>
             Talk to Aya →
           </a>
         </div>
@@ -103,277 +106,425 @@ export default function SkillsDashboard() {
 
   const skills = extraction.skills_profile || [];
   const quality = extraction.session_quality;
+  const overallConfidence = quality?.overall_confidence
+    ? Math.round(quality.overall_confidence * 100)
+    : skills.length > 0 ? Math.round((skills.reduce((a, s) => a + s.confidence, 0) / skills.length) * 100) : 0;
+  const evidencedNames = skills.map(s => s.skill_name);
+  const gaps = ALL_SKILLS.filter(s => !evidencedNames.includes(s));
+
+  // Passport export
+  const exportPassport = () => {
+    const passport = {
+      version: '1.0', framework: 'PSF-HCD', pqf_aligned: true,
+      generated_at: new Date().toISOString(),
+      candidate: {
+        stories_completed: quality?.stories_completed,
+        evidence_density: quality?.evidence_density,
+        overall_confidence: quality?.overall_confidence,
+      },
+      skills: skills.map(s => ({
+        skill_id: s.skill_id, skill_name: s.skill_name,
+        proficiency: s.proficiency?.toLowerCase(),
+        pqf_level: PROFICIENCY_CONFIG[(s.proficiency?.toLowerCase() as keyof typeof PROFICIENCY_CONFIG)]?.pqf || '1–2',
+        confidence: s.confidence, evidence_count: s.evidence?.length || 0,
+      })),
+      narrative: extraction.narrative_summary,
+      gaps: gaps,
+    };
+    const blob = new Blob([JSON.stringify(passport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'skills-passport.json'; a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Your Superpowers</h1>
-            <p className="text-sm text-gray-500">Skills discovered from your lived experience</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowEvidence(!showEvidence)}
-              className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
-                showEvidence ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {showEvidence ? '🔍 Evidence On' : '🔍 Show Evidence'}
-            </button>
-            <a href="/chat" className="text-xs text-teal-600 hover:text-teal-700 font-medium">
-              ← Back to Chat
+    <div className="min-h-screen" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 20%, #F0F7F4 60%, #EDF6F9 100%)' }}>
+
+      {/* ── HERO HEADER ── */}
+      <div style={{ background: 'linear-gradient(160deg, #0F0C29 0%, #302B63 60%, #24243e 100%)' }}>
+        <div className="max-w-3xl mx-auto px-6 pt-10 pb-8">
+
+          {/* Top nav */}
+          <div className="flex items-center justify-between mb-8">
+            <a href="/chat" className="flex items-center gap-1.5 text-white/50 hover:text-white/80 text-sm transition-colors">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Back to Aya
             </a>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-4xl mx-auto px-6 py-8">
-
-        {/* Narrative Summary */}
-        {extraction.narrative_summary && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-sm font-semibold text-gray-500 mb-2">YOUR STORY</h2>
-            <p className="text-gray-800 leading-relaxed">{extraction.narrative_summary}</p>
-          </div>
-        )}
-
-        {/* Overall Score */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-gray-500">SKILLS DISCOVERED</h2>
-            <div className="flex items-center gap-4 text-xs text-gray-400">
-              <span>{quality?.stories_completed || 0} stories shared</span>
-              <span>•</span>
-              <span>Evidence: {quality?.evidence_density || 'N/A'}</span>
-              <span>•</span>
-              <span>Confidence: {Math.round((quality?.overall_confidence || 0) * 100)}%</span>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-white/50 text-xs">PSF-HCD Aligned</span>
             </div>
           </div>
 
-          {/* Skills Grid */}
-          <div className="space-y-4">
-            {skills.map((skill) => {
-              const config = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', color: '#666', bgColor: '#f5f5f5' };
+          {/* Identity block */}
+          <div className="flex items-start gap-5 mb-8">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-3xl shadow-xl flex-none">
+              ✨
+            </div>
+            <div>
+              <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Skills Intelligence System · Virtualahan</p>
+              <h1 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: "'Nunito', sans-serif" }}>
+                Your Skills Profile
+              </h1>
+              {extraction.narrative_summary && (
+                <p className="text-white/60 text-sm leading-relaxed max-w-lg">{extraction.narrative_summary}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            {[
+              { value: skills.length, label: 'Skills Found', icon: '💎' },
+              { value: `${overallConfidence}%`, label: 'Confidence', icon: '🎯' },
+              { value: quality?.stories_completed || 0, label: 'Stories Shared', icon: '📖' },
+            ].map((stat, i) => (
+              <div key={i} className="rounded-2xl p-4 text-center" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="text-lg mb-1">{stat.icon}</div>
+                <div className="text-2xl font-bold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>{stat.value}</div>
+                <div className="text-white/40 text-[11px] mt-0.5">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tab bar */}
+          <div className="flex gap-1 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            {[
+              { id: 'skills', label: '💎 Skills', count: skills.length },
+              { id: 'evidence', label: '📋 Evidence', count: null },
+              { id: 'gaps', label: '🌱 Gaps', count: gaps.length },
+              { id: 'passport', label: '🪪 Passport', count: null },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className="flex-1 py-2 px-2 rounded-xl text-xs font-semibold transition-all duration-200"
+                style={{
+                  background: activeTab === tab.id ? 'rgba(255,255,255,0.15)' : 'transparent',
+                  color: activeTab === tab.id ? 'white' : 'rgba(255,255,255,0.45)',
+                }}
+              >
+                {tab.label}
+                {tab.count !== null && (
+                  <span className="ml-1 opacity-60">({tab.count})</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── TAB CONTENT ── */}
+      <div className="max-w-3xl mx-auto px-6 py-8">
+
+        {/* SKILLS TAB */}
+        {activeTab === 'skills' && (
+          <div className="space-y-3">
+            {skills.length === 0 && (
+              <div className="text-center py-16 text-stone-400">
+                <p className="text-4xl mb-3">🔍</p>
+                <p>No skills extracted yet. Complete a conversation with Aya first.</p>
+              </div>
+            )}
+            {skills.map((skill, i) => {
+              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
               const profKey = (skill.proficiency || 'basic').toLowerCase() as keyof typeof PROFICIENCY_CONFIG;
               const prof = PROFICIENCY_CONFIG[profKey] || PROFICIENCY_CONFIG.basic;
               const isExpanded = expandedSkill === skill.skill_id;
 
               return (
-                <div key={skill.skill_id} className="rounded-lg border border-gray-100 overflow-hidden">
-                  {/* Skill Header */}
+                <div
+                  key={skill.skill_id}
+                  className="rounded-2xl overflow-hidden border transition-all duration-300"
+                  style={{
+                    background: 'white',
+                    borderColor: isExpanded ? cfg.color + '40' : '#f1f5f9',
+                    boxShadow: isExpanded ? `0 4px 24px ${cfg.color}20` : '0 1px 4px rgba(0,0,0,0.04)',
+                    animation: `fadeInUp 0.5s ease-out ${i * 80}ms both`,
+                  }}
+                >
                   <button
+                    className="w-full p-5 flex items-center gap-4 text-left"
                     onClick={() => setExpandedSkill(isExpanded ? null : skill.skill_id)}
-                    className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors text-left"
                   >
+                    {/* Skill icon */}
                     <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-                      style={{ backgroundColor: config.bgColor }}
+                      className={`w-14 h-14 rounded-xl bg-gradient-to-br ${cfg.gradient} flex items-center justify-center text-2xl shadow-md flex-none`}
                     >
-                      {config.icon}
+                      {cfg.icon}
                     </div>
+
+                    {/* Name + bar */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-gray-900">{skill.skill_name}</span>
-                        <span
-                          className="text-xs px-2 py-0.5 rounded-full font-medium"
-                          style={{ backgroundColor: config.bgColor, color: config.color }}
-                        >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-semibold text-stone-800 text-[15px]">{skill.skill_name}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${prof.badge}`}>
                           {prof.label}
                         </span>
+                        <span className="text-[10px] text-stone-400 hidden sm:inline">PQF {prof.pqf}</span>
                       </div>
-                      {/* Proficiency Bar */}
-                      <div className="w-full bg-gray-100 rounded-full h-2">
-                        <div
-                          className="h-2 rounded-full transition-all duration-1000 ease-out"
-                          style={{ width: prof.width, backgroundColor: config.color }}
-                        />
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full bg-gradient-to-r ${prof.bar} transition-all duration-1000 ease-out`}
+                            style={{ width: animatedBars ? `${skill.confidence * 100}%` : '0%', transitionDelay: `${i * 100 + 200}ms` }}
+                          />
+                        </div>
+                        <span className="text-sm font-bold flex-none" style={{ color: cfg.color }}>
+                          {Math.round(skill.confidence * 100)}%
+                        </span>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-lg font-bold" style={{ color: config.color }}>
-                        {Math.round(skill.confidence * 100)}%
-                      </div>
-                      <div className="text-xs text-gray-400">confidence</div>
-                    </div>
-                    <span className="text-gray-300 text-sm">{isExpanded ? '▼' : '▶'}</span>
+
+                    {/* Expand chevron */}
+                    <svg
+                      width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"
+                      className="flex-none transition-transform duration-300"
+                      style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    >
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
                   </button>
 
-                  {/* Expanded Evidence */}
-                  {(isExpanded || showEvidence) && skill.evidence?.length > 0 && (
-                    <div className="px-4 pb-4 border-t border-gray-100">
-                      <div className="pt-3 space-y-3">
-                        {skill.evidence.map((ev, i) => (
-                          <div key={i} className="pl-4 border-l-2" style={{ borderColor: config.color }}>
-                            <p className="text-sm text-gray-700 italic mb-1">"{ev.transcript_quote}"</p>
-                            <p className="text-xs text-gray-500">{ev.behavioral_indicator}</p>
-                            <p className="text-xs text-gray-400 mt-0.5">{ev.proficiency_justification}</p>
+                  {/* Evidence panel */}
+                  {isExpanded && skill.evidence?.length > 0 && (
+                    <div className="px-5 pb-5 border-t" style={{ borderColor: cfg.color + '20' }}>
+                      <p className="text-[11px] uppercase tracking-wider text-stone-400 mt-4 mb-3">Evidence from your story</p>
+                      <div className="space-y-3">
+                        {skill.evidence.map((ev, j) => (
+                          <div key={j} className="pl-4 border-l-2 rounded-r-lg py-1" style={{ borderColor: cfg.color }}>
+                            <p className="text-sm text-stone-700 italic leading-relaxed mb-1">"{ev.transcript_quote}"</p>
+                            <p className="text-xs text-stone-500">{ev.behavioral_indicator}</p>
+                            {ev.proficiency_justification && (
+                              <p className="text-xs text-stone-400 mt-0.5">{ev.proficiency_justification}</p>
+                            )}
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+                  {isExpanded && (!skill.evidence || skill.evidence.length === 0) && (
+                    <div className="px-5 pb-4 border-t border-stone-50">
+                      <p className="text-xs text-stone-400 mt-3 italic">No direct quotes available for this skill.</p>
                     </div>
                   )}
                 </div>
               );
             })}
           </div>
-
-          {skills.length === 0 && (
-            <div className="text-center py-8 text-gray-400">
-              <p className="text-4xl mb-2">🔍</p>
-              <p className="text-sm">No skills extracted yet. Complete a full conversation with Aya first.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Layer 2 Seeds (What's Next) */}
-        {extraction.layer2_seeds?.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-sm font-semibold text-gray-500 mb-3">WHAT'S NEXT — SIMULATION SCENARIOS</h2>
-            <p className="text-xs text-gray-400 mb-4">
-              Based on your stories, here are scenarios that could help demonstrate more of your skills:
-            </p>
-            <div className="space-y-2">
-              {extraction.layer2_seeds.map((seed, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                  <span className="text-purple-500 mt-0.5">🎯</span>
-                  <div>
-                    <p className="text-sm text-gray-800">{seed.scenario}</p>
-                    <div className="flex gap-1 mt-1">
-                      {seed.target_skills.map((sk, j) => (
-                        <span key={j} className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded">
-                          {sk}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         )}
 
-        {/* Gaming Flags (visible to reviewers only in production — shown in MVP for transparency) */}
-        {extraction.gaming_flags?.length > 0 && (
-          <div className="bg-white rounded-xl border border-orange-200 p-6 mb-6">
-            <h2 className="text-sm font-semibold text-orange-500 mb-3">⚠️ AUTHENTICITY FLAGS (Reviewer View)</h2>
-            <div className="space-y-2">
-              {extraction.gaming_flags.map((flag, i) => (
-                <div key={i} className="flex items-start gap-2 text-sm">
-                  <span className={`mt-0.5 ${flag.severity === 'high' ? 'text-red-500' : flag.severity === 'medium' ? 'text-orange-500' : 'text-yellow-500'}`}>
-                    ●
-                  </span>
-                  <div>
-                    <span className="font-medium text-gray-700">{flag.flag_type}:</span>
-                    <span className="text-gray-500 ml-1">{flag.evidence}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* SKILL GAP VISUALIZATION */}
-        {skills.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-sm font-semibold text-gray-500 mb-3">SKILL GAPS — WHAT WASN'T EVIDENCED</h2>
-            <p className="text-xs text-gray-400 mb-4">Skills that weren't demonstrated in your stories. These aren't weaknesses — you may simply not have had the chance to show them.</p>
-            {(() => {
-              const allSkills = ['Emotional Intelligence', 'Communication', 'Collaboration', 'Problem-Solving', 'Adaptability / Resilience', 'Learning Agility', 'Sense Making', 'Building Inclusivity'];
-              const evidenced = skills.map(s => s.skill_name);
-              const gaps = allSkills.filter(s => !evidenced.includes(s));
-              if (gaps.length === 0) return <p className="text-sm text-green-600">🎉 All core skills were demonstrated! Great coverage.</p>;
+        {/* EVIDENCE TAB */}
+        {activeTab === 'evidence' && (
+          <div className="space-y-4">
+            <p className="text-sm text-stone-500 mb-6">Every skill claim is traceable to a direct quote from your conversation — the audit trail for psychologist review.</p>
+            {skills.map(skill => {
+              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+              if (!skill.evidence?.length) return null;
               return (
-                <div className="space-y-2">
-                  {gaps.map((gap, i) => {
-                    const cfg = SKILL_CONFIG[gap] || { icon: '⭐', color: '#999', bgColor: '#f5f5f5' };
-                    return (
-                      <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg opacity-40" style={{ backgroundColor: cfg.bgColor }}>{cfg.icon}</div>
-                        <div className="flex-1">
-                          <span className="text-sm text-gray-500">{gap}</span>
-                          <p className="text-xs text-gray-400">Not yet evidenced — try sharing a story about this next time</p>
-                        </div>
-                        <div className="w-full max-w-[120px] bg-gray-100 rounded-full h-2">
-                          <div className="h-2 rounded-full bg-gray-200" style={{ width: '0%' }} />
+                <div key={skill.skill_id} className="bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm">
+                  <div className="flex items-center gap-3 p-4 border-b border-stone-50" style={{ background: cfg.bgColor + '60' }}>
+                    <span className="text-xl">{cfg.icon}</span>
+                    <span className="font-semibold text-stone-800 text-sm">{skill.skill_name}</span>
+                    <span className="text-xs text-stone-400 ml-auto">{skill.evidence.length} quote{skill.evidence.length > 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="divide-y divide-stone-50">
+                    {skill.evidence.map((ev, j) => (
+                      <div key={j} className="p-4">
+                        <p className="text-sm text-stone-700 italic leading-relaxed mb-2">"{ev.transcript_quote}"</p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-[11px] px-2 py-1 rounded-lg text-stone-500 bg-stone-50 border border-stone-100">
+                            {ev.behavioral_indicator}
+                          </span>
                         </div>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
               );
-            })()}
+            })}
+            {/* Gaming flags — reviewer transparency */}
+            {extraction.gaming_flags?.length > 0 && (
+              <div className="bg-white rounded-2xl border border-orange-100 overflow-hidden shadow-sm">
+                <div className="flex items-center gap-3 p-4 border-b border-orange-50 bg-orange-50/60">
+                  <span>⚠️</span>
+                  <span className="font-semibold text-orange-700 text-sm">Authenticity Flags (Reviewer View)</span>
+                </div>
+                <div className="divide-y divide-stone-50">
+                  {extraction.gaming_flags.map((flag, i) => (
+                    <div key={i} className="p-4 flex items-start gap-3">
+                      <span className={`mt-0.5 text-lg ${flag.severity === 'high' ? 'text-red-500' : flag.severity === 'medium' ? 'text-orange-500' : 'text-yellow-500'}`}>●</span>
+                      <div>
+                        <span className="font-medium text-stone-700 text-sm">{flag.flag_type}</span>
+                        <p className="text-xs text-stone-500 mt-0.5">{flag.evidence}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* SKILLS PASSPORT EXPORT (JSON for Randy) */}
-        {skills.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-500">SKILLS PASSPORT</h2>
+        {/* GAPS TAB */}
+        {activeTab === 'gaps' && (
+          <div>
+            <div className="bg-white/80 rounded-2xl border border-stone-100 p-5 mb-6 shadow-sm">
+              <p className="text-stone-600 text-sm leading-relaxed">
+                These skills weren't evidenced in your stories. <strong>This isn't a judgment</strong> — you may simply not have had the chance to show them yet. Share more stories to uncover them.
+              </p>
+            </div>
+            {gaps.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-4xl mb-3">🎉</p>
+                <p className="text-emerald-600 font-semibold">All core skills were demonstrated!</p>
+                <p className="text-stone-500 text-sm mt-1">Excellent coverage across the PSF framework.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {gaps.map((gap, i) => {
+                  const cfg = SKILL_CONFIG[gap] || { icon: '⭐', gradient: 'from-stone-300 to-stone-400', color: '#94a3b8', bgColor: '#f8fafc' };
+                  return (
+                    <div key={i} className="bg-white rounded-2xl border border-stone-100 p-4 flex items-center gap-4 shadow-sm opacity-70">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-stone-100 flex-none grayscale">
+                        {cfg.icon}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-stone-600 text-sm">{gap}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Not yet evidenced — share a story about this next time</p>
+                      </div>
+                      <a href="/chat"
+                        className="text-xs px-3 py-1.5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                        style={{ background: '#FEF3E2', color: '#E67E22' }}>
+                        Tell a story
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Layer 2 seeds */}
+            {extraction.layer2_seeds?.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-sm font-semibold text-stone-500 mb-4 uppercase tracking-wider">Suggested Next Scenarios</h3>
+                <div className="space-y-3">
+                  {extraction.layer2_seeds.map((seed, i) => (
+                    <div key={i} className="bg-white rounded-2xl border border-stone-100 p-4 shadow-sm">
+                      <p className="text-sm text-stone-700 mb-2">{seed.scenario}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {seed.target_skills.map((sk, j) => (
+                          <span key={j} className="text-[11px] bg-violet-50 text-violet-600 border border-violet-100 px-2 py-0.5 rounded-full">
+                            {sk}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* PASSPORT TAB */}
+        {activeTab === 'passport' && (
+          <div>
+            <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm mb-6">
+              {/* Passport header */}
+              <div className="p-6" style={{ background: 'linear-gradient(135deg, #0F0C29, #302B63)' }}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-1">Skills Intelligence System</p>
+                    <h2 className="text-lg font-bold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>Skills Passport</h2>
+                    <p className="text-white/50 text-xs mt-1">Philippine Qualifications Framework Aligned</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl">🪪</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills table */}
+              <div className="divide-y divide-stone-50">
+                <div className="grid grid-cols-4 px-5 py-2.5 text-[11px] font-semibold text-stone-400 uppercase tracking-wider bg-stone-50">
+                  <span className="col-span-2">Skill</span>
+                  <span className="text-center">PQF Level</span>
+                  <span className="text-center">Confidence</span>
+                </div>
+                {skills.map(skill => {
+                  const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+                  const profKey = (skill.proficiency || 'basic').toLowerCase() as keyof typeof PROFICIENCY_CONFIG;
+                  const prof = PROFICIENCY_CONFIG[profKey];
+                  return (
+                    <div key={skill.skill_id} className="grid grid-cols-4 px-5 py-3.5 items-center">
+                      <div className="col-span-2 flex items-center gap-2.5">
+                        <span className="text-base">{cfg.icon}</span>
+                        <div>
+                          <p className="text-stone-700 text-sm font-medium">{skill.skill_name}</p>
+                          <p className="text-stone-400 text-[11px]">{skill.skill_id}</p>
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${prof.badge}`}>{prof.pqf}</span>
+                      </div>
+                      <div className="text-center">
+                        <span className="text-sm font-bold" style={{ color: cfg.color }}>{Math.round(skill.confidence * 100)}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Footer */}
+              <div className="px-5 py-4 bg-stone-50 border-t border-stone-100">
+                <div className="flex items-center justify-between text-xs text-stone-400">
+                  <span>Generated {new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  <span>Virtualahan Inc. · PSF-HCD v1.0</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Validation status */}
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
+              <div className="flex items-start gap-3">
+                <span className="text-xl mt-0.5">🔬</span>
+                <div>
+                  <p className="font-semibold text-amber-800 text-sm">Pending Psychologist Validation</p>
+                  <p className="text-amber-700 text-xs mt-1 leading-relaxed">
+                    This profile will be reviewed and digitally signed by a licensed psychologist before it can be shared with employers. The audit trail is complete and ready for review.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Export actions */}
+            <div className="flex gap-3">
               <button
-                onClick={() => {
-                  const passport = {
-                    version: '1.0',
-                    framework: 'PSF-HCD',
-                    pqf_aligned: true,
-                    generated_at: new Date().toISOString(),
-                    candidate: { stories_completed: quality?.stories_completed, evidence_density: quality?.evidence_density, overall_confidence: quality?.overall_confidence },
-                    skills: skills.map(s => ({
-                      skill_id: s.skill_id, skill_name: s.skill_name,
-                      proficiency: s.proficiency?.toLowerCase(),
-                      pqf_level: s.proficiency?.toLowerCase() === 'basic' ? '1-2' : s.proficiency?.toLowerCase() === 'intermediate' ? '3-4' : '5-6',
-                      confidence: s.confidence,
-                      evidence_count: s.evidence?.length || 0,
-                    })),
-                    narrative: extraction.narrative_summary,
-                    gaps: (() => {
-                      const all = ['SK1','SK2','SK3','SK4','SK5','SK6','SK7','SK8'];
-                      const found = skills.map(s => s.skill_id);
-                      return all.filter(s => !found.includes(s));
-                    })(),
-                  };
-                  const blob = new Blob([JSON.stringify(passport, null, 2)], { type: 'application/json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'skills-passport.json';
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                className="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors"
+                onClick={exportPassport}
+                className="flex-1 py-3.5 rounded-2xl font-semibold text-white text-sm shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{ background: 'linear-gradient(135deg, #F4A261, #E76F51)', fontFamily: "'Nunito', sans-serif" }}
               >
-                📥 Export JSON
+                📥 Export JSON (for Randy)
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="px-5 py-3.5 rounded-2xl font-medium text-stone-600 text-sm border border-stone-200 bg-white hover:bg-stone-50 transition-all"
+              >
+                🖨️ Print
               </button>
             </div>
-            <p className="text-xs text-gray-400">PQF-aligned, machine-readable skills passport. Compatible with Randy's HR Intelligence System.</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {skills.map((s, i) => (
-                <div key={i} className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-                  <span className="font-medium">{s.skill_id}</span>
-                  <span className="text-gray-400 mx-1">|</span>
-                  <span>{s.skill_name}</span>
-                  <span className="text-gray-400 mx-1">|</span>
-                  <span className="font-medium" style={{ color: PROFICIENCY_CONFIG[s.proficiency?.toLowerCase() as keyof typeof PROFICIENCY_CONFIG]?.color || '#666' }}>
-                    {s.proficiency}
-                  </span>
-                  <span className="text-gray-400 mx-1">|</span>
-                  <span>PQF {s.proficiency?.toLowerCase() === 'basic' ? '1-2' : s.proficiency?.toLowerCase() === 'intermediate' ? '3-4' : '5-6'}</span>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
-        {/* Audit Trail Note */}
-        <div className="text-center py-4">
-          <p className="text-xs text-gray-400">
-            Every skill claim is backed by a direct quote from your conversation.
-            Click any skill to see the evidence. This audit trail can be reviewed by licensed psychologists.
-          </p>
-        </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}} />
     </div>
   );
 }

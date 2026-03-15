@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import SuperpowersReveal from './SuperpowersReveal';
 
 // ============================================================
 // TYPES
@@ -64,6 +65,34 @@ const QUICK_REPLIES: Record<string, string[]> = {
 };
 
 // ============================================================
+// ROTATING EXTRACTION MESSAGE — sub-component
+// ============================================================
+
+const EXTRACTION_MESSAGES = [
+  'Reading between the lines of your story…',
+  'Mapping your experiences to skills…',
+  'Looking for patterns in what you shared…',
+  'Checking for evidence of your strengths…',
+  'Almost there — building your profile…',
+];
+
+function RotatingExtractionMessage() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % EXTRACTION_MESSAGES.length), 2200);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <p
+      className="text-white/80 text-base font-medium text-center max-w-xs leading-relaxed"
+      style={{ fontFamily: "'Nunito', sans-serif", transition: 'opacity 0.4s ease', minHeight: 52 }}
+    >
+      {EXTRACTION_MESSAGES[idx]}
+    </p>
+  );
+}
+
+// ============================================================
 // COMPONENT
 // ============================================================
 
@@ -79,6 +108,7 @@ export default function LEEEChat() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [revealedSkills, setRevealedSkills] = useState<number>(0);
   const [newSkillSparkle, setNewSkillSparkle] = useState<string | null>(null);
+  const [showReveal, setShowReveal] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -221,6 +251,8 @@ export default function LEEEChat() {
         for (let i = 0; i <= total; i++) {
           setTimeout(() => setRevealedSkills(i), i * 600);
         }
+        // Show fullscreen superpowers reveal after brief delay
+        setTimeout(() => setShowReveal(true), 300);
       } else {
         const res2 = await fetch('/api/chat', {
           method: 'POST',
@@ -302,6 +334,15 @@ export default function LEEEChat() {
   // ============================================================
 
   return (
+    <>
+      {/* FULLSCREEN SUPERPOWERS REVEAL — overlays everything */}
+      {showReveal && extraction && (
+        <SuperpowersReveal
+          extraction={extraction}
+          onDismiss={() => setShowReveal(false)}
+        />
+      )}
+
     <div className="flex flex-col h-screen" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
 
       {/* HEADER — Warm, Ambient */}
@@ -336,21 +377,49 @@ export default function LEEEChat() {
 
           {/* Story Arc Progress — Visual Journey */}
           {session.status === 'active' && (
-            <div className="mt-2.5 relative">
-              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+            <div className="mt-3 relative">
+              {/* Journey milestones */}
+              <div className="flex items-center justify-between mb-1.5">
+                {[
+                  { icon: '🌅', label: 'Meeting', threshold: 5 },
+                  { icon: '🌿', label: 'Opening Up', threshold: 20 },
+                  { icon: '🦋', label: 'Your Story', threshold: 45 },
+                  { icon: '💎', label: 'Depth', threshold: 65 },
+                  { icon: '✨', label: 'Complete', threshold: 90 },
+                ].map((m, i) => {
+                  const reached = stageConfig.progress >= m.threshold;
+                  const active = stageConfig.progress >= m.threshold && (i === 4 || stageConfig.progress < [5, 20, 45, 65, 90][i + 1]);
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-0.5">
+                      <span
+                        className="transition-all duration-500"
+                        style={{
+                          fontSize: reached ? '13px' : '11px',
+                          opacity: reached ? 1 : 0.3,
+                          transform: active ? 'scale(1.25)' : reached ? 'scale(1.05)' : 'scale(0.9)',
+                          filter: active ? 'drop-shadow(0 0 4px rgba(244,162,97,0.8))' : 'none',
+                        }}
+                      >
+                        {m.icon}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Progress track */}
+              <div className="h-1 bg-stone-100 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-1000 ease-out"
                   style={{
                     width: `${stageConfig.progress}%`,
-                    background: `linear-gradient(90deg, #F4A261, #2A9D8F, #264653)`,
+                    background: 'linear-gradient(90deg, #F4A261 0%, #2A9D8F 60%, #264653 100%)',
                   }}
                 />
               </div>
-              {/* Story markers */}
-              <div className="flex justify-between mt-1 px-1">
-                {['🌅', '🦋', '💎', '✨'].map((icon, i) => (
-                  <span key={i} className={`text-[10px] transition-all duration-500 ${stageConfig.progress > i * 25 + 10 ? 'opacity-100 scale-110' : 'opacity-30 scale-90'}`}>{icon}</span>
-                ))}
+              <div className="flex justify-between mt-1">
+                <span className="text-[10px] text-stone-300">Beginning</span>
+                <span className="text-[10px] font-medium" style={{ color: stageConfig.color }}>{stageConfig.description}</span>
+                <span className="text-[10px] text-stone-300">{stageConfig.progress}%</span>
               </div>
             </div>
           )}
@@ -591,17 +660,37 @@ export default function LEEEChat() {
         </footer>
       )}
 
-      {/* EXTRACTING */}
+      {/* EXTRACTING — Full-screen animated overlay */}
       {isExtracting && (
-        <footer className="flex-none border-t border-amber-100/50 bg-white/60 backdrop-blur-md p-4 text-center">
-          <div className="flex items-center justify-center gap-3">
-            <div className="relative w-6 h-6">
-              <div className="absolute inset-0 rounded-full border-2 border-amber-200" />
-              <div className="absolute inset-0 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
+        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center"
+          style={{ background: 'linear-gradient(160deg, #0F0C29, #302B63, #24243e)' }}>
+
+          {/* Animated butterfly */}
+          <div className="relative mb-10">
+            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-5xl shadow-2xl"
+              style={{ animation: 'extractPulse 1.5s ease-in-out infinite' }}>
+              🦋
             </div>
-            <p className="text-sm text-stone-600">Discovering your superpowers...</p>
+            <div className="absolute -inset-6 rounded-full opacity-20"
+              style={{ background: 'radial-gradient(circle, #F4A261 0%, transparent 70%)', animation: 'extractPulse 1.5s ease-in-out infinite' }} />
           </div>
-        </footer>
+
+          {/* Rotating messages */}
+          <RotatingExtractionMessage />
+
+          {/* Progress dots */}
+          <div className="flex gap-3 mt-8">
+            {[0, 1, 2, 3, 4].map(i => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: '#F4A261',
+                  animation: `extractDot 2s ease-in-out ${i * 0.3}s infinite`,
+                }} />
+            ))}
+          </div>
+
+          <p className="text-white/30 text-xs mt-6">Analysing your stories against PSF framework…</p>
+        </div>
       )}
 
       {/* CSS Animations */}
@@ -627,5 +716,6 @@ export default function LEEEChat() {
         }
       `}} />
     </div>
+    </>
   );
 }

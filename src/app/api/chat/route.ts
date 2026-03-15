@@ -251,10 +251,10 @@ Do NOT tell them which skills you're looking for — just gently steer toward st
   });
 }
 
-async function rebuildOrchestrator(sessionId: string): Promise<LEEEOrchestrator | null> {
+async function rebuildOrchestrator(sessionId: string): Promise<LEEEOrchestrator | undefined> {
   const supabase = db();
   const { data: session } = await supabase.from('leee_sessions').select('*').eq('id', sessionId).single();
-  if (!session) return null;
+  if (!session) return undefined;
 
   const { data: messages } = await supabase.from('leee_messages').select('*').eq('session_id', sessionId).order('turn_number', { ascending: true });
 

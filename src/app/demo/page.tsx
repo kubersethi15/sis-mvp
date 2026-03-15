@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 // ============================================================
 // DEMO FLOW PAGE
@@ -32,6 +32,14 @@ export default function DemoPage() {
     log: [],
   });
   const [isRunning, setIsRunning] = useState(false);
+  const [localData, setLocalData] = useState({ profileId: '', sessionId: '' });
+
+  useEffect(() => {
+    setLocalData({
+      profileId: localStorage.getItem('sis_jobseeker_profile_id') || '',
+      sessionId: localStorage.getItem('sis_last_session_id') || '',
+    });
+  }, []);
 
   const addLog = (msg: string) => setState(prev => ({ ...prev, log: [...prev.log, `[${new Date().toLocaleTimeString()}] ${msg}`] }));
 
@@ -200,13 +208,13 @@ export default function DemoPage() {
         <div className="bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700">
           <h2 className="text-sm font-semibold text-yellow-400 mb-2">⚡ Prerequisites for Demo</h2>
           <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className={`p-3 rounded-lg ${localStorage.getItem('sis_jobseeker_profile_id') ? 'bg-green-900/30 border border-green-800' : 'bg-red-900/30 border border-red-800'}`}>
-              <span className="font-medium">{localStorage.getItem('sis_jobseeker_profile_id') ? '✅' : '❌'} Jobseeker Profile</span>
-              <p className="text-xs text-gray-400 mt-1">{localStorage.getItem('sis_jobseeker_profile_id') ? `ID: ${localStorage.getItem('sis_jobseeker_profile_id')?.substring(0, 8)}...` : 'Go to /profile first'}</p>
+            <div className={`p-3 rounded-lg ${localData.profileId ? 'bg-green-900/30 border border-green-800' : 'bg-red-900/30 border border-red-800'}`}>
+              <span className="font-medium">{localData.profileId ? '✅' : '❌'} Jobseeker Profile</span>
+              <p className="text-xs text-gray-400 mt-1">{localData.profileId ? `ID: ${localData.profileId.substring(0, 8)}...` : 'Go to /profile first'}</p>
             </div>
-            <div className={`p-3 rounded-lg ${localStorage.getItem('sis_last_session_id') ? 'bg-green-900/30 border border-green-800' : 'bg-yellow-900/30 border border-yellow-800'}`}>
-              <span className="font-medium">{localStorage.getItem('sis_last_session_id') ? '✅' : '⚠️'} LEEE Session</span>
-              <p className="text-xs text-gray-400 mt-1">{localStorage.getItem('sis_last_session_id') ? `Session: ${localStorage.getItem('sis_last_session_id')?.substring(0, 8)}...` : 'Optional — chat with Aya at /chat'}</p>
+            <div className={`p-3 rounded-lg ${localData.sessionId ? 'bg-green-900/30 border border-green-800' : 'bg-yellow-900/30 border border-yellow-800'}`}>
+              <span className="font-medium">{localData.sessionId ? '✅' : '⚠️'} LEEE Session</span>
+              <p className="text-xs text-gray-400 mt-1">{localData.sessionId ? `Session: ${localData.sessionId.substring(0, 8)}...` : 'Optional — chat with Aya at /chat'}</p>
             </div>
             <div className="p-3 rounded-lg bg-blue-900/30 border border-blue-800">
               <span className="font-medium">🏢 Employer</span>
