@@ -210,8 +210,20 @@ export default function LEEEChat() {
       const data = await res.json();
       if (data.extraction) {
         setExtraction(data.extraction);
-        // Store for skills dashboard
         localStorage.setItem('sis_last_extraction', JSON.stringify(data.extraction));
+      } else {
+        // Retry once on failure
+        console.log('First extraction attempt failed, retrying...');
+        const res2 = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'extract', session_id: sessionId }),
+        });
+        const data2 = await res2.json();
+        if (data2.extraction) {
+          setExtraction(data2.extraction);
+          localStorage.setItem('sis_last_extraction', JSON.stringify(data2.extraction));
+        }
       }
     } catch (e) {
       console.error('Extraction error:', e);
@@ -282,6 +294,17 @@ export default function LEEEChat() {
 
   const stageConfig = STAGE_CONFIG[session.stage] || STAGE_CONFIG.opening;
 
+  // Session timer
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (session.status !== 'active') return;
+    const startTime = Date.now();
+    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, [session.status]);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+
   // ============================================================
   // RENDER
   // ============================================================
@@ -303,11 +326,14 @@ export default function LEEEChat() {
               </div>
             </div>
             {session.status === 'active' && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm">{stageConfig.icon}</span>
-                <span className="text-xs font-medium" style={{ color: stageConfig.color }}>
-                  {stageConfig.label}
-                </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-400 font-mono">{mins}:{secs.toString().padStart(2, '0')}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm">{stageConfig.icon}</span>
+                  <span className="text-xs font-medium" style={{ color: stageConfig.color }}>
+                    {stageConfig.label}
+                  </span>
+                </div>
               </div>
             )}
           </div>

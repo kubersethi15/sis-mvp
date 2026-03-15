@@ -144,9 +144,60 @@ export class LEEEOrchestrator {
     this.state.messages.push(message);
     if (message.role === 'user') {
       this.state.currentStoryTurnCount++;
+      this.detectDistress(message.content);
       this.checkStageTransition();
       this.updateSuggestedPrompts();
     }
+  }
+
+  // Detect distress signals in user messages
+  private detectDistress(content: string): void {
+    const lower = content.toLowerCase();
+    const distressKeywords = [
+      'suicide', 'kill myself', 'end my life', 'want to die', 'self-harm',
+      'hurting myself', 'can\'t go on', 'give up on life', 'hopeless',
+    ];
+    const mildDistressKeywords = [
+      'depressed', 'anxious', 'panic', 'crying', 'overwhelmed',
+      'can\'t cope', 'breaking down', 'falling apart', 'scared',
+      'traumat', 'abuse', 'violence',
+    ];
+
+    if (distressKeywords.some(k => lower.includes(k))) {
+      this.state.userDistressLevel = 3; // Crisis — stop immediately
+    } else if (mildDistressKeywords.some(k => lower.includes(k))) {
+      this.state.userDistressLevel = Math.max(this.state.userDistressLevel, 2) as 0 | 1 | 2 | 3;
+    }
+  }
+
+  // Check if current story has enough STAR+E+R elements
+  hasStoryCompleteness(): { complete: boolean; missing: string[] } {
+    const storyMessages = this.state.messages.filter(
+      m => m.role === 'user' && ['core_probe', 'skill_probe', 'elicitation'].includes(m.moth_stage)
+    );
+    const allText = storyMessages.map(m => m.content).join(' ').toLowerCase();
+
+    const missing: string[] = [];
+    // Check for situation/context signals
+    const hasContext = allText.length > 50; // At least some substance
+    if (!hasContext) missing.push('context');
+
+    // Check for action signals (verbs indicating doing something)
+    const actionWords = ['did', 'made', 'helped', 'created', 'built', 'solved', 'decided', 'went', 'told', 'asked', 'started', 'tried', 'figured', 'handled', 'managed'];
+    const hasAction = actionWords.some(w => allText.includes(w));
+    if (!hasAction) missing.push('action');
+
+    // Check for outcome signals
+    const outcomeWords = ['result', 'happened', 'turned out', 'worked', 'changed', 'better', 'success', 'achieved', 'ended up', 'outcome', 'finally'];
+    const hasOutcome = outcomeWords.some(w => allText.includes(w));
+    if (!hasOutcome) missing.push('outcome');
+
+    // Check for reflection signals
+    const reflectionWords = ['learned', 'realized', 'taught me', 'looking back', 'would do', 'differently', 'lesson', 'understand now'];
+    const hasReflection = reflectionWords.some(w => allText.includes(w));
+    if (!hasReflection) missing.push('reflection');
+
+    return { complete: missing.length <= 1, missing }; // Allow 1 missing element
   }
 
   // Check if we should transition to next stage
