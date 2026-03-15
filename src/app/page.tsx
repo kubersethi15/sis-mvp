@@ -12,15 +12,27 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
+            href="/profile"
+            className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-lg transition-all text-left"
+          >
+            <span className="text-3xl mb-3 block">👤</span>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Create Profile</h2>
+            <p className="text-sm text-gray-500">
+              Set up your jobseeker profile — work history, education, skills. This feeds into your alignment matching.
+            </p>
+            <span className="text-xs text-teal-600 font-medium mt-3 block">Gate 2A — Jobseeker Profile →</span>
+          </Link>
+
+          <Link
             href="/chat"
             className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-lg transition-all text-left"
           >
             <span className="text-3xl mb-3 block">💬</span>
-            <h2 className="text-lg font-semibold text-gray-900 mb-1">Jobseeker</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Tell Your Story</h2>
             <p className="text-sm text-gray-500">
-              Tell your story to Aya. Discover the skills hidden in your lived experience.
+              Talk to Aya. Discover the skills hidden in your lived experience through storytelling.
             </p>
-            <span className="text-xs text-teal-600 font-medium mt-3 block">Gate 2 — LEEE Chatbot →</span>
+            <span className="text-xs text-teal-600 font-medium mt-3 block">Gate 2B — LEEE Chatbot →</span>
           </Link>
 
           <Link
