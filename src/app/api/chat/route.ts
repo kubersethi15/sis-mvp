@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
 
     if (action === 'start') return handleStart(body);
     if (action === 'extract') return handleExtract(session_id);
+    if (action === 'extract_transcript') return handleExtractTranscript(body.transcript);
 
     if (!session_id || !message) {
       return NextResponse.json({ error: 'session_id and message required' }, { status: 400 });
@@ -327,6 +328,29 @@ async function handleExtract(sessionId: string) {
     return NextResponse.json({ error: 'Extraction failed to parse' }, { status: 500 });
   } catch (e: any) {
     console.error('Extraction error:', e);
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+// Direct transcript extraction — for testing
+async function handleExtractTranscript(transcript: string) {
+  if (!transcript) return NextResponse.json({ error: 'transcript required' }, { status: 400 });
+
+  const prompt = LEEE_EXTRACTION_PROMPT.replace('{transcript}', transcript);
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
+    });
+    const result = await res.json();
+    const text = result.content?.find((b: any) => b.type === 'text')?.text;
+    if (text) {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) return NextResponse.json({ extraction: JSON.parse(match[0]), status: 'extracted' });
+    }
+    return NextResponse.json({ error: 'Extraction failed to parse' }, { status: 500 });
+  } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
