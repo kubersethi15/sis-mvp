@@ -69,8 +69,8 @@ Last updated: March 15, 2026
 | E14 | Gaming flag detection | 🔶 Partial | Basic flags; needs testing with fabricated stories |
 | E15 | Extraction results persistence to Supabase | ✅ Done | Full extraction saved to leee_extractions with audit trail |
 | E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | ✅ Done | Full display in psychologist validation page |
-| E17 | Role-specific extraction (contextualised to vacancy) | ⬜ Todo | Ryan: "build evidence for that specific role" — extraction should factor in the vacancy requirements, not just generic skills |
-| E18 | Auto-extract from profile before LEEE | ⬜ Todo | Ryan: "automatically extract data from jobseeker profile as starting point then ask for additional evidence" — profile data feeds into Gate 2 before chatbot runs |
+| E17 | Role-specific extraction (contextualised to vacancy) | ✅ Done | Vacancy context injected into system prompt, steers toward role-relevant stories |
+| E18 | Auto-extract from profile before LEEE | ✅ Done | Profile context injected into Aya — knows name, work, education, disability |
 
 ### Anti-Gaming
 
@@ -93,7 +93,7 @@ Last updated: March 15, 2026
 | P3 | Profile completeness tracking | ✅ Done | Auto-calculated percentage from filled fields |
 | P4 | Evidence repository (upload portfolio/certs) | ⬜ Todo | File upload to Supabase storage |
 | P5 | Psychometric data display (RIASEC, HIGH5) | ⬜ Todo | From Employment Accelerator intake |
-| P6 | Combined evidence view (profile + LEEE) | ⬜ Todo | Hiring Manager review screen |
+| P6 | Combined evidence view (profile + LEEE) | ✅ Done | Single API merges profile + LEEE + alignment for Hiring Manager |
 
 ---
 
@@ -104,7 +104,7 @@ Last updated: March 15, 2026
 | A1 | Employer profile creation | ✅ Done | API route + DB persistence |
 | A2 | Vacancy Design Module (JD upload/builder) | ✅ Done | AI-powered JD parser → competency blueprint |
 | A3 | Vacancy publishing (platform, PDF, QR) | 🔶 Partial | DB published; PDF/QR not yet. Ryan: QR/link leads directly to Gate 2 |
-| A4 | Pre-application eligibility filter | ⬜ Todo | Licenses, work auth, schedule, salary |
+| A4 | Pre-application eligibility filter | ✅ Done | Checks qualifications, location, schedule, skills against vacancy requirements |
 | A5 | AI alignment assessment generation | ✅ Done | Compares blueprint vs jobseeker profile + LEEE |
 | A6 | Alignment score + competency fit map | ✅ Done | Score, fit map, strengths, gaps, inclusion notes |
 | A7 | Recruiter review dashboard | ✅ Done | Three-tab UI: upload, pipeline, review queue |
@@ -225,7 +225,7 @@ Last updated: March 15, 2026
 | Testing & Validation | 9 | 0 | 0 | 9 |
 | **TOTAL** | **105** | **67** | **8** | **30** |
 
-**73 done, 8 partial, 24 remaining — ~77% through the build**
+**77 done, 8 partial, 20 remaining — ~80% through the build**
 
 ---
 
