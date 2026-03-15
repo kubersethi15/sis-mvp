@@ -132,12 +132,12 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| V1 | Psychologist validation interface | ⬜ Todo | View full audit trail for a candidate |
-| V2 | Audit trail display (quote → STAR+E+R → skill → score) | ⬜ Todo | Traceable chain for each skill claim |
-| V3 | Signature + license endorsement | ⬜ Todo | Digital sign-off with license number |
-| V4 | Methodology references display | ⬜ Todo | Research publications linked to methodology |
-| V5 | Research anchoring document | ⬜ Todo | Formal lit review for psychologists |
-| V6 | Validation status tracking | ⬜ Todo | Pending/validated/rejected/revision needed |
+| V1 | Psychologist validation interface | ✅ Done | 3-tab interface: audit trail, methodology, validate & sign |
+| V2 | Audit trail display (quote → STAR+E+R → skill → score) | ✅ Done | Full traceable chain per skill claim with episode decomposition |
+| V3 | Signature + license endorsement | ✅ Done | PRC license input + digital sign button + attestation |
+| V4 | Methodology references display | ✅ Done | 7 research references with source and relevance |
+| V5 | Research anchoring document | 🔶 Partial | Methodology tab covers it; standalone doc still needed |
+| V6 | Validation status tracking | ✅ Done | Validated/revision needed/rejected + DB persistence |
 
 ---
 
@@ -145,7 +145,7 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| O1 | Candidate feedback report (non-selected) | ⬜ Todo | Skills to strengthen, alternative roles, learning recs |
+| O1 | Candidate feedback report (non-selected) | ✅ Done | Auto-generated in Gate 3 API for declined candidates |
 | O2 | Onboarding plan generation (selected) | ⬜ Todo | Checklist, 30/90 day plan, training recs |
 | O3 | Manager handoff notes | ⬜ Todo | Support needs from Gate 3 |
 
@@ -155,10 +155,10 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| D1 | Jobseeker skills profile dashboard | ⬜ Todo | Visual display of extracted skills + proficiency |
-| D2 | Evidence locker view | ⬜ Todo | Browse skill → quote → confidence |
+| D1 | Jobseeker skills profile dashboard | ✅ Done | /skills page with proficiency bars, confidence, evidence |
+| D2 | Evidence locker view | ✅ Done | Click any skill to see transcript quotes + justification |
 | D3 | Skills Passport output (JSON for Randy) | ⬜ Todo | PQF-aligned, machine-readable |
-| D4 | Employer pipeline dashboard | ⬜ Todo | Applicant flow, stage conversion, time per stage |
+| D4 | Employer pipeline dashboard | ✅ Done | /reviewer shows real pipeline data with gate scores |
 | D5 | Skill gap visualization | ⬜ Todo | What wasn't evidenced + what to do next |
 
 ---
@@ -223,9 +223,9 @@ Last updated: March 15, 2026
 | Dashboards & Output | 5 | 1 | 0 | 4 |
 | UX Polish | 8 | 0 | 3 | 5 |
 | Testing & Validation | 9 | 0 | 0 | 9 |
-| **TOTAL** | **105** | **49** | **12** | **44** |
+| **TOTAL** | **105** | **60** | **8** | **37** |
 
-**49 done, 12 partial, 44 remaining — ~55% through the build**
+**60 done, 8 partial, 37 remaining — ~63% through the build**
 
 ---
 
