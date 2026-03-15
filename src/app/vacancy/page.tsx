@@ -38,19 +38,44 @@ export default function VacancyPage() {
   const [alignmentLoading, setAlignmentLoading] = useState(false);
   const [applied, setApplied] = useState(false);
 
+  const [matchData, setMatchData] = useState<any>(null);
+
   useEffect(() => {
-    fetchVacancies();
+    fetchMatches();
   }, []);
 
-  const fetchVacancies = async () => {
+  const fetchMatches = async () => {
     try {
-      const res = await fetch('/api/vacancy', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'list' }),
-      });
-      const data = await res.json();
-      setVacancies(data.vacancies || []);
-      if (data.vacancies?.length > 0) setSelected(data.vacancies[0]);
+      const profileId = localStorage.getItem('sis_jobseeker_profile_id');
+      if (profileId) {
+        // Use matching engine
+        const res = await fetch('/api/match', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'match_for_jobseeker', jobseeker_profile_id: profileId }),
+        });
+        const data = await res.json();
+        setMatchData(data);
+        const mapped = (data.matches || []).map((m: any) => ({
+          id: m.vacancy_id, title: m.title, description: m.description,
+          location: m.location, work_arrangement: m.work_arrangement,
+          competency_blueprint: { human_centric_skills: m.human_centric_skills },
+          essential_requirements: [], trainable_requirements: [],
+          compensation_range: {}, employer_profiles: { organization_name: m.employer },
+          _match_score: m.match_score, _match_breakdown: m.match_breakdown,
+          _accessibility_friendly: m.accessibility_friendly,
+        }));
+        setVacancies(mapped);
+        if (mapped.length > 0) setSelected(mapped[0]);
+      } else {
+        // Fallback: just list vacancies
+        const res = await fetch('/api/vacancy', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'list' }),
+        });
+        const data = await res.json();
+        setVacancies(data.vacancies || []);
+        if (data.vacancies?.length > 0) setSelected(data.vacancies[0]);
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -132,14 +157,36 @@ export default function VacancyPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Vacancy List */}
+            {/* Vacancy List with Match Scores */}
             <div className="space-y-3">
-              {vacancies.map(v => (
+              {matchData?.jobseeker && (
+                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 mb-2">
+                  <p className="text-xs font-medium text-amber-700">Matched for: {matchData.jobseeker.name}</p>
+                  <p className="text-[10px] text-amber-500">{matchData.jobseeker.has_leee ? `${matchData.jobseeker.skills_count} skills evidenced` : 'Chat with Aya to improve matches'}</p>
+                </div>
+              )}
+              {vacancies.map((v: any) => (
                 <button key={v.id} onClick={() => { setSelected(v); setQaMessages([]); setAlignment(null); setApplied(false); }}
                   className={`w-full text-left p-4 rounded-lg border transition-all ${selected?.id === v.id ? 'border-teal-300 bg-teal-50 shadow-sm' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                  <h3 className="font-semibold text-gray-900 text-sm">{v.title}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{v.location || 'Location not specified'}</p>
-                  <p className="text-xs text-gray-400 mt-1">{v.work_arrangement || 'Not specified'}</p>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">{v.title}</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">{(v as any).employer_profiles?.organization_name || ''}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{v.location || 'Location not specified'} • {v.work_arrangement || 'Not specified'}</p>
+                    </div>
+                    {(v as any)._match_score !== undefined && (
+                      <div className={`text-right flex-shrink-0 ml-2 px-2 py-1 rounded-lg text-xs font-bold ${
+                        (v as any)._match_score >= 70 ? 'bg-green-100 text-green-700' :
+                        (v as any)._match_score >= 40 ? 'bg-amber-100 text-amber-700' :
+                        'bg-red-100 text-red-600'
+                      }`}>
+                        {(v as any)._match_score}%
+                      </div>
+                    )}
+                  </div>
+                  {(v as any)._accessibility_friendly && (
+                    <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded mt-1 inline-block">♿ PWD-friendly</span>
+                  )}
                 </button>
               ))}
             </div>
