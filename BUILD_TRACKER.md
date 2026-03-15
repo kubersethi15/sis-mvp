@@ -108,7 +108,7 @@ Last updated: March 15, 2026
 | A5 | AI alignment assessment generation | ✅ Done | Compares blueprint vs jobseeker profile + LEEE |
 | A6 | Alignment score + competency fit map | ✅ Done | Score, fit map, strengths, gaps, inclusion notes |
 | A7 | Recruiter review dashboard | ✅ Done | Three-tab UI: upload, pipeline, review queue |
-| A8 | Matching engine (vacancy ↔ jobseeker) | ⬜ Todo | Skill overlap, evidence readiness, location, schedule. Ryan: "similar to Upwork but more holistic" |
+| A8 | Matching engine (vacancy ↔ jobseeker) | ✅ Done | 6-factor holistic scoring: skills, profile, location, compensation, accessibility, readiness |
 | A9 | Vacancy Q&A assistant (grounded, no hallucination) | ✅ Done | AI chatbot on vacancy page, grounded in vacancy data only |
 | A10 | Alignment rating shown TO jobseeker | ✅ Done | Check My Alignment button on vacancy page shows score + strengths + gaps |
 
@@ -225,7 +225,7 @@ Last updated: March 15, 2026
 | Testing & Validation | 9 | 0 | 0 | 9 |
 | **TOTAL** | **105** | **67** | **8** | **30** |
 
-**77 done, 8 partial, 20 remaining — ~80% through the build**
+**78 done, 8 partial, 19 remaining — ~82% through the build**
 
 ---
 
