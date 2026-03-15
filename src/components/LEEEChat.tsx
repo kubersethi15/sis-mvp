@@ -12,6 +12,7 @@ interface Message {
   content: string;
   stage?: string;
   timestamp: Date;
+  skillSparkle?: string; // skill discovered mid-conversation
 }
 
 interface SessionState {
@@ -23,33 +24,43 @@ interface SessionState {
 }
 
 // ============================================================
-// STAGE DISPLAY CONFIG
+// STAGE CONFIG — Story Arc Visualization
 // ============================================================
 
-const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string; progress: number }> = {
-  opening: { label: 'Getting Started', color: '#2E86C1', icon: '👋', progress: 5 },
-  story_select: { label: 'Choosing a Story', color: '#27AE60', icon: '📖', progress: 15 },
-  elicitation: { label: 'Tell Your Story', color: '#27AE60', icon: '✨', progress: 30 },
-  core_probe: { label: 'Exploring Details', color: '#E67E22', icon: '🔍', progress: 50 },
-  skill_probe: { label: 'Going Deeper', color: '#E67E22', icon: '💡', progress: 65 },
-  verification: { label: 'Wrapping Up Story', color: '#8E44AD', icon: '✅', progress: 75 },
-  micro_story: { label: 'One More Quick Story', color: '#2E86C1', icon: '⚡', progress: 85 },
-  closing: { label: 'Finishing Up', color: '#27AE60', icon: '🎉', progress: 95 },
+const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string; progress: number; description: string }> = {
+  opening: { label: 'Getting to Know You', color: '#F4A261', icon: '🌅', progress: 5, description: 'Building rapport' },
+  story_select: { label: 'Finding a Story', color: '#E9C46A', icon: '🌿', progress: 15, description: 'Choosing what to share' },
+  elicitation: { label: 'Tell Your Story', color: '#2A9D8F', icon: '🦋', progress: 30, description: 'Setting the scene' },
+  core_probe: { label: 'Exploring What Happened', color: '#2A9D8F', icon: '🔮', progress: 50, description: 'The heart of your story' },
+  skill_probe: { label: 'Going Deeper', color: '#264653', icon: '💎', progress: 65, description: 'Understanding the impact' },
+  verification: { label: 'Wrapping Up', color: '#E76F51', icon: '🌟', progress: 80, description: 'Final reflections' },
+  micro_story: { label: 'One More Quick Story', color: '#F4A261', icon: '⚡', progress: 88, description: 'A short example' },
+  closing: { label: 'Thank You', color: '#2A9D8F', icon: '✨', progress: 98, description: 'Session complete' },
 };
 
 // ============================================================
-// SKILL BADGES
+// SKILL CONFIG
 // ============================================================
 
-const SKILL_LABELS: Record<string, { label: string; icon: string }> = {
-  EQ: { label: 'Emotional Intelligence', icon: '💛' },
-  COMM: { label: 'Communication', icon: '💬' },
-  COLLAB: { label: 'Collaboration', icon: '🤝' },
-  PS: { label: 'Problem Solving', icon: '🧩' },
-  ADAPT: { label: 'Adaptability', icon: '🌊' },
-  LEARN: { label: 'Learning Agility', icon: '📚' },
-  EMPATHY: { label: 'Empathy', icon: '❤️' },
-  DIGITAL: { label: 'Digital Fluency', icon: '💻' },
+const SKILL_LABELS: Record<string, { label: string; icon: string; color: string }> = {
+  EQ: { label: 'Emotional Intelligence', icon: '💛', color: '#F4A261' },
+  COMM: { label: 'Communication', icon: '💬', color: '#2A9D8F' },
+  COLLAB: { label: 'Collaboration', icon: '🤝', color: '#264653' },
+  PS: { label: 'Problem Solving', icon: '🧩', color: '#E76F51' },
+  ADAPT: { label: 'Adaptability', icon: '🌊', color: '#E9C46A' },
+  LEARN: { label: 'Learning Agility', icon: '📚', color: '#F4A261' },
+  EMPATHY: { label: 'Empathy', icon: '❤️', color: '#E76F51' },
+  DIGITAL: { label: 'Digital Fluency', icon: '💻', color: '#264653' },
+};
+
+// Quick reply suggestions based on stage
+const QUICK_REPLIES: Record<string, string[]> = {
+  opening: ['I\'m doing well!', 'Medyo okay lang', 'It\'s been a tough day'],
+  story_select: ['Something from work', 'A family experience', 'A community story', 'School experience'],
+  core_probe: ['Let me think...', 'That\'s a great question', 'Can I skip this one?'],
+  skill_probe: ['Yes, definitely', 'I\'m not sure', 'Can we move on?'],
+  verification: ['Yes, that\'s right', 'Let me clarify', 'I\'d like to add something'],
+  closing: ['Thank you, Aya!', 'Salamat!'],
 };
 
 // ============================================================
@@ -66,6 +77,8 @@ export default function LEEEChat() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [extraction, setExtraction] = useState<any>(null);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [revealedSkills, setRevealedSkills] = useState<number>(0);
+  const [newSkillSparkle, setNewSkillSparkle] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -82,50 +95,58 @@ export default function LEEEChat() {
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
   };
 
+  // Skill sparkle detection — when a new skill appears in evidenced skills
+  useEffect(() => {
+    if (session.skillsEvidenced) {
+      const found = Object.entries(session.skillsEvidenced).filter(([_, v]) => v);
+      if (found.length > 0) {
+        const lastSkill = found[found.length - 1][0];
+        const label = SKILL_LABELS[lastSkill];
+        if (label) {
+          setNewSkillSparkle(label.label);
+          setTimeout(() => setNewSkillSparkle(null), 3000);
+        }
+      }
+    }
+  }, [session.skillsEvidenced]);
+
   // Start session
   const startSession = useCallback(async (language: string = 'en') => {
     setShowWelcome(false);
     setIsLoading(true);
 
     try {
-      // Create session
+      const profileId = localStorage.getItem('sis_jobseeker_profile_id');
+      const userId = localStorage.getItem('sis_user_id');
+
       const startRes = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'start', language }),
+        body: JSON.stringify({
+          action: 'start', language,
+          jobseeker_profile_id: profileId || undefined,
+          user_id: userId || undefined,
+        }),
       });
       const startData = await startRes.json();
 
       setSession({
-        sessionId: startData.session_id,
-        status: 'active',
-        stage: 'opening',
-        storiesCompleted: 0,
-        skillsEvidenced: null,
+        sessionId: startData.session_id, status: 'active', stage: 'opening',
+        storiesCompleted: 0, skillsEvidenced: null,
       });
-
-      // Store session ID for demo flow linkage
       localStorage.setItem('sis_last_session_id', startData.session_id);
 
-      // Get first AI message
       const chatRes = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: startData.session_id,
-          message: '[User has joined the session]',
-        }),
+        body: JSON.stringify({ session_id: startData.session_id, message: '[User has joined the session]' }),
       });
       const chatData = await chatRes.json();
 
       setMessages([{
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: chatData.message,
-        stage: chatData.stage,
-        timestamp: new Date(),
+        id: crypto.randomUUID(), role: 'assistant', content: chatData.message,
+        stage: chatData.stage, timestamp: new Date(),
       }]);
-
     } catch (error) {
       console.error('Failed to start session:', error);
     } finally {
@@ -135,56 +156,39 @@ export default function LEEEChat() {
   }, []);
 
   // Send message
-  const sendMessage = useCallback(async () => {
-    if (!input.trim() || !session.sessionId || isLoading) return;
+  const sendMessage = useCallback(async (text?: string) => {
+    const messageText = text || input.trim();
+    if (!messageText || !session.sessionId || isLoading) return;
 
     const userMessage: Message = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date(),
+      id: crypto.randomUUID(), role: 'user', content: messageText, timestamp: new Date(),
     };
-
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-
-    // Reset textarea height
     if (inputRef.current) inputRef.current.style.height = 'auto';
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: session.sessionId,
-          message: userMessage.content,
-        }),
+        body: JSON.stringify({ session_id: session.sessionId, message: messageText }),
       });
       const data = await res.json();
 
       const aiMessage: Message = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: data.message,
-        stage: data.stage,
-        timestamp: new Date(),
+        id: crypto.randomUUID(), role: 'assistant', content: data.message,
+        stage: data.stage, timestamp: new Date(),
       };
-
       setMessages(prev => [...prev, aiMessage]);
       setSession(prev => ({
-        ...prev,
-        stage: data.stage,
+        ...prev, stage: data.stage,
         status: data.session_status === 'completed' ? 'completed' : 'active',
         storiesCompleted: data.stories_completed,
         skillsEvidenced: data.skills_evidenced || prev.skillsEvidenced,
       }));
 
-      // If session completed, trigger extraction
-      if (data.should_extract) {
-        runExtraction(session.sessionId);
-      }
-
+      if (data.should_extract) runExtraction(session.sessionId);
     } catch (error) {
       console.error('Send error:', error);
       setMessages(prev => [...prev, {
@@ -211,9 +215,13 @@ export default function LEEEChat() {
       if (data.extraction) {
         setExtraction(data.extraction);
         localStorage.setItem('sis_last_extraction', JSON.stringify(data.extraction));
+        // Animate skill reveal
+        setRevealedSkills(0);
+        const total = data.extraction.skills_profile?.length || 0;
+        for (let i = 0; i <= total; i++) {
+          setTimeout(() => setRevealedSkills(i), i * 600);
+        }
       } else {
-        // Retry once on failure
-        console.log('First extraction attempt failed, retrying...');
         const res2 = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -232,33 +240,22 @@ export default function LEEEChat() {
     }
   };
 
-  // Finish session early (user-initiated)
+  // Finish session
   const handleFinishSession = useCallback(async () => {
     if (!session.sessionId || isLoading) return;
     setIsLoading(true);
     try {
-      // Send a closing signal
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: session.sessionId,
-          message: '[User chose to finish the conversation]',
-        }),
+        body: JSON.stringify({ session_id: session.sessionId, message: '[User chose to finish the conversation]' }),
       });
       const data = await res.json();
-
-      const aiMessage: Message = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: data.message,
-        stage: 'closing',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => [...prev, {
+        id: crypto.randomUUID(), role: 'assistant', content: data.message,
+        stage: 'closing', timestamp: new Date(),
+      }]);
       setSession(prev => ({ ...prev, status: 'completed', stage: 'closing' }));
-
-      // Auto-trigger extraction
       if (session.sessionId) runExtraction(session.sessionId);
     } catch (error) {
       console.error('Finish error:', error);
@@ -267,22 +264,12 @@ export default function LEEEChat() {
     }
   }, [session.sessionId, isLoading]);
 
-  // Handle enter key
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  // Download transcript as text file
+  // Download transcript
   const downloadTranscript = useCallback(() => {
-    const lines = messages.map(m => 
+    const lines = messages.map(m =>
       `[${m.stage || 'unknown'}] ${m.role === 'assistant' ? 'Aya' : 'User'}: ${m.content}`
     ).join('\n\n');
-    
     const header = `SIS LEEE Conversation Transcript\nSession: ${session.sessionId}\nDate: ${new Date().toISOString()}\nStories completed: ${session.storiesCompleted}\n${'='.repeat(60)}\n\n`;
-    
     const blob = new Blob([header + lines], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -292,15 +279,20 @@ export default function LEEEChat() {
     URL.revokeObjectURL(url);
   }, [messages, session]);
 
-  const stageConfig = STAGE_CONFIG[session.stage] || STAGE_CONFIG.opening;
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  };
 
-  // Session timer
+  const stageConfig = STAGE_CONFIG[session.stage] || STAGE_CONFIG.opening;
+  const quickReplies = QUICK_REPLIES[session.stage] || [];
+
+  // Timer
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
     if (session.status !== 'active') return;
-    const startTime = Date.now();
-    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 1000);
-    return () => clearInterval(timer);
+    const start = Date.now();
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(t);
   }, [session.status]);
   const mins = Math.floor(elapsed / 60);
   const secs = elapsed % 60;
@@ -310,176 +302,205 @@ export default function LEEEChat() {
   // ============================================================
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="flex flex-col h-screen" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
 
-      {/* HEADER */}
-      <header className="flex-none border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+      {/* HEADER — Warm, Ambient */}
+      <header className="flex-none backdrop-blur-md bg-white/60 border-b border-amber-100/50">
         <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                A
+              {/* Aya Avatar with breathing animation */}
+              <div className="relative">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-white text-lg shadow-lg" style={{ animation: 'breathe 4s ease-in-out infinite' }}>
+                  🦋
+                </div>
+                {session.status === 'active' && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white" />
+                )}
               </div>
               <div>
-                <h1 className="text-base font-semibold text-slate-800">Aya</h1>
-                <p className="text-xs text-slate-500">Skills Intelligence System</p>
+                <h1 className="text-[15px] font-semibold text-stone-800" style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}>Aya</h1>
+                <p className="text-[11px] text-stone-400">{session.status === 'active' ? stageConfig.description : 'Skills Intelligence System'}</p>
               </div>
             </div>
             {session.status === 'active' && (
               <div className="flex items-center gap-3">
-                <span className="text-xs text-slate-400 font-mono">{mins}:{secs.toString().padStart(2, '0')}</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{stageConfig.icon}</span>
-                  <span className="text-xs font-medium" style={{ color: stageConfig.color }}>
-                    {stageConfig.label}
-                  </span>
+                <span className="text-[11px] text-stone-400 font-mono tabular-nums">{mins}:{secs.toString().padStart(2, '0')}</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: stageConfig.color + '15' }}>
+                  <span className="text-xs">{stageConfig.icon}</span>
+                  <span className="text-[11px] font-medium" style={{ color: stageConfig.color }}>{stageConfig.label}</span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* PROGRESS BAR */}
+          {/* Story Arc Progress — Visual Journey */}
           {session.status === 'active' && (
-            <div className="mt-2 h-1 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-1000 ease-out"
-                style={{ width: `${stageConfig.progress}%`, backgroundColor: stageConfig.color }}
-              />
+            <div className="mt-2.5 relative">
+              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-1000 ease-out"
+                  style={{
+                    width: `${stageConfig.progress}%`,
+                    background: `linear-gradient(90deg, #F4A261, #2A9D8F, #264653)`,
+                  }}
+                />
+              </div>
+              {/* Story markers */}
+              <div className="flex justify-between mt-1 px-1">
+                {['🌅', '🦋', '💎', '✨'].map((icon, i) => (
+                  <span key={i} className={`text-[10px] transition-all duration-500 ${stageConfig.progress > i * 25 + 10 ? 'opacity-100 scale-110' : 'opacity-30 scale-90'}`}>{icon}</span>
+                ))}
+              </div>
             </div>
           )}
         </div>
       </header>
 
+      {/* SKILL SPARKLE NOTIFICATION */}
+      {newSkillSparkle && (
+        <div className="flex-none mx-auto mt-2" style={{ animation: 'slideDown 0.5s ease-out, fadeOut 0.5s ease-out 2.5s forwards' }}>
+          <div className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-lg">
+            <span className="text-xs font-medium text-amber-700">✨ Skill signal detected: {newSkillSparkle}</span>
+          </div>
+        </div>
+      )}
+
       {/* MESSAGES AREA */}
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-4 py-6">
 
-          {/* WELCOME SCREEN */}
+          {/* WELCOME SCREEN — Premium */}
           {showWelcome && (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-3xl shadow-lg mb-6">
-                A
+            <div className="flex flex-col items-center justify-center min-h-[65vh] text-center">
+              {/* Butterfly avatar */}
+              <div className="relative mb-8">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-5xl shadow-2xl" style={{ animation: 'breathe 4s ease-in-out infinite' }}>
+                  🦋
+                </div>
+                <div className="absolute -inset-3 rounded-3xl" style={{ background: 'radial-gradient(circle, rgba(244,162,97,0.15) 0%, transparent 70%)', animation: 'pulse 3s ease-in-out infinite' }} />
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">
+
+              <h2 className="text-2xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 Discover Your Superpowers
               </h2>
-              <p className="text-slate-500 max-w-md mb-8 leading-relaxed">
+              <p className="text-stone-500 max-w-sm mb-8 leading-relaxed text-[15px]">
                 Share real stories from your life and let us uncover the valuable skills you already have.
-                No tests, no right or wrong answers — just your stories.
+                No tests, no right or wrong answers.
               </p>
+
               <div className="flex flex-col gap-3 w-full max-w-xs">
-                <button
-                  onClick={() => startSession('en')}
-                  className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                >
+                <button onClick={() => startSession('en')}
+                  className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ fontFamily: "'Nunito', sans-serif" }}>
                   Start in English
                 </button>
-                <button
-                  onClick={() => startSession('taglish')}
-                  className="px-6 py-3 bg-white border-2 border-emerald-200 text-emerald-700 rounded-xl font-medium hover:bg-emerald-50 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                >
+                <button onClick={() => startSession('taglish')}
+                  className="px-6 py-3.5 bg-white/80 backdrop-blur border-2 border-amber-200 text-amber-700 rounded-2xl font-semibold hover:bg-amber-50 transition-all hover:scale-[1.02]"
+                  style={{ fontFamily: "'Nunito', sans-serif" }}>
                   Magsimula sa Taglish
                 </button>
-                <button
-                  onClick={() => startSession('fil')}
-                  className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                >
+                <button onClick={() => startSession('fil')}
+                  className="px-6 py-3.5 bg-white/60 border-2 border-stone-200 text-stone-500 rounded-2xl font-medium hover:bg-stone-50 transition-all"
+                  style={{ fontFamily: "'Nunito', sans-serif" }}>
                   Magsimula sa Filipino
                 </button>
               </div>
-              <p className="text-xs text-slate-400 mt-6">
-                12–18 minutes • You can skip any question • Your stories stay private
-              </p>
+
+              <div className="flex items-center gap-4 mt-8 text-[11px] text-stone-400">
+                <span>🕐 12–18 minutes</span>
+                <span>•</span>
+                <span>⏭️ Skip any question</span>
+                <span>•</span>
+                <span>🔒 Stories stay private</span>
+              </div>
             </div>
           )}
 
           {/* CHAT MESSAGES */}
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex mb-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+          {messages.map((msg, idx) => (
+            <div key={msg.id} className={`flex mb-5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              style={{ animation: `messageIn 0.4s ease-out ${idx === messages.length - 1 ? '' : 'none'}` }}>
               {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-bold mr-2 mt-1 flex-none shadow-sm">
-                  A
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-sm mr-2.5 mt-1 flex-none shadow-sm">
+                  🦋
                 </div>
               )}
-              <div
-                className={`max-w-[80%] px-4 py-3 rounded-2xl leading-relaxed text-[15px] ${
-                  msg.role === 'user'
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md shadow-md'
-                    : 'bg-white border border-slate-200 text-slate-700 rounded-bl-md shadow-sm'
-                }`}
-              >
+              <div className={`max-w-[78%] px-4 py-3 text-[15px] leading-relaxed ${
+                msg.role === 'user'
+                  ? 'bg-gradient-to-br from-stone-700 to-stone-800 text-white rounded-2xl rounded-br-md shadow-md'
+                  : 'bg-white/80 backdrop-blur-sm border border-stone-100 text-stone-700 rounded-2xl rounded-bl-md shadow-sm'
+              }`} style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}>
                 {msg.content}
               </div>
             </div>
           ))}
 
-          {/* TYPING INDICATOR */}
+          {/* TYPING INDICATOR — Warm bubbles */}
           {isLoading && (
-            <div className="flex mb-4 justify-start">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-bold mr-2 mt-1 flex-none">
-                A
+            <div className="flex mb-5 justify-start" style={{ animation: 'messageIn 0.3s ease-out' }}>
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-sm mr-2.5 mt-1 flex-none">
+                🦋
               </div>
-              <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+              <div className="bg-white/80 backdrop-blur-sm border border-stone-100 px-5 py-3.5 rounded-2xl rounded-bl-md shadow-sm">
                 <div className="flex gap-1.5">
-                  <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 rounded-full bg-amber-300" style={{ animation: 'bounce 1.4s ease-in-out infinite' }} />
+                  <div className="w-2 h-2 rounded-full bg-orange-300" style={{ animation: 'bounce 1.4s ease-in-out 0.2s infinite' }} />
+                  <div className="w-2 h-2 rounded-full bg-rose-300" style={{ animation: 'bounce 1.4s ease-in-out 0.4s infinite' }} />
                 </div>
               </div>
             </div>
           )}
 
-          {/* EXTRACTION RESULTS */}
+          {/* SUPERPOWERS REVEALED — Animated skill-by-skill reveal */}
           {extraction && (
-            <div className="mt-6 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl">
-              <h3 className="text-lg font-bold text-emerald-800 mb-4 flex items-center gap-2">
-                ✨ Your Skills Profile
-              </h3>
-              {extraction.narrative_summary && (
-                <p className="text-sm text-slate-600 mb-4 italic">{extraction.narrative_summary}</p>
-              )}
-              <div className="grid gap-3">
-                {extraction.skills_profile?.map((skill: any) => (
-                  <div key={skill.skill_id} className="bg-white rounded-xl p-4 border border-emerald-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-slate-800">{skill.skill_name}</span>
-                      <span className={`text-xs font-bold uppercase px-2 py-1 rounded-full ${
-                        skill.proficiency === 'advanced' ? 'bg-purple-100 text-purple-700' :
-                        skill.proficiency === 'intermediate' ? 'bg-blue-100 text-blue-700' :
-                        'bg-emerald-100 text-emerald-700'
-                      }`}>
-                        {skill.proficiency}
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-1000"
-                        style={{
-                          width: `${Math.round(skill.confidence * 100)}%`,
-                          backgroundColor: skill.proficiency === 'advanced' ? '#8E44AD' :
-                            skill.proficiency === 'intermediate' ? '#2E86C1' : '#27AE60',
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Confidence: {Math.round(skill.confidence * 100)}%
-                    </p>
-                    {skill.evidence?.[0] && (
-                      <p className="text-xs text-slate-400 mt-2 italic">
-                        "{skill.evidence[0].transcript_quote?.substring(0, 100)}..."
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            <div className="mt-8 mb-4" style={{ animation: 'messageIn 0.5s ease-out' }}>
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border border-amber-200/50 shadow-xl">
+                <h3 className="text-xl font-bold text-stone-800 mb-2 flex items-center gap-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+                  ✨ Your Superpowers
+                </h3>
+                {extraction.narrative_summary && (
+                  <p className="text-sm text-stone-500 mb-5 italic">{extraction.narrative_summary}</p>
+                )}
+                <div className="space-y-3">
+                  {extraction.skills_profile?.map((skill: any, i: number) => {
+                    const visible = i < revealedSkills;
+                    return (
+                      <div key={skill.skill_id}
+                        className={`transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                        style={{ transitionDelay: `${i * 100}ms` }}>
+                        <div className="bg-white/90 rounded-2xl p-4 border border-amber-100 shadow-sm flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: '#FEF3E2' }}>
+                            {SKILL_LABELS[skill.skill_id]?.icon || '⭐'}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-stone-800 text-sm">{skill.skill_name}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700">{skill.proficiency}</span>
+                            </div>
+                            <div className="w-full bg-stone-100 rounded-full h-1.5">
+                              <div className="h-1.5 rounded-full transition-all duration-1000 bg-gradient-to-r from-amber-400 to-orange-400"
+                                style={{ width: visible ? `${skill.confidence * 100}%` : '0%', transitionDelay: `${i * 200 + 400}ms` }} />
+                            </div>
+                          </div>
+                          <span className="text-lg font-bold text-amber-600">{Math.round(skill.confidence * 100)}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
 
-          {/* EXTRACTING INDICATOR */}
-          {isExtracting && (
-            <div className="mt-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center">
-              <div className="animate-spin w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full mx-auto mb-3" />
-              <p className="text-sm text-slate-600">Analyzing your stories and building your skills profile...</p>
+                <div className="mt-5 flex gap-3">
+                  <a href="/skills"
+                    className="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all text-sm">
+                    View Full Profile →
+                  </a>
+                  <button onClick={downloadTranscript}
+                    className="px-4 py-2.5 text-xs text-stone-500 border border-stone-200 rounded-xl hover:bg-white transition-all">
+                    📥 Transcript
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -488,24 +509,33 @@ export default function LEEEChat() {
       </main>
 
       {/* INPUT AREA */}
-      {session.status === 'active' && (
-        <footer className="flex-none border-t border-slate-200 bg-white/80 backdrop-blur-sm">
+      {session.status === 'active' && !extraction && (
+        <footer className="flex-none border-t border-amber-100/50 bg-white/60 backdrop-blur-md">
           <div className="max-w-2xl mx-auto px-4 py-3">
-            {/* Skills badges (show after gap scan) */}
+
+            {/* Quick Reply Chips */}
+            {quickReplies.length > 0 && !isLoading && messages.length > 0 && messages.length < 8 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {quickReplies.map((reply, i) => (
+                  <button key={i} onClick={() => sendMessage(reply)}
+                    className="px-3 py-1.5 text-xs rounded-full bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 transition-all hover:scale-[1.03] active:scale-[0.97]"
+                    style={{ fontFamily: "'Nunito', sans-serif" }}>
+                    {reply}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Skill Badges */}
             {session.skillsEvidenced && (
-              <div className="flex gap-1.5 mb-2 flex-wrap">
-                {Object.entries(session.skillsEvidenced).map(([key, found]) => {
-                  const skill = SKILL_LABELS[key];
-                  if (!skill) return null;
+              <div className="flex flex-wrap gap-1.5 mb-2.5">
+                {Object.entries(SKILL_LABELS).map(([key, skill]) => {
+                  const found = session.skillsEvidenced?.[key];
                   return (
-                    <span
-                      key={key}
-                      className={`text-xs px-2 py-0.5 rounded-full transition-all ${
-                        found
-                          ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                          : 'bg-slate-100 text-slate-400 border border-slate-200'
-                      }`}
-                    >
+                    <span key={key}
+                      className={`text-[10px] px-2 py-0.5 rounded-full transition-all duration-500 ${
+                        found ? 'bg-amber-100 text-amber-700 border border-amber-200 scale-105' : 'bg-stone-50 text-stone-300 border border-stone-100'
+                      }`}>
                       {skill.icon} {skill.label}
                     </span>
                   );
@@ -514,37 +544,28 @@ export default function LEEEChat() {
             )}
 
             <div className="flex items-end gap-2">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
+              <textarea ref={inputRef} value={input} onChange={handleInputChange} onKeyDown={handleKeyDown}
                 placeholder="Share your story..."
                 rows={1}
-                className="flex-1 resize-none rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 bg-white transition-all"
+                className="flex-1 resize-none rounded-2xl border border-stone-200 px-4 py-3 text-[15px] text-stone-700 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 bg-white/80 backdrop-blur transition-all"
+                style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}
                 disabled={isLoading}
               />
-              <button
-                onClick={sendMessage}
-                disabled={!input.trim() || isLoading}
-                className="p-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md hover:shadow-lg disabled:opacity-40 disabled:shadow-none transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
+              <button onClick={() => sendMessage()} disabled={!input.trim() || isLoading}
+                className="p-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md hover:shadow-lg disabled:opacity-30 transition-all hover:scale-[1.03] active:scale-[0.97]">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>
               </button>
             </div>
 
             <div className="flex items-center justify-between mt-2 px-1">
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] text-stone-400">
                 Story {session.storiesCompleted + 1} of 3 • You can skip any question
               </p>
               {messages.length >= 6 && (
-                <button
-                  onClick={handleFinishSession}
-                  className="text-xs text-slate-400 hover:text-slate-600 underline transition-colors"
-                >
+                <button onClick={handleFinishSession}
+                  className="text-[11px] text-stone-400 hover:text-stone-600 transition-colors underline decoration-dotted">
                   Finish conversation
                 </button>
               )}
@@ -553,53 +574,58 @@ export default function LEEEChat() {
         </footer>
       )}
 
-      {/* COMPLETED STATE */}
+      {/* COMPLETED — Waiting for extraction */}
       {session.status === 'completed' && !extraction && !isExtracting && (
-        <footer className="flex-none border-t border-slate-200 bg-white p-4 text-center">
-          <p className="text-sm text-slate-600 mb-2">Session complete! Thank you for sharing your stories.</p>
+        <footer className="flex-none border-t border-amber-100/50 bg-white/60 backdrop-blur-md p-4 text-center">
+          <p className="text-sm text-stone-600 mb-3">Session complete! Thank you for sharing your stories.</p>
           <div className="flex items-center justify-center gap-3">
-            <button
-              onClick={() => session.sessionId && runExtraction(session.sessionId)}
-              className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
-            >
+            <button onClick={() => session.sessionId && runExtraction(session.sessionId)}
+              className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all">
               ✨ Discover My Superpowers
             </button>
-            <button onClick={downloadTranscript} className="px-4 py-2 text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
-              📥 Download Transcript
+            <button onClick={downloadTranscript}
+              className="px-4 py-2.5 text-xs text-stone-500 border border-stone-200 rounded-xl hover:bg-white transition-all">
+              📥 Transcript
             </button>
           </div>
         </footer>
       )}
 
-      {/* EXTRACTING STATE */}
+      {/* EXTRACTING */}
       {isExtracting && (
-        <footer className="flex-none border-t border-slate-200 bg-white p-4 text-center">
-          <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full" />
-            <p className="text-sm text-slate-600">Analyzing your stories and discovering your skills...</p>
+        <footer className="flex-none border-t border-amber-100/50 bg-white/60 backdrop-blur-md p-4 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <div className="relative w-6 h-6">
+              <div className="absolute inset-0 rounded-full border-2 border-amber-200" />
+              <div className="absolute inset-0 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
+            </div>
+            <p className="text-sm text-stone-600">Discovering your superpowers...</p>
           </div>
         </footer>
       )}
 
-      {/* EXTRACTION COMPLETE */}
-      {extraction && (
-        <footer className="flex-none border-t border-slate-200 bg-white p-4 text-center">
-          <p className="text-sm text-slate-600 mb-2">
-            ✨ {extraction.skills_profile?.length || 0} skills discovered from your stories!
-          </p>
-          <div className="flex items-center justify-center gap-3">
-            <a
-              href="/skills"
-              className="inline-block px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
-            >
-              View My Skills Profile →
-            </a>
-            <button onClick={downloadTranscript} className="px-4 py-2 text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
-              📥 Download Transcript
-            </button>
-          </div>
-        </footer>
-      )}
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.04); }
+        }
+        @keyframes messageIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+          to { opacity: 0; transform: translateY(-5px); }
+        }
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-6px); }
+        }
+      `}</style>
     </div>
   );
 }
