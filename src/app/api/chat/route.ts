@@ -140,16 +140,59 @@ async function handleStart(body: any) {
 
   // Fetch profile data for context injection (E18: auto-extract from profile)
   let profileContext = '';
+  let previousSkillsContext = '';
   if (body.jobseeker_profile_id) {
     const { data: profile } = await supabase.from('jobseeker_profiles')
       .select('*, user_profiles(full_name)')
       .eq('id', body.jobseeker_profile_id).single();
     if (profile) {
       const name = profile.user_profiles?.full_name || 'Unknown';
+      const firstName = name.split(' ')[0];
       const workStr = (profile.work_history || []).map((w: any) => `${w.role} at ${w.company}`).join(', ');
       const eduStr = (profile.education || []).map((e: any) => `${e.degree} from ${e.institution}`).join(', ');
       const skillsStr = (profile.skills_inventory || []).join(', ');
-      profileContext = `\n\n## CANDIDATE CONTEXT (from profile — use to personalize conversation)\n- Name: ${name}\n- Work experience: ${workStr || 'None listed'}\n- Education: ${eduStr || 'None listed'}\n- Skills: ${skillsStr || 'None listed'}\n- Disability: ${profile.disability_type || 'Not disclosed'}\n- Career goals: ${profile.career_goals || 'Not specified'}\nUse this context to ask more relevant, personalized questions. If they mention something from their profile, connect it naturally.`;
+      profileContext = `\n\n## CANDIDATE CONTEXT (from profile — use to personalize conversation)
+- Name: ${name} (CALL THEM "${firstName}" — use their name in your first message!)
+- Work experience: ${workStr || 'None listed'}
+- Education: ${eduStr || 'None listed'}
+- Skills: ${skillsStr || 'None listed'}
+- Disability: ${profile.disability_type || 'Not disclosed'}
+- Career goals: ${profile.career_goals || 'Not specified'}
+
+IMPORTANT: In your very FIRST message, greet them by name: "Kumusta, ${firstName}!" or "Hey ${firstName}!" 
+Use this context to ask more relevant, personalized questions. If they mention something from their profile, connect it naturally. Do NOT list back their profile to them — just use it to guide conversation.`;
+    }
+
+    // Fetch previous extractions to know what skills are already evidenced
+    const { data: prevSessions } = await supabase.from('leee_sessions')
+      .select('id').eq('user_id', userId).eq('status', 'completed')
+      .order('created_at', { ascending: false }).limit(3);
+
+    if (prevSessions?.length) {
+      const prevSkills: string[] = [];
+      const prevGaps: string[] = [];
+      const allPsfSkills = ['Emotional Intelligence', 'Communication', 'Collaboration', 'Problem-Solving', 'Adaptability / Resilience', 'Learning Agility', 'Sense Making', 'Building Inclusivity'];
+
+      for (const ps of prevSessions) {
+        const { data: ext } = await supabase.from('leee_extractions')
+          .select('skills_profile').eq('session_id', ps.id).limit(1).single();
+        if (ext?.skills_profile) {
+          for (const s of ext.skills_profile) {
+            if (!prevSkills.includes(s.skill_name)) prevSkills.push(s.skill_name);
+          }
+        }
+      }
+
+      for (const sk of allPsfSkills) {
+        if (!prevSkills.includes(sk)) prevGaps.push(sk);
+      }
+
+      if (prevSkills.length > 0) {
+        previousSkillsContext = `\n\n## PREVIOUS SESSION RESULTS
+This person has chatted with you before. Skills ALREADY evidenced: ${prevSkills.join(', ')}
+Skills NOT YET evidenced (try to surface stories that might demonstrate these): ${prevGaps.join(', ')}
+Do NOT tell them which skills you're looking for — just gently steer toward story domains that might surface these gaps. For example, if Adaptability is a gap, ask about times things changed unexpectedly.`;
+      }
     }
   }
 
@@ -195,8 +238,8 @@ async function handleStart(body: any) {
   const orchestrator = new LEEEOrchestrator(leeeSession);
 
   // Inject profile and vacancy context into the orchestrator's dynamic context
-  if (profileContext || vacancyContext) {
-    (orchestrator as any)._extraContext = profileContext + vacancyContext;
+  if (profileContext || vacancyContext || previousSkillsContext) {
+    (orchestrator as any)._extraContext = profileContext + previousSkillsContext + vacancyContext;
   }
 
   orchestrators.set(session.id, orchestrator);
@@ -307,7 +350,70 @@ async function handleExtract(sessionId: string) {
       if (match) {
         const extraction = JSON.parse(match[0]);
 
-        await db().from('leee_extractions').insert({
+        // Merge with previous extractions for this user
+        const supabase = db();
+        const { data: session } = await supabase.from('leee_sessions').select('user_id').eq('id', sessionId).single();
+
+        if (session?.user_id) {
+          // Get all previous extractions for this user
+          const { data: prevSessions } = await supabase.from('leee_sessions')
+            .select('id').eq('user_id', session.user_id).eq('status', 'completed')
+            .neq('id', sessionId).order('created_at', { ascending: false }).limit(5);
+
+          if (prevSessions?.length) {
+            const prevSkillsMap: Record<string, any> = {};
+
+            for (const ps of prevSessions) {
+              const { data: ext } = await supabase.from('leee_extractions')
+                .select('skills_profile, episodes').eq('session_id', ps.id).limit(1).single();
+              if (ext?.skills_profile) {
+                for (const s of ext.skills_profile) {
+                  const existing = prevSkillsMap[s.skill_id];
+                  if (!existing || s.confidence > existing.confidence) {
+                    prevSkillsMap[s.skill_id] = s;
+                  }
+                }
+              }
+            }
+
+            // Merge: new extraction skills override previous if higher confidence, otherwise keep previous
+            const newSkillsMap: Record<string, any> = {};
+            for (const s of (extraction.skills_profile || [])) {
+              newSkillsMap[s.skill_id] = s;
+            }
+
+            // Add previous skills that weren't found in new extraction
+            for (const [id, prevSkill] of Object.entries(prevSkillsMap)) {
+              if (!newSkillsMap[id]) {
+                newSkillsMap[id] = { ...prevSkill, source: 'previous_session' };
+              } else {
+                // Keep the higher confidence/proficiency
+                const newSkill = newSkillsMap[id];
+                const profOrder = ['basic', 'intermediate', 'advanced'];
+                const newLevel = profOrder.indexOf(newSkill.proficiency?.toLowerCase());
+                const prevLevel = profOrder.indexOf((prevSkill as any).proficiency?.toLowerCase());
+                if (prevLevel > newLevel || ((prevSkill as any).confidence > newSkill.confidence && prevLevel >= newLevel)) {
+                  // Merge evidence from both
+                  newSkillsMap[id] = {
+                    ...prevSkill,
+                    evidence: [...((prevSkill as any).evidence || []), ...(newSkill.evidence || [])],
+                    confidence: Math.max((prevSkill as any).confidence, newSkill.confidence),
+                    proficiency: prevLevel > newLevel ? (prevSkill as any).proficiency : newSkill.proficiency,
+                  };
+                } else {
+                  newSkillsMap[id].evidence = [...(newSkill.evidence || []), ...((prevSkill as any).evidence || [])];
+                  newSkillsMap[id].confidence = Math.max((prevSkill as any).confidence, newSkill.confidence);
+                }
+              }
+            }
+
+            extraction.skills_profile = Object.values(newSkillsMap);
+            extraction._merged = true;
+            extraction._sessions_merged = prevSessions.length + 1;
+          }
+        }
+
+        await supabase.from('leee_extractions').insert({
           session_id: sessionId,
           episodes: extraction.episodes || [],
           skills_profile: extraction.skills_profile || [],
@@ -318,7 +424,7 @@ async function handleExtract(sessionId: string) {
           layer3_recommendations: extraction.layer3_recommendations || [],
           session_quality: extraction.session_quality || {},
           extraction_model: 'claude-sonnet-4-20250514',
-          extraction_prompt_version: '1.0',
+          extraction_prompt_version: '2.0',
           raw_extraction_response: extraction,
         });
 
