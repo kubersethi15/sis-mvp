@@ -104,6 +104,9 @@ export default function LEEEChat() {
         skillsEvidenced: null,
       });
 
+      // Store session ID for demo flow linkage
+      localStorage.setItem('sis_last_session_id', startData.session_id);
+
       // Get first AI message
       const chatRes = await fetch('/api/chat', {
         method: 'POST',

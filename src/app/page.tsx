@@ -72,6 +72,17 @@ export default function Home() {
           </Link>
         </div>
 
+        {/* Demo Link */}
+        <div className="mt-6">
+          <Link
+            href="/demo"
+            className="block p-4 bg-gray-900 rounded-xl border border-gray-700 hover:border-purple-500 hover:shadow-lg transition-all text-center"
+          >
+            <span className="text-lg font-semibold text-white">🚀 End-to-End Demo Pipeline</span>
+            <p className="text-xs text-gray-400 mt-1">Run the full 3-gate flow: Apply → Alignment → Evidence → Predictability → Decision</p>
+          </Link>
+        </div>
+
         <p className="text-xs text-gray-400 mt-8">Pilot: Cebuana Lhuillier — Jakarta Conference Demo</p>
       </div>
     </div>
