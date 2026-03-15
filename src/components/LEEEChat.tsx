@@ -260,6 +260,23 @@ export default function LEEEChat() {
     }
   };
 
+  // Download transcript as text file
+  const downloadTranscript = useCallback(() => {
+    const lines = messages.map(m => 
+      `[${m.stage || 'unknown'}] ${m.role === 'assistant' ? 'Aya' : 'User'}: ${m.content}`
+    ).join('\n\n');
+    
+    const header = `SIS LEEE Conversation Transcript\nSession: ${session.sessionId}\nDate: ${new Date().toISOString()}\nStories completed: ${session.storiesCompleted}\n${'='.repeat(60)}\n\n`;
+    
+    const blob = new Blob([header + lines], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sis-transcript-${session.sessionId?.substring(0, 8) || 'unknown'}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [messages, session]);
+
   const stageConfig = STAGE_CONFIG[session.stage] || STAGE_CONFIG.opening;
 
   // ============================================================
@@ -511,12 +528,17 @@ export default function LEEEChat() {
       {session.status === 'completed' && !extraction && !isExtracting && (
         <footer className="flex-none border-t border-slate-200 bg-white p-4 text-center">
           <p className="text-sm text-slate-600 mb-2">Session complete! Thank you for sharing your stories.</p>
-          <button
-            onClick={() => session.sessionId && runExtraction(session.sessionId)}
-            className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
-          >
-            ✨ Discover My Superpowers
-          </button>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => session.sessionId && runExtraction(session.sessionId)}
+              className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
+            >
+              ✨ Discover My Superpowers
+            </button>
+            <button onClick={downloadTranscript} className="px-4 py-2 text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
+              📥 Download Transcript
+            </button>
+          </div>
         </footer>
       )}
 
@@ -536,12 +558,17 @@ export default function LEEEChat() {
           <p className="text-sm text-slate-600 mb-2">
             ✨ {extraction.skills_profile?.length || 0} skills discovered from your stories!
           </p>
-          <a
-            href="/skills"
-            className="inline-block px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
-          >
-            View My Skills Profile →
-          </a>
+          <div className="flex items-center justify-center gap-3">
+            <a
+              href="/skills"
+              className="inline-block px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
+            >
+              View My Skills Profile →
+            </a>
+            <button onClick={downloadTranscript} className="px-4 py-2 text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
+              📥 Download Transcript
+            </button>
+          </div>
         </footer>
       )}
     </div>

@@ -28,7 +28,9 @@ Last updated: March 15, 2026
 
 | # | Issue | Severity | Details | Found During |
 |---|-------|----------|---------|--------------|
-| | | | | |
+| E-01 | EQ not extracted when present | Medium | Kuber's story had clear empathy signals (understanding client needs, making them feel heard, patience with closed client) but Emotional Intelligence was not extracted. Extraction prompt may need stronger EQ indicators for relationship-building contexts. | Testing with Kuber CSM story |
+| E-02 | All skills scored at same level (Intermediate) | Medium | 4 skills all scored Intermediate. Problem-Solving evidence was arguably stronger than Collaboration evidence but both got same proficiency. Extraction should differentiate more between levels based on evidence strength. | Testing with Kuber CSM story |
+| E-03 | Proficiency case sensitivity | Low | Extraction returned "Intermediate" (capital I) but PROFICIENCY_CONFIG expected "intermediate" (lowercase). Fixed with .toLowerCase() but extraction prompt should specify lowercase output. | Skills dashboard crash |
 
 ---
 
