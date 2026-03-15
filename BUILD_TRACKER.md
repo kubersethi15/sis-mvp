@@ -103,7 +103,7 @@ Last updated: March 15, 2026
 |---|------|--------|-------|
 | A1 | Employer profile creation | ✅ Done | API route + DB persistence |
 | A2 | Vacancy Design Module (JD upload/builder) | ✅ Done | AI-powered JD parser → competency blueprint |
-| A3 | Vacancy publishing (platform, PDF, QR) | 🔶 Partial | DB published; PDF/QR not yet. Ryan: QR/link leads directly to Gate 2 |
+| A3 | Vacancy publishing (platform, PDF, QR) | ✅ Done | DB published; PDF/QR not yet. Ryan: QR/link leads directly to Gate 2 |
 | A4 | Pre-application eligibility filter | ✅ Done | Checks qualifications, location, schedule, skills against vacancy requirements |
 | A5 | AI alignment assessment generation | ✅ Done | Compares blueprint vs jobseeker profile + LEEE |
 | A6 | Alignment score + competency fit map | ✅ Done | Score, fit map, strengths, gaps, inclusion notes |
@@ -111,9 +111,9 @@ Last updated: March 15, 2026
 | A8 | Matching engine (vacancy ↔ jobseeker) | ✅ Done | 6-factor holistic scoring: skills, profile, location, compensation, accessibility, readiness |
 | A9 | Vacancy Q&A assistant (grounded, no hallucination) | ✅ Done | AI chatbot on vacancy page, grounded in vacancy data only |
 | A10 | Alignment rating shown TO jobseeker | ✅ Done | Check My Alignment button on vacancy page shows score + strengths + gaps |
-| A11 | AI JD improvement recommendations for employers | ⬜ Todo | AI reviews JD and suggests: add compensation, add human-centric skills, add accessibility info, improve clarity. Helps employers write better JDs. |
-| A12 | Employer auth + dashboard (login, manage vacancies) | ⬜ Todo | Employer login flow, vacancy management, applicant pipeline view |
-| A13 | Vacancy PDF export + QR code generation | ⬜ Todo | Ryan: QR/link leads directly to Gate 2. Export vacancy as PDF with QR. |
+| A11 | AI JD improvement recommendations for employers | ✅ Done | AI reviews JD and suggests: add compensation, add human-centric skills, add accessibility info, improve clarity. Helps employers write better JDs. |
+| A12 | Employer auth + dashboard (login, manage vacancies) | ✅ Done | Employer dashboard with vacancies, applicants, settings tabs |
+| A13 | Vacancy PDF export + QR code generation | ✅ Done | QR via free API, copy link, print/PDF with embedded QR |
 
 ---
 
@@ -228,7 +228,7 @@ Last updated: March 15, 2026
 | Testing & Validation | 9 | 0 | 0 | 9 |
 | **TOTAL** | **105** | **67** | **8** | **30** |
 
-**80 done, 8 partial, 17 remaining — ~84% through the build**
+**84 done, 7 partial, 17 remaining — ~87% through the build**
 
 ---
 
