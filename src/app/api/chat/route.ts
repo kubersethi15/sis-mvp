@@ -341,7 +341,7 @@ async function handleExtract(sessionId: string) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
     });
     const result = await res.json();
     const text = result.content?.find((b: any) => b.type === 'text')?.text;
@@ -423,7 +423,7 @@ async function handleExtract(sessionId: string) {
           layer2_seeds: extraction.layer2_seeds || [],
           layer3_recommendations: extraction.layer3_recommendations || [],
           session_quality: extraction.session_quality || {},
-          extraction_model: 'claude-sonnet-4-20250514',
+          extraction_model: 'claude-opus-4-5',
           extraction_prompt_version: '2.0',
           raw_extraction_response: extraction,
         });
@@ -447,7 +447,7 @@ async function handleExtractTranscript(transcript: string) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
     });
     const result = await res.json();
     const text = result.content?.find((b: any) => b.type === 'text')?.text;

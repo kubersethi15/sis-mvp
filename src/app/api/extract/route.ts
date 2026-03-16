@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const transcript = messages.map((m: any) => `${m.role === 'assistant' ? 'AI' : 'User'}: ${m.content}`).join('\n');
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514', max_tokens: 4000,
+      model: 'claude-opus-4-5', max_tokens: 4000,
       messages: [{ role: 'user', content: LEEE_EXTRACTION_PROMPT.replace('{transcript}', transcript) }],
     });
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       evidence_map: data.skills_profile?.flatMap((s: any) => s.evidence) || [],
       narrative_summary: data.narrative_summary || '', gaming_flags: data.gaming_flags || [],
       layer2_seeds: data.layer2_seeds || [], session_quality: data.session_quality || {},
-      extraction_model: 'claude-sonnet-4-20250514', extraction_prompt_version: '1.0',
+      extraction_model: 'claude-opus-4-5', extraction_prompt_version: '1.0',
       raw_extraction_response: data,
     }).select().single();
 
