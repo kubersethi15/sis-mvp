@@ -169,7 +169,7 @@ export default function LEEEChat() {
       const chatRes = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: startData.session_id, message: '[User has joined the session]' }),
+        body: JSON.stringify({ session_id: startData.session_id, message: '[SESSION START: Please greet the user warmly, introduce yourself as Aya, and begin Phase 1 of the conversation.]' }),
       });
       const chatData = await chatRes.json();
 

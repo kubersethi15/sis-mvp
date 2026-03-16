@@ -308,7 +308,7 @@ async function callClaude(orchestrator: LEEEOrchestrator): Promise<string> {
   if (!res.ok) {
     const err = await res.text();
     console.error('Claude API error:', err);
-    return "Thank you for sharing. Could you tell me more about what happened next?";
+    return "Kumusta! I'm Aya. I'm here to listen to your story and help you discover the skills you already have. Before we start — is there anything I should know to make this conversation comfortable for you?";
   }
 
   const data = await res.json();
