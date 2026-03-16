@@ -130,8 +130,12 @@ export async function POST(req: NextRequest) {
 async function handleStart(body: any) {
   const supabase = db();
 
-  // Try to use provided user_id or find existing profile user
+  // Try to use provided user_id — validate it exists (stale localStorage IDs cause FK violations)
   let userId = body.user_id;
+  if (userId) {
+    const { data: userCheck } = await supabase.from('user_profiles').select('id').eq('id', userId).single();
+    if (!userCheck) userId = null;
+  }
   if (!userId && body.jobseeker_profile_id) {
     const { data: prof } = await supabase.from('jobseeker_profiles').select('user_id').eq('id', body.jobseeker_profile_id).single();
     if (prof) userId = prof.user_id;
