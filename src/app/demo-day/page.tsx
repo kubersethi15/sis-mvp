@@ -59,8 +59,16 @@ const ACTS: Record<Lens, { label: string; persona: string; icon: string; color: 
         id: 'j3',
         title: 'Her story surfaces skills',
         caption: 'Maria tells a story about organising a barangay evacuation. She didn\'t call it leadership. Aya found it.',
-        action: 'Show the story arc bar advancing as the conversation deepens. Point out the stage labels — "Exploring What Happened", "Going Deeper".',
-        note: 'Watch the skill sparkles appear mid-conversation. These are real-time signals — the system is already reading while she talks.',
+        action: 'Show the story arc bar advancing as the conversation deepens. Notice how the entire background shifts — cool dawn becomes warm gold as she goes deeper. Point out the milestone nodes glowing on the journey bar.',
+        note: 'Watch the skill sparkles appear mid-conversation. These are real-time signals — the system is reading while she talks. The background colour change is subtle but the room will notice.',
+      },
+      {
+        id: 'j3b',
+        title: 'A scenario appears — mid-conversation',
+        caption: 'After Maria finishes her first story, something unexpected happens. Aya doesn\'t just ask another question — she presents a real situation and asks Maria what she would do.',
+        action: 'Show the dark scenario card appearing. Read the situation aloud. Let someone in the room pick an option.',
+        wowMoment: true,
+        note: 'This is the Layer 1 / Layer 2 bridge moment. Say: "We\'re not just collecting stories anymore — we\'re observing decisions in real time. Maria\'s choice here is behavioural evidence, not self-reported." Pause. Let that land.',
       },
       {
         id: 'j4',

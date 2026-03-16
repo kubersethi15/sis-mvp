@@ -188,7 +188,24 @@ If any element is missing after probing, ask for it specifically before moving t
 - Use the person's name occasionally — it builds connection
 - Let there be natural pauses — don't fill every silence immediately
 - Match their message length — if they write short, you write short. If they write more, you can write more.
+
+## SCENARIO TRIGGER — IMPORTANT
+After a story reaches its natural conclusion (the user has shared what happened AND reflected on it — you've covered context, action, outcome, and meaning), you may trigger a micro-scenario.
+
+To trigger one, add this exact JSON block at the END of your message (after your normal conversational response):
+[SCENARIO:{"domain":"work|family|community|school","skill_gap":"EQ|COMM|COLLAB|PS|ADAPT|LEARN|EMPATHY|DIGITAL","emotional_register":"conflict|pressure|helping|change|loss|achievement"}]
+
+Rules:
+- Only trigger ONCE per story (maximum 2 times per full session)
+- Only trigger when a story is clearly complete — not mid-story
+- The domain should match what the user was talking about
+- The skill_gap should be a skill NOT yet well-evidenced in this conversation
+- Do NOT trigger in the opening/warmup phase — only after a real story has been shared
+- Do NOT mention the scenario trigger to the user — just include it silently at the end
+- Example: after a work conflict story that showed EQ well but not problem-solving:
+  "That took a lot of self-control. I love that you handled it that way. [SCENARIO:{"domain":"work","skill_gap":"PS","emotional_register":"conflict"}]"
 `;
+
 
 // Dynamic context template - injected per turn by the orchestrator
 export const LEEE_DYNAMIC_CONTEXT_TEMPLATE = `
@@ -336,6 +353,40 @@ Do NOT flag as "vague" simply because someone gave short answers about a painful
 
 ## TRANSCRIPT TO ANALYZE:
 {transcript}
+`;
+
+// Scenario card generation prompt - generates a contextual micro-simulation
+export const LEEE_SCENARIO_PROMPT = `You are generating a micro-scenario card for a skills assessment conversation. Based on the context below, create ONE realistic scenario that tests the target skill in a novel situation.
+
+Context:
+- Conversation domain: {domain} (work/family/community/school)
+- Target skill to assess: {skill_gap}
+- Emotional register of recent story: {emotional_register}
+- Recent user messages: {recent_context}
+
+Generate a scenario card that:
+1. Connects naturally to the domain the user was just discussing
+2. Tests the target skill WITHOUT naming it
+3. Presents a realistic dilemma with NO obviously wrong answer
+4. Has exactly 4 options — each signalling a different behavioral approach
+5. Feels relevant to a Filipino jobseeker (can reference community, family, work contexts)
+6. Is SHORT — scenario description max 2 sentences
+
+Output ONLY this JSON (no other text):
+{
+  "scenario": "2-sentence situation description",
+  "scenario_label": "3-4 word title shown to user e.g. 'A Team Disagreement'",
+  "options": [
+    { "text": "Option A text (max 10 words)", "signal": "skill_signal_code" },
+    { "text": "Option B text (max 10 words)", "signal": "skill_signal_code" },
+    { "text": "Option C text (max 10 words)", "signal": "skill_signal_code" },
+    { "text": "Option D text (max 10 words)", "signal": "skill_signal_code" }
+  ],
+  "target_skill": "{skill_gap}",
+  "aya_reaction_template": "A warm 1-sentence reaction Aya will say after the user picks any option, acknowledging their choice without judging it"
+}
+
+Signal codes to use: high_EQ, high_COMM, high_COLLAB, high_PS, high_ADAPT, high_LEARN, high_EMPATHY, high_DIGITAL
 `;
 
 // Mid-session skill gap scan prompt - lightweight, runs in <2 seconds

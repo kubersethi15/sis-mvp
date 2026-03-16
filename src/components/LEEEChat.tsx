@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import SuperpowersReveal from './SuperpowersReveal';
+import ScenarioCard from './ScenarioCard';
 
 // ============================================================
 // TYPES
@@ -28,15 +29,15 @@ interface SessionState {
 // STAGE CONFIG — Story Arc Visualization
 // ============================================================
 
-const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string; progress: number; description: string }> = {
-  opening: { label: 'Getting to Know You', color: '#F4A261', icon: '🌅', progress: 5, description: 'Building rapport' },
-  story_select: { label: 'Finding a Story', color: '#E9C46A', icon: '🌿', progress: 15, description: 'Choosing what to share' },
-  elicitation: { label: 'Tell Your Story', color: '#2A9D8F', icon: '🦋', progress: 30, description: 'Setting the scene' },
-  core_probe: { label: 'Exploring What Happened', color: '#2A9D8F', icon: '🔮', progress: 50, description: 'The heart of your story' },
-  skill_probe: { label: 'Going Deeper', color: '#264653', icon: '💎', progress: 65, description: 'Understanding the impact' },
-  verification: { label: 'Wrapping Up', color: '#E76F51', icon: '🌟', progress: 80, description: 'Final reflections' },
-  micro_story: { label: 'One More Quick Story', color: '#F4A261', icon: '⚡', progress: 88, description: 'A short example' },
-  closing: { label: 'Thank You', color: '#2A9D8F', icon: '✨', progress: 98, description: 'Session complete' },
+const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string; progress: number; description: string; bg: string; orb1: string; orb2: string }> = {
+  opening:     { label: 'Getting to Know You',     color: '#94a3b8', icon: '🌅', progress: 5,  description: 'Just getting started',    bg: 'linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f2027 100%)',     orb1: 'rgba(148,163,184,0.12)', orb2: 'rgba(100,116,139,0.08)' },
+  story_select:{ label: 'Finding Your Story',      color: '#F4A261', icon: '🌿', progress: 18, description: 'Something real coming up',  bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.15)',  orb2: 'rgba(42,157,143,0.08)' },
+  elicitation: { label: 'Setting the Scene',       color: '#E9C46A', icon: '🦋', progress: 32, description: 'Tell me what happened',     bg: 'linear-gradient(160deg, #1a1205 0%, #2d2010 50%, #0a1a14 100%)',     orb1: 'rgba(233,196,106,0.18)', orb2: 'rgba(42,157,143,0.12)' },
+  core_probe:  { label: 'The Heart of It',         color: '#2A9D8F', icon: '🔮', progress: 52, description: 'Going deeper now',          bg: 'linear-gradient(160deg, #051a18 0%, #0a2d28 50%, #051520 100%)',     orb1: 'rgba(42,157,143,0.22)',  orb2: 'rgba(244,162,97,0.12)' },
+  skill_probe: { label: 'What It Revealed',        color: '#f59e0b', icon: '💎', progress: 68, description: 'The really good part',      bg: 'linear-gradient(160deg, #1a1005 0%, #2d1f00 50%, #0a1a0a 100%)',     orb1: 'rgba(245,158,11,0.22)',  orb2: 'rgba(42,157,143,0.15)' },
+  verification:{ label: 'Bringing It Together',    color: '#f97316', icon: '🌟', progress: 82, description: 'Almost there',              bg: 'linear-gradient(160deg, #1a0d05 0%, #2d1508 50%, #0a1510 100%)',     orb1: 'rgba(249,115,22,0.22)',  orb2: 'rgba(244,162,97,0.18)' },
+  micro_story: { label: 'One More Story',          color: '#F4A261', icon: '⚡', progress: 90, description: 'Quick one more',            bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.20)',  orb2: 'rgba(42,157,143,0.12)' },
+  closing:     { label: 'Journey Complete',        color: '#2A9D8F', icon: '✨', progress: 100,'description': 'You did it',              bg: 'linear-gradient(160deg, #051a18 0%, #0a2518 50%, #0a1520 100%)',     orb1: 'rgba(42,157,143,0.25)',  orb2: 'rgba(244,162,97,0.15)' },
 };
 
 // ============================================================
@@ -109,6 +110,8 @@ export default function LEEEChat() {
   const [revealedSkills, setRevealedSkills] = useState<number>(0);
   const [newSkillSparkle, setNewSkillSparkle] = useState<string | null>(null);
   const [showReveal, setShowReveal] = useState(false);
+  const [pendingScenario, setPendingScenario] = useState<any>(null);
+  const [scenarioCount, setScenarioCount] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -206,8 +209,33 @@ export default function LEEEChat() {
       });
       const data = await res.json();
 
+      // Parse out any [SCENARIO:...] trigger from Aya's message
+      let messageContent = data.message || '';
+      const scenarioMatch = messageContent.match(/\[SCENARIO:(\{[\s\S]*?\})\]/);
+      if (scenarioMatch && scenarioCount < 2) {
+        // Strip the trigger from the displayed message
+        messageContent = messageContent.replace(/\[SCENARIO:[\s\S]*?\]/, '').trim();
+        // Generate scenario card in background
+        try {
+          const triggerData = JSON.parse(scenarioMatch[1]);
+          const recentContext = messages.slice(-4).map(m => `${m.role}: ${m.content}`).join('\n');
+          const scenRes = await fetch('/api/scenario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...triggerData, recent_context: recentContext }),
+          });
+          const scenData = await scenRes.json();
+          if (scenData.scenario) {
+            setTimeout(() => setPendingScenario(scenData.scenario), 800);
+            setScenarioCount(c => c + 1);
+          }
+        } catch (e) {
+          console.error('Scenario generation error:', e);
+        }
+      }
+
       const aiMessage: Message = {
-        id: crypto.randomUUID(), role: 'assistant', content: data.message,
+        id: crypto.randomUUID(), role: 'assistant', content: messageContent,
         stage: data.stage, timestamp: new Date(),
       };
       setMessages(prev => [...prev, aiMessage]);
@@ -343,151 +371,191 @@ export default function LEEEChat() {
         />
       )}
 
-    <div className="flex flex-col h-screen" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
+    <div className="flex flex-col h-screen relative overflow-hidden"
+      style={{
+        background: stageConfig.bg,
+        transition: 'background 2s ease',
+      }}>
 
-      {/* HEADER — Warm, Ambient */}
-      <header className="flex-none backdrop-blur-md bg-white/60 border-b border-amber-100/50">
+      {/* ── LIVING LANDSCAPE — ambient orbs that shift with stage ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        {/* Primary orb — top left */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full blur-3xl"
+          style={{ background: stageConfig.orb1, transition: 'background 2s ease', animation: 'orbDrift1 12s ease-in-out infinite' }} />
+        {/* Secondary orb — bottom right */}
+        <div className="absolute -bottom-40 -right-20 w-80 h-80 rounded-full blur-3xl"
+          style={{ background: stageConfig.orb2, transition: 'background 2s ease', animation: 'orbDrift2 16s ease-in-out infinite' }} />
+        {/* Accent orb — center, subtle */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl opacity-40"
+          style={{ background: stageConfig.orb1, animation: 'orbDrift3 20s ease-in-out infinite' }} />
+        {/* Grain texture overlay */}
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'1\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat', backgroundSize: '128px' }} />
+      </div>
+
+      {/* ── HEADER — dark glass ── */}
+      <header className="flex-none relative z-10"
+        style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
+
+            {/* Aya avatar + name */}
             <div className="flex items-center gap-3">
-              {/* Aya Avatar with breathing animation */}
               <div className="relative">
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-white text-lg shadow-lg" style={{ animation: 'breathe 4s ease-in-out infinite' }}>
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-lg"
+                  style={{
+                    background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`,
+                    transition: 'background 2s ease',
+                    animation: 'breathe 4s ease-in-out infinite',
+                    boxShadow: `0 0 20px ${stageConfig.color}44`,
+                  }}>
                   🦋
                 </div>
                 {session.status === 'active' && (
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                    style={{ background: '#34d399', borderColor: 'rgba(0,0,0,0.4)' }} />
                 )}
               </div>
               <div>
-                <h1 className="text-[15px] font-semibold text-stone-800" style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}>Aya</h1>
-                <p className="text-[11px] text-stone-400">{session.status === 'active' ? stageConfig.description : 'Skills Intelligence System'}</p>
+                <h1 className="text-sm font-semibold text-white/90" style={{ fontFamily: "'Nunito', sans-serif", letterSpacing: '0.01em' }}>Aya</h1>
+                <p className="text-[10px] transition-all duration-500" style={{ color: stageConfig.color, fontFamily: 'system-ui, sans-serif' }}>
+                  {session.status === 'active' ? stageConfig.description : 'Skills Intelligence System'}
+                </p>
               </div>
             </div>
+
+            {/* Timer + stage label */}
             {session.status === 'active' && (
               <div className="flex items-center gap-3">
-                <span className="text-[11px] text-stone-400 font-mono tabular-nums">{mins}:{secs.toString().padStart(2, '0')}</span>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: stageConfig.color + '15' }}>
+                <span className="text-[11px] text-white/30 font-mono tabular-nums">{mins}:{secs.toString().padStart(2, '0')}</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                  style={{ background: `${stageConfig.color}18`, border: `1px solid ${stageConfig.color}30` }}>
                   <span className="text-xs">{stageConfig.icon}</span>
-                  <span className="text-[11px] font-medium" style={{ color: stageConfig.color }}>{stageConfig.label}</span>
+                  <span className="text-[10px] font-semibold" style={{ color: stageConfig.color, fontFamily: 'system-ui, sans-serif', letterSpacing: '0.03em' }}>
+                    {stageConfig.label}
+                  </span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Story Arc Progress — Visual Journey */}
+          {/* ── JOURNEY RIVER — the progress visualization ── */}
           {session.status === 'active' && (
-            <div className="mt-3 relative">
-              {/* Journey milestones */}
-              <div className="flex items-center justify-between mb-1.5">
+            <div className="mt-3">
+              {/* Milestone nodes */}
+              <div className="relative flex items-center justify-between mb-2 px-1">
+                {/* Connecting line behind nodes */}
+                <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 h-px transition-all duration-1000 ease-out"
+                  style={{ width: `calc(${stageConfig.progress}% - 2rem)`, background: `linear-gradient(90deg, ${stageConfig.color}88, ${stageConfig.color}44)` }} />
+
                 {[
-                  { icon: '🌅', label: 'Meeting', threshold: 5 },
-                  { icon: '🌿', label: 'Opening Up', threshold: 20 },
-                  { icon: '🦋', label: 'Your Story', threshold: 45 },
-                  { icon: '💎', label: 'Depth', threshold: 65 },
-                  { icon: '✨', label: 'Complete', threshold: 90 },
+                  { icon: '🌅', threshold: 0,  stage: 'opening' },
+                  { icon: '🌿', threshold: 18, stage: 'story_select' },
+                  { icon: '🦋', threshold: 45, stage: 'core_probe' },
+                  { icon: '💎', threshold: 68, stage: 'skill_probe' },
+                  { icon: '✨', threshold: 95, stage: 'closing' },
                 ].map((m, i) => {
                   const reached = stageConfig.progress >= m.threshold;
-                  const active = stageConfig.progress >= m.threshold && (i === 4 || stageConfig.progress < [5, 20, 45, 65, 90][i + 1]);
+                  const isCurrent = i === [
+                    'opening','story_select','elicitation','core_probe','skill_probe','verification','micro_story','closing'
+                  ].indexOf(session.stage) || (i === 0 && session.stage === 'opening');
                   return (
-                    <div key={i} className="flex flex-col items-center gap-0.5">
-                      <span
-                        className="transition-all duration-500"
+                    <div key={i} className="relative z-10 flex flex-col items-center gap-1">
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center transition-all duration-700"
                         style={{
-                          fontSize: reached ? '13px' : '11px',
-                          opacity: reached ? 1 : 0.3,
-                          transform: active ? 'scale(1.25)' : reached ? 'scale(1.05)' : 'scale(0.9)',
-                          filter: active ? 'drop-shadow(0 0 4px rgba(244,162,97,0.8))' : 'none',
-                        }}
-                      >
-                        {m.icon}
-                      </span>
+                          background: reached ? `${stageConfig.color}22` : 'rgba(255,255,255,0.04)',
+                          border: `1.5px solid ${reached ? stageConfig.color + '60' : 'rgba(255,255,255,0.08)'}`,
+                          transform: isCurrent ? 'scale(1.3)' : reached ? 'scale(1.05)' : 'scale(0.9)',
+                          boxShadow: isCurrent ? `0 0 12px ${stageConfig.color}66` : 'none',
+                          transition: 'all 0.6s ease',
+                        }}>
+                        <span style={{ fontSize: isCurrent ? '11px' : '9px', opacity: reached ? 1 : 0.25, transition: 'all 0.5s ease' }}>
+                          {m.icon}
+                        </span>
+                      </div>
                     </div>
                   );
                 })}
               </div>
-              {/* Progress track */}
-              <div className="h-1 bg-stone-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-1000 ease-out"
-                  style={{
-                    width: `${stageConfig.progress}%`,
-                    background: 'linear-gradient(90deg, #F4A261 0%, #2A9D8F 60%, #264653 100%)',
-                  }}
-                />
-              </div>
-              <div className="flex justify-between mt-1">
-                <span className="text-[10px] text-stone-300">Beginning</span>
-                <span className="text-[10px] font-medium" style={{ color: stageConfig.color }}>{stageConfig.description}</span>
-                <span className="text-[10px] text-stone-300">{stageConfig.progress}%</span>
+
+              {/* Liquid progress bar */}
+              <div className="h-0.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                <div className="h-full rounded-full transition-all duration-1200 ease-out relative overflow-hidden"
+                  style={{ width: `${stageConfig.progress}%`, background: `linear-gradient(90deg, ${stageConfig.color}88, ${stageConfig.color})` }}>
+                  {/* Shimmer */}
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)', animation: 'shimmer 2.5s ease-in-out infinite' }} />
+                </div>
               </div>
             </div>
           )}
         </div>
       </header>
 
-      {/* SKILL SPARKLE NOTIFICATION */}
+      {/* ── SKILL SPARKLE NOTIFICATION ── */}
       {newSkillSparkle && (
-        <div className="flex-none mx-auto mt-2" style={{ animation: 'slideDown 0.5s ease-out, fadeOut 0.5s ease-out 2.5s forwards' }}>
-          <div className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-lg">
-            <span className="text-xs font-medium text-amber-700">✨ Skill signal detected: {newSkillSparkle}</span>
+        <div className="flex-none mx-auto mt-3 z-10 relative" style={{ animation: 'slideDown 0.5s ease-out, fadeOut 0.5s ease-out 2.5s forwards' }}>
+          <div className="px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', border: `1px solid ${stageConfig.color}40` }}>
+            <span className="text-xs" style={{ color: stageConfig.color }}>✦</span>
+            <span className="text-xs font-medium text-white/80" style={{ fontFamily: 'system-ui, sans-serif' }}>{newSkillSparkle} — signal detected</span>
           </div>
         </div>
       )}
 
       {/* MESSAGES AREA */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10">
         <div className="max-w-2xl mx-auto px-4 py-6">
 
-          {/* WELCOME SCREEN — Premium */}
+          {/* WELCOME SCREEN */}
           {showWelcome && (
             <div className="flex flex-col items-center justify-center min-h-[65vh] text-center">
-              {/* Butterfly avatar */}
               <div className="relative mb-8">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-5xl shadow-2xl" style={{ animation: 'breathe 4s ease-in-out infinite' }}>
+                <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl"
+                  style={{ background: 'linear-gradient(135deg, rgba(244,162,97,0.8), rgba(42,157,143,0.6))', animation: 'breathe 4s ease-in-out infinite', boxShadow: '0 0 60px rgba(244,162,97,0.25)' }}>
                   🦋
                 </div>
-                <div className="absolute -inset-3 rounded-3xl" style={{ background: 'radial-gradient(circle, rgba(244,162,97,0.15) 0%, transparent 70%)', animation: 'pulse 3s ease-in-out infinite' }} />
+                <div className="absolute -inset-4 rounded-3xl opacity-20" style={{ background: 'radial-gradient(circle, rgba(244,162,97,0.6) 0%, transparent 70%)', animation: 'breathe 4s ease-in-out infinite' }} />
               </div>
 
-              <h2 className="text-2xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 Discover Your Superpowers
               </h2>
-              <p className="text-stone-500 max-w-sm mb-8 leading-relaxed text-[15px]">
-                Share real stories from your life and let us uncover the valuable skills you already have.
-                No tests, no right or wrong answers.
+              <p className="max-w-sm mb-8 leading-relaxed text-[15px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'system-ui, sans-serif' }}>
+                Share real stories from your life. We'll uncover the skills you already have —
+                no tests, no right or wrong answers.
               </p>
 
               <div className="flex flex-col gap-3 w-full max-w-xs">
                 <button onClick={() => startSession('en')}
-                  className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ fontFamily: "'Nunito', sans-serif" }}>
+                  className="px-6 py-3.5 text-white rounded-2xl font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: 'linear-gradient(135deg, #F4A261, #E76F51)', boxShadow: '0 8px 32px rgba(244,162,97,0.35)', fontFamily: "'Nunito', sans-serif" }}>
                   Start in English
                 </button>
                 <button onClick={() => startSession('taglish')}
-                  className="px-6 py-3.5 bg-white/80 backdrop-blur border-2 border-amber-200 text-amber-700 rounded-2xl font-semibold hover:bg-amber-50 transition-all hover:scale-[1.02]"
-                  style={{ fontFamily: "'Nunito', sans-serif" }}>
+                  className="px-6 py-3.5 rounded-2xl font-semibold transition-all hover:scale-[1.02]"
+                  style={{ background: 'rgba(244,162,97,0.1)', border: '1.5px solid rgba(244,162,97,0.3)', color: 'rgba(244,162,97,0.9)', fontFamily: "'Nunito', sans-serif" }}>
                   Magsimula sa Taglish
                 </button>
                 <button onClick={() => startSession('fil')}
-                  className="px-6 py-3.5 bg-white/60 border-2 border-stone-200 text-stone-500 rounded-2xl font-medium hover:bg-stone-50 transition-all"
-                  style={{ fontFamily: "'Nunito', sans-serif" }}>
+                  className="px-6 py-3.5 rounded-2xl font-medium transition-all"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.35)', fontFamily: "'Nunito', sans-serif" }}>
                   Magsimula sa Filipino
                 </button>
               </div>
 
-              <div className="flex items-center gap-4 mt-8 text-[11px] text-stone-400">
+              <div className="flex items-center gap-4 mt-8 text-[11px]" style={{ color: 'rgba(255,255,255,0.2)', fontFamily: 'system-ui, sans-serif' }}>
                 <span>🕐 12–18 minutes</span>
-                <span>•</span>
-                <span>⏭️ Skip any question</span>
-                <span>•</span>
-                <span>🔒 Stories stay private</span>
+                <span>·</span>
+                <span>⏭ Skip any question</span>
+                <span>·</span>
+                <span>🔒 Private</span>
               </div>
             </div>
           )}
 
           {/* CHAT MESSAGES */}
-          {messages.map((msg, idx) => (
+          {messages.map((msg: any, idx) => (
             <div key={msg.id} className={`flex mb-5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               style={{ animation: `messageIn 0.4s ease-out ${idx === messages.length - 1 ? '' : 'none'}` }}>
               {msg.role === 'assistant' && (
@@ -495,27 +563,75 @@ export default function LEEEChat() {
                   🦋
                 </div>
               )}
+              {/* Scenario choice — special pill styling */}
+              {msg.isScenarioChoice ? (
+                <div className="max-w-[78%] px-4 py-2.5 rounded-2xl rounded-br-md flex items-center gap-2"
+                  style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: `1px solid ${stageConfig.color}50` }}>
+                  <span className="text-xs" style={{ color: stageConfig.color }}>⚡</span>
+                  <span className="text-sm text-white/80" style={{ fontFamily: 'system-ui, sans-serif' }}>{msg.choiceText}</span>
+                </div>
+              ) : (
               <div className={`max-w-[78%] px-4 py-3 text-[15px] leading-relaxed ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-br from-stone-700 to-stone-800 text-white rounded-2xl rounded-br-md shadow-md'
-                  : 'bg-white/80 backdrop-blur-sm border border-stone-100 text-stone-700 rounded-2xl rounded-bl-md shadow-sm'
-              }`} style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}>
+                  ? 'text-white rounded-2xl rounded-br-md'
+                  : 'rounded-2xl rounded-bl-md'
+              }`} style={{
+                fontFamily: "'Nunito', 'Segoe UI', sans-serif",
+                background: msg.role === 'user'
+                  ? `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}88)`
+                  : 'rgba(255,255,255,0.07)',
+                backdropFilter: 'blur(12px)',
+                border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                color: msg.role === 'user' ? '#fff' : 'rgba(255,255,255,0.88)',
+                boxShadow: msg.role === 'user' ? `0 4px 20px ${stageConfig.color}33` : 'none',
+              }}>
                 {msg.content}
               </div>
+              )}
             </div>
           ))}
 
-          {/* TYPING INDICATOR — Warm bubbles */}
+          {/* SCENARIO CARD — Dynamic micro-simulation */}
+          {pendingScenario && !isLoading && (
+            <ScenarioCard
+              scenario={pendingScenario}
+              onComplete={(chosenOption, ayaReaction) => {
+                setPendingScenario(null);
+                // Add user's choice as a message
+                const userChoice: any = {
+                  id: crypto.randomUUID(), role: 'user',
+                  content: `[Scenario choice: ${chosenOption.text}]`,
+                  timestamp: new Date(),
+                  isScenarioChoice: true,
+                  choiceText: chosenOption.text,
+                };
+                // Add Aya's reaction
+                const ayaMsg: any = {
+                  id: crypto.randomUUID(), role: 'assistant',
+                  content: ayaReaction,
+                  timestamp: new Date(),
+                };
+                setMessages(prev => [...prev, userChoice, ayaMsg]);
+                // Continue conversation naturally
+                setTimeout(() => inputRef.current?.focus(), 300);
+              }}
+            />
+          )}
+
+          {/* TYPING INDICATOR */}
           {isLoading && (
             <div className="flex mb-5 justify-start" style={{ animation: 'messageIn 0.3s ease-out' }}>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-sm mr-2.5 mt-1 flex-none">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-2.5 mt-1 flex-none"
+                style={{ background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`, boxShadow: `0 0 12px ${stageConfig.color}44` }}>
                 🦋
               </div>
-              <div className="bg-white/80 backdrop-blur-sm border border-stone-100 px-5 py-3.5 rounded-2xl rounded-bl-md shadow-sm">
+              <div className="px-5 py-3.5 rounded-2xl rounded-bl-md"
+                style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <div className="flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-amber-300" style={{ animation: 'aya-bounce 1.4s ease-in-out infinite' }} />
-                  <div className="w-2 h-2 rounded-full bg-orange-300" style={{ animation: 'aya-bounce 1.4s ease-in-out 0.2s infinite' }} />
-                  <div className="w-2 h-2 rounded-full bg-rose-300" style={{ animation: 'aya-bounce 1.4s ease-in-out 0.4s infinite' }} />
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="w-2 h-2 rounded-full"
+                      style={{ background: stageConfig.color, opacity: 0.7, animation: `aya-bounce 1.4s ease-in-out ${i * 0.2}s infinite` }} />
+                  ))}
                 </div>
               </div>
             </div>
@@ -579,7 +695,8 @@ export default function LEEEChat() {
 
       {/* INPUT AREA */}
       {session.status === 'active' && !extraction && (
-        <footer className="flex-none border-t border-amber-100/50 bg-white/60 backdrop-blur-md">
+        <footer className="flex-none relative z-10"
+          style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="max-w-2xl mx-auto px-4 py-3">
 
             {/* Quick Reply Chips */}
@@ -587,8 +704,13 @@ export default function LEEEChat() {
               <div className="flex flex-wrap gap-2 mb-3">
                 {quickReplies.map((reply, i) => (
                   <button key={i} onClick={() => sendMessage(reply)}
-                    className="px-3 py-1.5 text-xs rounded-full bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 transition-all hover:scale-[1.03] active:scale-[0.97]"
-                    style={{ fontFamily: "'Nunito', sans-serif" }}>
+                    className="px-3 py-1.5 text-xs rounded-full transition-all hover:scale-[1.03] active:scale-[0.97]"
+                    style={{
+                      background: `${stageConfig.color}15`,
+                      border: `1px solid ${stageConfig.color}30`,
+                      color: stageConfig.color,
+                      fontFamily: "'Nunito', sans-serif",
+                    }}>
                     {reply}
                   </button>
                 ))}
@@ -602,9 +724,13 @@ export default function LEEEChat() {
                   const found = session.skillsEvidenced?.[key];
                   return (
                     <span key={key}
-                      className={`text-[10px] px-2 py-0.5 rounded-full transition-all duration-500 ${
-                        found ? 'bg-amber-100 text-amber-700 border border-amber-200 scale-105' : 'bg-stone-50 text-stone-300 border border-stone-100'
-                      }`}>
+                      className="text-[10px] px-2 py-0.5 rounded-full transition-all duration-500"
+                      style={{
+                        background: found ? `${stageConfig.color}20` : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${found ? stageConfig.color + '40' : 'rgba(255,255,255,0.06)'}`,
+                        color: found ? stageConfig.color : 'rgba(255,255,255,0.2)',
+                        transform: found ? 'scale(1.05)' : 'scale(1)',
+                      }}>
                       {skill.icon} {skill.label}
                     </span>
                   );
@@ -616,26 +742,35 @@ export default function LEEEChat() {
               <textarea ref={inputRef} value={input} onChange={handleInputChange} onKeyDown={handleKeyDown}
                 placeholder="Share your story..."
                 rows={1}
-                className="flex-1 resize-none rounded-2xl border border-stone-200 px-4 py-3 text-[15px] text-stone-700 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 bg-white/80 backdrop-blur transition-all"
-                style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}
+                className="flex-1 resize-none rounded-2xl px-4 py-3 text-[15px] focus:outline-none transition-all"
+                style={{
+                  fontFamily: "'Nunito', 'Segoe UI', sans-serif",
+                  background: 'rgba(255,255,255,0.06)',
+                  backdropFilter: 'blur(8px)',
+                  border: `1px solid rgba(255,255,255,0.10)`,
+                  color: 'rgba(255,255,255,0.9)',
+                  caretColor: stageConfig.color,
+                }}
                 disabled={isLoading}
               />
               <button onClick={() => sendMessage()} disabled={!input.trim() || isLoading}
-                className="p-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md hover:shadow-lg disabled:opacity-30 transition-all hover:scale-[1.03] active:scale-[0.97]">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                className="p-3 rounded-2xl text-white disabled:opacity-20 transition-all hover:scale-[1.05] active:scale-[0.97]"
+                style={{ background: `linear-gradient(135deg, ${stageConfig.color}, ${stageConfig.color}cc)`, boxShadow: `0 4px 16px ${stageConfig.color}44`, transition: 'all 0.3s ease' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>
               </button>
             </div>
 
             <div className="flex items-center justify-between mt-2 px-1">
-              <p className="text-[11px] text-stone-400">
-                Story {session.storiesCompleted + 1} of 3 • You can skip any question
+              <p className="text-[11px] text-white/25" style={{ fontFamily: 'system-ui, sans-serif' }}>
+                Story {session.storiesCompleted + 1} of 3 · skip any question
               </p>
               {messages.length >= 6 && (
                 <button onClick={handleFinishSession}
-                  className="text-[11px] text-stone-400 hover:text-stone-600 transition-colors underline decoration-dotted">
-                  Finish conversation
+                  className="text-[11px] text-white/25 hover:text-white/50 transition-colors"
+                  style={{ fontFamily: 'system-ui, sans-serif' }}>
+                  Finish →
                 </button>
               )}
             </div>
@@ -645,51 +780,47 @@ export default function LEEEChat() {
 
       {/* COMPLETED — Waiting for extraction */}
       {session.status === 'completed' && !extraction && !isExtracting && (
-        <footer className="flex-none border-t border-amber-100/50 bg-white/60 backdrop-blur-md p-4 text-center">
-          <p className="text-sm text-stone-600 mb-3">Session complete! Thank you for sharing your stories.</p>
+        <footer className="flex-none p-4 text-center relative z-10"
+          style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <p className="text-sm text-white/60 mb-3" style={{ fontFamily: 'system-ui, sans-serif' }}>Session complete. Ready to see your superpowers?</p>
           <div className="flex items-center justify-center gap-3">
             <button onClick={() => session.sessionId && runExtraction(session.sessionId)}
               className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all">
               ✨ Discover My Superpowers
             </button>
             <button onClick={downloadTranscript}
-              className="px-4 py-2.5 text-xs text-stone-500 border border-stone-200 rounded-xl hover:bg-white transition-all">
+              className="px-4 py-2.5 text-xs rounded-xl transition-all"
+              style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.1)', fontFamily: 'system-ui, sans-serif' }}>
               📥 Transcript
             </button>
           </div>
         </footer>
       )}
 
-      {/* EXTRACTING — Full-screen animated overlay */}
+      {/* EXTRACTING */}
       {isExtracting && (
         <div className="fixed inset-0 z-40 flex flex-col items-center justify-center"
-          style={{ background: 'linear-gradient(160deg, #0F0C29, #302B63, #24243e)' }}>
-
-          {/* Animated butterfly */}
+          style={{ background: stageConfig.bg, backdropFilter: 'blur(20px)' }}>
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute -top-20 -left-20 w-80 h-80 rounded-full blur-3xl" style={{ background: stageConfig.orb1, animation: 'orbDrift1 8s ease-in-out infinite' }} />
+            <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full blur-3xl" style={{ background: stageConfig.orb2, animation: 'orbDrift2 12s ease-in-out infinite' }} />
+          </div>
           <div className="relative mb-10">
-            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-5xl shadow-2xl"
-              style={{ animation: 'extractPulse 1.5s ease-in-out infinite' }}>
+            <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl"
+              style={{ background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`, animation: 'extractPulse 1.5s ease-in-out infinite', boxShadow: `0 0 60px ${stageConfig.color}44` }}>
               🦋
             </div>
             <div className="absolute -inset-6 rounded-full opacity-20"
-              style={{ background: 'radial-gradient(circle, #F4A261 0%, transparent 70%)', animation: 'extractPulse 1.5s ease-in-out infinite' }} />
+              style={{ background: `radial-gradient(circle, ${stageConfig.color} 0%, transparent 70%)`, animation: 'extractPulse 1.5s ease-in-out infinite' }} />
           </div>
-
-          {/* Rotating messages */}
           <RotatingExtractionMessage />
-
-          {/* Progress dots */}
           <div className="flex gap-3 mt-8">
-            {[0, 1, 2, 3, 4].map(i => (
+            {[0,1,2,3,4].map(i => (
               <div key={i} className="w-1.5 h-1.5 rounded-full"
-                style={{
-                  background: '#F4A261',
-                  animation: `extractDot 2s ease-in-out ${i * 0.3}s infinite`,
-                }} />
+                style={{ background: stageConfig.color, animation: `extractDot 2s ease-in-out ${i * 0.3}s infinite` }} />
             ))}
           </div>
-
-          <p className="text-white/30 text-xs mt-6">Analysing your stories against PSF framework…</p>
+          <p className="text-white/20 text-xs mt-6" style={{ fontFamily: 'system-ui, sans-serif' }}>Analysing your stories against PSF framework…</p>
         </div>
       )}
 
@@ -697,10 +828,10 @@ export default function LEEEChat() {
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes breathe {
           0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.04); }
+          50% { transform: scale(1.05); }
         }
         @keyframes messageIn {
-          from { opacity: 0; transform: translateY(12px); }
+          from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes slideDown {
@@ -708,12 +839,39 @@ export default function LEEEChat() {
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeOut {
-          to { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 0; }
         }
         @keyframes aya-bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-6px); }
         }
+        @keyframes orbDrift1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(40px, -30px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        @keyframes orbDrift2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          40% { transform: translate(-50px, 30px) scale(1.08); }
+          70% { transform: translate(30px, -20px) scale(0.92); }
+        }
+        @keyframes orbDrift3 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+        @keyframes extractPulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.06); opacity: 0.85; }
+        }
+        @keyframes extractDot {
+          0%, 100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-8px); opacity: 1; }
+        }
+        textarea::placeholder { color: rgba(255,255,255,0.2); }
       `}} />
     </div>
     </>
