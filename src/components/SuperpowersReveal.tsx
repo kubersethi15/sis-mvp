@@ -203,7 +203,8 @@ export default function SuperpowersReveal({ extraction, onDismiss }: Superpowers
               Your Superpowers
             </h1>
             {extraction.narrative_summary && (
-              <p className="text-white/60 text-sm leading-relaxed max-w-sm mx-auto">
+              <p className="text-white/60 text-sm leading-relaxed max-w-sm mx-auto"
+                style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {extraction.narrative_summary}
               </p>
             )}
