@@ -227,7 +227,7 @@ Last updated: March 17, 2026
 | R9 | Vacancy competency weighting in extraction | ⬜ Todo | 🟡 Med | Vacancy blueprint competencies weighted higher in extraction priority. Currently injected but not weighted |
 | R10 | Experience snapshot synthesis | ⬜ Todo | 🟡 Med | Compute "most relevant role + notable achievement" summary from work history for context injection |
 | R11 | Self-reported challenges field in profile | ⬜ Todo | 🟡 Med | Add challenges[] array to jobseeker_profiles schema. Ryan's doc shows 5 challenge types |
-| R12 | System prompt v2 full replacement | ⬜ Todo | 🟡 Med | Ryan's doc contains full updated system prompt with Cultural Intelligence Layer, Bridge Logic, v2 additions. Replace current v1 |
+| R12 | System prompt v2 full replacement | ✅ Done | 🟡 Med | Ryan's doc contains full updated system prompt with Cultural Intelligence Layer, Bridge Logic, v2 additions. Replace current v1 |
 | R13 | Coverage matrix tracking | ⬜ Todo | 🟢 Low | Track which PSF skills have been evidenced per session in real time. Currently done at extraction only |
 | R14 | Session timer + pace enforcement | ⬜ Todo | 🟢 Low | Enforce session_pace (unhurried 15-20min / standard 12-18 / efficient 10-15) from calibration |
 | R15 | Profile form — extended disability fields | ⬜ Todo | 🟡 Med | UI for severity, communication_impact, accommodation_notes. Sensitive — needs careful UX |
