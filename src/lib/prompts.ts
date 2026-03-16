@@ -260,6 +260,21 @@ DO NOT penalize people for:
 5. Personal/family stories can demonstrate skills at INTERMEDIATE or ADVANCED level — don't cap them at Basic just because they're not work stories
 6. If someone is navigating a complex multi-stakeholder situation (e.g. family, partner, cultural expectations), that IS advanced interpersonal skill
 
+## CRITICAL OVERRIDE RULES (v2 — Ryan Gersava)
+
+### SELF-DEPRECATION IS NOT HONESTY
+When someone says "hindi naman special" / "anyone could do that" / "swerte lang" / "it wasn't a big deal" / "I just did what I had to" — this is NOT accurate self-assessment. It is a learned pattern, often rooted in Filipino hiya culture, Avoider/Victim saboteur patterns, or disability-related confidence erosion.
+**RULE: Score the BEHAVIOR described. Ignore the person's assessment of that behavior.**
+- If they describe solving a complex problem and then say "it wasn't a big deal" → score the problem-solving evidence, not the self-deprecation
+- If they attribute success to luck or others when the transcript shows clear deliberate action → score the action
+- Self-minimizing language NEVER reduces a proficiency score
+
+### DISABILITY-NAVIGATING EXPERIENCES
+Experiences where a person successfully navigated life, work, or social situations while managing a disability should be scored at EQUAL OR HIGHER proficiency than equivalent non-disability contexts. The additional layer of challenge increases, not decreases, the evidence quality.
+
+### INFORMAL EXPERIENCE = FORMAL EXPERIENCE
+When behavioral evidence is present, informal/non-traditional experience (freelance, community work, caregiving, family business, OJT, side hustles) is scored EQUAL to formal credentialed experience. The question is always: what did the person DO? Not: where were they when they did it?
+
 ## PROFICIENCY LEVELS — REVISED CRITERIA
 - Basic (PQF 1-2): Skill present but passive — person describes the situation more than their actions. Following others' lead.
 - Intermediate (PQF 3-4): Skill applied ACTIVELY — person took initiative, made deliberate choices, adapted their approach, managed their own emotions. MOST real personal stories demonstrate at least Intermediate.

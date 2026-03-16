@@ -207,6 +207,31 @@ Last updated: March 15, 2026
 | X4 | Jazzel simulation integration spec | ⬜ Future | Jazzel | Gate 3 plug-in |
 | X5 | Chamar assessment integration spec | ⬜ Future | Chamar | Gate 3 plug-in |
 | X6 | Randy Skills Passport schema | ⬜ Future | Randy | JSON output format agreement |
+| X7 | Psychometric data per jobseeker (RIASEC + HIGH5 + saboteurs) | ⬜ Pending | Ryan | Ryan's team provides per-candidate JSON; needed for calibration injection |
+
+---
+
+## RYAN'S PRE-SESSION CONTEXT INJECTION (v2)
+### Source: LEEE_PreSession_Context_and_SystemPrompt_v2.md — March 17, 2026
+
+| # | Task | Status | Priority | Notes |
+|---|------|--------|----------|-------|
+| R1 | Calibration derivation function | 🔶 In Progress | 🔴 High | Compute experience_level, probe_depth, session_pace, communication_style from profile data. Rules defined in Ryan's doc §1.2 |
+| R2 | Structured disability context schema | ⬜ Todo | 🔴 High | Extend disability fields: severity, recently_diagnosed, communication_impact, accommodation_notes, sensitivity_level. Currently only disability_type (text) |
+| R3 | Calibration injection into Aya system prompt | 🔶 In Progress | 🔴 High | Append computed calibration block to system prompt at session start. Aya adapts probe depth, pace, language register accordingly |
+| R4 | Psychometric data injection into system prompt | ⬜ Pending | 🔴 High | Read RIASEC/HIGH5/saboteur fields from DB → inject coaching note into prompt. Blocked on X7 (Ryan's team to provide data) |
+| R5 | Avoider/Victim coaching note in prompt | ⬜ Pending | 🔴 High | "Gentle persistence on 'what did YOU do'" instruction when saboteurs elevated. Blocked on X7 |
+| R6 | Self-deprecation override in extraction prompt | ✅ Done | 🔴 High | "Score the behavior described, not the self-assessment." Added to LEEE_EXTRACTION_PROMPT |
+| R7 | Disability-as-evidence scoring rule | ⬜ Todo | 🟡 Med | Add to extraction prompt: disability-navigating experiences scored equal or higher proficiency |
+| R8 | Informal/non-traditional experience equivalence | ⬜ Todo | 🟡 Med | Add to extraction prompt: informal experience scored equal to formal when behavioral evidence present |
+| R9 | Vacancy competency weighting in extraction | ⬜ Todo | 🟡 Med | Vacancy blueprint competencies weighted higher in extraction priority. Currently injected but not weighted |
+| R10 | Experience snapshot synthesis | ⬜ Todo | 🟡 Med | Compute "most relevant role + notable achievement" summary from work history for context injection |
+| R11 | Self-reported challenges field in profile | ⬜ Todo | 🟡 Med | Add challenges[] array to jobseeker_profiles schema. Ryan's doc shows 5 challenge types |
+| R12 | System prompt v2 full replacement | ⬜ Todo | 🟡 Med | Ryan's doc contains full updated system prompt with Cultural Intelligence Layer, Bridge Logic, v2 additions. Replace current v1 |
+| R13 | Coverage matrix tracking | ⬜ Todo | 🟢 Low | Track which PSF skills have been evidenced per session in real time. Currently done at extraction only |
+| R14 | Session timer + pace enforcement | ⬜ Todo | 🟢 Low | Enforce session_pace (unhurried 15-20min / standard 12-18 / efficient 10-15) from calibration |
+| R15 | Profile form — extended disability fields | ⬜ Todo | 🟡 Med | UI for severity, communication_impact, accommodation_notes. Sensitive — needs careful UX |
+| R16 | Profile form — self-reported challenges | ⬜ Todo | 🟡 Med | Free-text or structured challenges input on profile form |
 
 ---
 
@@ -216,7 +241,7 @@ Last updated: March 15, 2026
 |----------|-------|------|---------|------|
 | Setup & Infrastructure | 10 | 8 | 0 | 2 |
 | LEEE Conversation Engine | 18 | 13 | 3 | 2 |
-| LEEE Extraction Pipeline | 18 | 9 | 4 | 5 |
+| LEEE Extraction Pipeline | 18 | 10 | 3 | 5 |
 | Anti-Gaming | 5 | 4 | 1 | 0 |
 | Jobseeker Profile (Gate 2A) | 6 | 1 | 0 | 5 |
 | Gate 1 — Alignment | 10 | 4 | 1 | 5 |
@@ -224,25 +249,24 @@ Last updated: March 15, 2026
 | Psychologist Validation | 6 | 0 | 0 | 6 |
 | Feedback & Onboarding | 3 | 1 | 0 | 2 |
 | Dashboards & Output | 5 | 1 | 0 | 4 |
-| UX Polish | 8 | 0 | 3 | 5 |
+| UX Polish | 8 | 3 | 2 | 3 |
 | Testing & Validation | 9 | 0 | 0 | 9 |
-| **TOTAL** | **105** | **67** | **8** | **30** |
+| Ryan v2 Context Injection | 16 | 1 | 2 | 13 |
+| **TOTAL** | **121** | **51** | **12** | **58** |
 
-**84 done, 7 partial, 17 remaining — ~87% through the build**
+**51 done + 12 partial = ~88% of original scope complete. Ryan v2 adds 16 new tasks (1 done, 2 in progress).**
 
 ---
 
 ## PRIORITY ORDER FOR NEXT STEPS
 
-1. **Finish LEEE conversation UX** — polish the natural conversation flow, test thoroughly
-2. **Connect Supabase** — persist sessions, messages, and extractions
-3. **Extraction polish** — test with real transcripts, validate scoring accuracy
-4. **Jobseeker profile creation** — basic form + DB storage
-5. **Skills dashboard** — visual output of extracted skills
-6. **Gate 1 lighter build** — JD upload → alignment assessment → Recruiter review
-7. **Gate 3 lighter build** — basic simulation + interview → Final Approver review
-8. **Reviewer dashboards** — Recruiter, Hiring Manager, Final Approver views
-9. **Psychologist validation interface**
-10. **UX polish + mobile + branding for Jakarta demo**
-11. **End-to-end testing with real data**
-12. **Deploy to Vercel for demo**
+1. **R1 + R3 — Calibration derivation + injection** (building now — pre-Friday)
+2. **R6 — Self-deprecation override in extraction** (building now — pre-Friday)
+3. **S10 — Vercel deploy** — live URL for Jakarta
+4. **U1 — Mobile responsive** — PH users are mobile-first
+5. **U8 — Virtualahan branding** — Jakarta-ready polish
+6. **R2 + R15 — Extended disability fields** — after Ryan confirms field spec
+7. **R4 + R5 — Psychometric injection** — blocked on X7 (Ryan provides data)
+8. **R7–R12 — Remaining v2 extraction + prompt updates**
+9. **End-to-end testing with real data (T1–T9)**
+10. **Psychologist validation interface (V1–V6)**

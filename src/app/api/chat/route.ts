@@ -142,7 +142,7 @@ async function handleStart(body: any) {
   }
   if (!userId) userId = await ensureDemoUser();
 
-  // Fetch profile data for context injection (E18: auto-extract from profile)
+  // Fetch profile data for context injection — with calibration derivation (R1+R3)
   let profileContext = '';
   let previousSkillsContext = '';
   if (body.jobseeker_profile_id) {
@@ -152,19 +152,86 @@ async function handleStart(body: any) {
     if (profile) {
       const name = profile.user_profiles?.full_name || 'Unknown';
       const firstName = name.split(' ')[0];
-      const workStr = (profile.work_history || []).map((w: any) => `${w.role} at ${w.company}`).join(', ');
-      const eduStr = (profile.education || []).map((e: any) => `${e.degree} from ${e.institution}`).join(', ');
-      const skillsStr = (profile.skills_inventory || []).join(', ');
-      profileContext = `\n\n## CANDIDATE CONTEXT (from profile — use to personalize conversation)
-- Name: ${name} (CALL THEM "${firstName}" — use their name in your first message!)
-- Work experience: ${workStr || 'None listed'}
-- Education: ${eduStr || 'None listed'}
-- Skills: ${skillsStr || 'None listed'}
-- Disability: ${profile.disability_type || 'Not disclosed'}
-- Career goals: ${profile.career_goals || 'Not specified'}
 
-IMPORTANT: In your very FIRST message, greet them by name: "Kumusta, ${firstName}!" or "Hey ${firstName}!" 
-Use this context to ask more relevant, personalized questions. If they mention something from their profile, connect it naturally. Do NOT list back their profile to them — just use it to guide conversation.`;
+      // ── CALIBRATION DERIVATION (Ryan v2 §1.2) ──────────────────────────
+      const workHistory = profile.work_history || [];
+      const totalYears = workHistory.reduce((sum: number, w: any) => sum + (parseFloat(w.years) || 0), 0);
+      const isMostlyInformal = workHistory.length > 0 && workHistory.every((w: any) =>
+        ['freelance','community','family','informal','volunteer','caregiver','sideline'].some(t =>
+          (w.type || w.employment_type || '').toLowerCase().includes(t)));
+      const hasSeniorRoles = workHistory.some((w: any) =>
+        ['manager','director','head','senior','lead','supervisor','vp','ceo'].some(t =>
+          (w.role || '').toLowerCase().includes(t)));
+
+      const experienceLevel =
+        isMostlyInformal ? 'non_traditional' :
+        totalYears < 3 ? 'early_career' :
+        totalYears > 10 && hasSeniorRoles ? 'senior' :
+        'mid_career';
+
+      const disability = profile.disability_context || {};
+      const psychometrics = profile.psychometric_data || {};
+      const avoiderScore = psychometrics?.saboteurs?.avoider || 0;
+      const victimScore = psychometrics?.saboteurs?.victim || 0;
+      const hasElevatedSensitivity = disability.recently_diagnosed || disability.sensitivity_level === 'high' || avoiderScore >= 7;
+
+      const probeDepth =
+        hasElevatedSensitivity ? 'gentle' :
+        totalYears > 10 && hasSeniorRoles ? 'deep' :
+        'standard';
+
+      const sessionPace =
+        (disability.communication_impact || avoiderScore >= 7) ? 'unhurried' :
+        (totalYears > 10 && hasSeniorRoles) ? 'efficient' :
+        'standard';
+
+      // ── COACHING NOTES from psychometrics ──────────────────────────────
+      let coachingNotes = '';
+      if (avoiderScore >= 7 || victimScore >= 7) {
+        coachingNotes = `\n- ⚠️ COACHING NOTE: This person may minimize achievements ("anyone could do that", "swerte lang"). Use gentle persistence on "what did YOU specifically do?" questions. Don't accept self-deprecating deflections — follow up warmly but firmly.`;
+      }
+      const high5 = (psychometrics?.high5_strengths || []).join(', ');
+      const riasecDominant = (psychometrics?.riasec_dominant || []).join(', ');
+
+      // ── BUILD CONTEXT BLOCK ─────────────────────────────────────────────
+      const workStr = workHistory.map((w: any) => `${w.role} at ${w.company || 'unknown'}`).join(', ');
+      const eduStr = (profile.education || []).map((e: any) => `${e.degree} from ${e.institution}`).join(', ');
+
+      profileContext = `
+
+═══════════════════════════════════════
+CONTEXT FOR THIS SESSION (INTERNAL — NEVER REVEAL TO JOBSEEKER)
+═══════════════════════════════════════
+
+## WHO YOU'RE TALKING TO
+- Name: ${name} — GREET THEM AS "${firstName}" IN YOUR VERY FIRST MESSAGE
+- Work: ${workStr || 'None listed'}
+- Education: ${eduStr || 'None listed'}
+- Career goals: ${profile.career_goals || 'Not specified'}
+- Disability: ${disability.type || profile.disability_type || 'Not disclosed'}${disability.accommodation_notes ? `\n- Accommodation: ${disability.accommodation_notes}` : ''}
+
+## CALIBRATION — HOW TO RUN THIS SESSION
+- experience_level: ${experienceLevel} → ${
+  experienceLevel === 'early_career' ? 'Use simpler story prompts. Accept community, school, family stories. Don\'t expect corporate language.' :
+  experienceLevel === 'non_traditional' ? 'Actively invite non-work stories. Frame "work" broadly. Diskarte and community stories are primary evidence territory.' :
+  experienceLevel === 'senior' ? 'Deeper follow-ups OK. Can handle complex situational probes. Watch for identity adjustment if role is below previous level.' :
+  'Standard probe depth. Can reference work scenarios directly.'
+}
+- probe_depth: ${probeDepth} → ${
+  probeDepth === 'gentle' ? 'Maximum 2 follow-ups per element. Accept surface-level answers gracefully. Prioritize comfort over extraction completeness.' :
+  probeDepth === 'deep' ? 'Can push further on specifics. Use verification probes freely. Can handle "was it really that easy?" style challenges.' :
+  'Standard 3 follow-up limit. Use full probe range.'
+}
+- session_pace: ${sessionPace} → ${
+  sessionPace === 'unhurried' ? 'Longer pauses are fine. Acknowledge pauses warmly ("Take your time, no rush"). 15–20 min target.' :
+  sessionPace === 'efficient' ? 'Can move through phases faster. 10–15 min target. More direct transitions.' :
+  '12–18 min target. Standard cadence.'
+}
+${high5 ? `- Strengths (HIGH5): ${high5}` : ''}
+${riasecDominant ? `- RIASEC dominant: ${riasecDominant}` : ''}${coachingNotes}
+
+## SELF-DEPRECATION WATCH
+If this person says "hindi naman special" / "anyone could do that" / "swerte lang" — do NOT accept it. Follow up gently: "But it sounds like YOU were the one who [action they described]. What made you decide to do it that way?" Score behavior, not self-assessment.`;
     }
 
     // Fetch previous extractions to know what skills are already evidenced
