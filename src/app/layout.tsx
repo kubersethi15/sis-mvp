@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SIS - Skills Intelligence System',
-  description: 'Discover your superpowers through storytelling',
+  title: 'Kaya — Hiring Intelligence by Virtualahan',
+  description: 'Show what you can do. Your stories become evidence.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased bg-stone-50 font-sans">{children}</body>
     </html>
   );
 }

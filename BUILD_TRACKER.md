@@ -179,7 +179,7 @@ Last updated: March 17, 2026
 | U5 | Accessibility (screen reader, keyboard nav) | ⬜ Todo | WCAG compliance |
 | U6 | Low-bandwidth optimization | ⬜ Todo | Minimal assets, progressive loading |
 | U7 | Loading states and error handling | ✅ Done | Error messages, extraction retry, loading spinners |
-| U8 | Branding and visual identity | ⬜ Todo | Virtualahan branding for Jakarta |
+| U8 | Branding and visual identity | ✅ Done | Kaya brand: Navy 900, Green 400, Stone 50, Georgia wordmark. Landing page + layout rebranded |
 
 ---
 
@@ -221,19 +221,60 @@ Last updated: March 17, 2026
 | R1 | Calibration derivation function | ✅ Done | 🔴 High | Compute experience_level, probe_depth, session_pace, communication_style from profile data. Rules defined in Ryan's doc §1.2 |
 | R2 | Structured disability context schema | ⬜ Todo | 🔴 High | Extend disability fields: severity, recently_diagnosed, communication_impact, accommodation_notes, sensitivity_level. Currently only disability_type (text) |
 | R3 | Calibration injection into Aya system prompt | ✅ Done | 🔴 High | Append computed calibration block to system prompt at session start. Aya adapts probe depth, pace, language register accordingly |
-| R4 | Psychometric data injection into system prompt | ⬜ Pending | 🔴 High | Read RIASEC/HIGH5/saboteur fields from DB → inject coaching note into prompt. Blocked on X7 (Ryan's team to provide data) |
-| R5 | Avoider/Victim coaching note in prompt | ⬜ Pending | 🔴 High | "Gentle persistence on 'what did YOU do'" instruction when saboteurs elevated. Blocked on X7 |
-| R6 | Self-deprecation override in extraction prompt | ✅ Done | 🔴 High | "Score the behavior described, not the self-assessment." Added to LEEE_EXTRACTION_PROMPT |
-| R7 | Disability-as-evidence scoring rule | ⬜ Todo | 🟡 Med | Add to extraction prompt: disability-navigating experiences scored equal or higher proficiency |
-| R8 | Informal/non-traditional experience equivalence | ⬜ Todo | 🟡 Med | Add to extraction prompt: informal experience scored equal to formal when behavioral evidence present |
-| R9 | Vacancy competency weighting in extraction | ⬜ Todo | 🟡 Med | Vacancy blueprint competencies weighted higher in extraction priority. Currently injected but not weighted |
+| R4 | Psychometric data injection into system prompt | 🔶 Partial | 🔴 High | Saboteur-aware probing instructions now in v2 system prompt. But actual RIASEC/HIGH5/saboteur data injection blocked on X7 (Ryan's team to provide per-candidate JSON) |
+| R5 | Avoider/Victim coaching note in prompt | 🔶 Partial | 🔴 High | v2 system prompt has all 7 saboteur response strategies. Coaching notes inject Avoider/Victim when psychometrics available. Full injection blocked on X7 |
+| R6 | Self-deprecation override in extraction prompt | ✅ Done | 🔴 High | In v2 system prompt (live conversation) AND Stage 3 extraction pipeline (scoring) |
+| R7 | Disability-as-evidence scoring rule | ✅ Done | 🟡 Med | In v2 system prompt (Aya recognises as rich evidence) AND Stage 3 pipeline (+0.1 disability uplift) |
+| R8 | Informal/non-traditional experience equivalence | ✅ Done | 🟡 Med | In v2 system prompt AND extraction pipeline. Behavioral evidence = formal credentials |
+| R9 | Vacancy competency weighting in extraction | ✅ Done | 🟡 Med | Vacancy skills passed through 5-stage pipeline. Stage 3 weights, Stage 5 highlights vacancy-aligned first |
 | R10 | Experience snapshot synthesis | ⬜ Todo | 🟡 Med | Compute "most relevant role + notable achievement" summary from work history for context injection |
 | R11 | Self-reported challenges field in profile | ⬜ Todo | 🟡 Med | Add challenges[] array to jobseeker_profiles schema. Ryan's doc shows 5 challenge types |
-| R12 | System prompt v2 full replacement | ✅ Done | 🟡 Med | Ryan's doc contains full updated system prompt with Cultural Intelligence Layer, Bridge Logic, v2 additions. Replace current v1 |
-| R13 | Coverage matrix tracking | ⬜ Todo | 🟢 Low | Track which PSF skills have been evidenced per session in real time. Currently done at extraction only |
+| R12 | System prompt v2 full replacement | ✅ Done | 🟡 Med | Full v2 with Cultural Intelligence Layer, saboteur-aware probing, confidence-capability gap, bridge logic v2, scenario trigger preserved |
+| R13 | Coverage matrix tracking | 🔶 Partial | 🟢 Low | runLightweightExtraction() runs Stages 1-3 for mid-session bridge. Full real-time tracking needs UI integration |
 | R14 | Session timer + pace enforcement | ⬜ Todo | 🟢 Low | Enforce session_pace (unhurried 15-20min / standard 12-18 / efficient 10-15) from calibration |
 | R15 | Profile form — extended disability fields | ⬜ Todo | 🟡 Med | UI for severity, communication_impact, accommodation_notes. Sensitive — needs careful UX |
 | R16 | Profile form — self-reported challenges | ⬜ Todo | 🟡 Med | Free-text or structured challenges input on profile form |
+
+---
+
+## KAYA BRANDING (from Kaya_Brand_Guidelines_v1.0)
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| BR1 | Rename product to "Kaya" in UI | ✅ Done | Landing page, layout title, meta description |
+| BR2 | Kaya colour palette — Navy 900 / Green 400 / Stone 50 | ✅ Done | Tailwind config + landing page. Green for success states only |
+| BR3 | "kaya" wordmark in Georgia | ✅ Done | Nav bar + landing hero. Georgia for wordmark only, Arial everywhere else |
+| BR4 | Employer-facing language — gate names + reviewer roles | ✅ Done | Alignment/Evidence/Predictability. Recruiter/Hiring Manager/Final Approver |
+| BR5 | Jobseeker-facing language | ✅ Done | "Show what you can do", "Your stories become evidence" |
+| BR6 | Three-gate model visual on landing page | ✅ Done | Navy block showing all 3 gates with who decides at each |
+| BR7 | Apply Kaya palette to inner pages (dashboards, reviewer, employer) | ⬜ Todo | Landing done; inner pages still use old colours |
+| BR8 | Kaya bloom mark SVG | ⬜ Todo | Currently using CSS circles as placeholder; needs proper SVG |
+
+---
+
+## RYAN'S "BRAIN BEHIND THE BRAIN" (5-Stage Extraction Pipeline)
+### Source: Internal Pipeline Prompts and Scoring Logic_LEEE_Extraction_Engine.md
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| EX1 | Stage 1: Narrative Segmentation prompt | ✅ Done | Dedicated prompt in extraction-pipeline.ts |
+| EX2 | Stage 2: STAR+E+R Evidence Extraction prompt | ✅ Done | Quality tags, complexity, independence, anti-gaming flags |
+| EX3 | Stage 3: Skill Mapping to all 16 PSF ESC | ✅ Done | Confidence scoring with ceilings, disability uplift, self-deprecation override |
+| EX4 | Stage 4: Consistency Check prompt | ✅ Done | Cross-story +0.1, single-source -0.15, contradiction check |
+| EX5 | Stage 5: Proficiency Scoring + Output Assembly | ✅ Done | Vacancy-aligned, not_assessed, psychologist flags, hiring manager summary |
+| EX6 | Pipeline orchestrator function | ✅ Done | runExtractionPipeline() chains all 5 stages sequentially |
+| EX7 | Backwards-compatible output mapping | ✅ Done | v2 output maps to v1 skills_profile for existing UI components |
+| EX8 | Lightweight extraction (Stages 1-3) | ✅ Done | runLightweightExtraction() for mid-session bridge updates |
+
+---
+
+## JOY ANNE SIMULATION (Test Case)
+### Source: LEEE_Full_Simulation_JoyAnne_Cebuana.md
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| SIM1 | Load Joy Anne conversation as test fixture | ⬜ Todo | Extract transcript from simulation doc |
+| SIM2 | Run through 5-stage pipeline, compare to expected output | ⬜ Todo | Validate against Ryan's expected skills profile |
 
 ---
 
@@ -242,33 +283,36 @@ Last updated: March 17, 2026
 | Category | Total | Done | Partial | Todo |
 |----------|-------|------|---------|------|
 | Setup & Infrastructure | 10 | 8 | 0 | 2 |
-| LEEE Conversation Engine | 18 | 13 | 3 | 2 |
-| LEEE Extraction Pipeline | 18 | 10 | 3 | 5 |
-| Anti-Gaming | 5 | 4 | 1 | 0 |
-| Jobseeker Profile (Gate 2A) | 6 | 1 | 0 | 5 |
-| Gate 1 — Alignment | 10 | 4 | 1 | 5 |
+| LEEE Conversation Engine | 18 | 15 | 2 | 1 |
+| LEEE Extraction Pipeline (5-stage) | 20 | 20 | 0 | 0 |
+| Anti-Gaming | 5 | 5 | 0 | 0 |
+| Jobseeker Profile (Gate 2A) | 6 | 4 | 0 | 2 |
+| Gate 1 — Alignment | 13 | 8 | 1 | 4 |
 | Gate 3 — Predictability | 7 | 5 | 0 | 2 |
-| Psychologist Validation | 6 | 0 | 0 | 6 |
+| Psychologist Validation | 6 | 5 | 1 | 0 |
 | Feedback & Onboarding | 3 | 1 | 0 | 2 |
-| Dashboards & Output | 5 | 1 | 0 | 4 |
-| UX Polish | 8 | 3 | 2 | 3 |
-| Testing & Validation | 9 | 0 | 0 | 9 |
-| Ryan v2 Context Injection | 16 | 1 | 2 | 13 |
-| **TOTAL** | **121** | **51** | **12** | **58** |
+| Dashboards & Output | 5 | 5 | 0 | 0 |
+| UX Polish | 8 | 3 | 1 | 4 |
+| Testing & Validation | 9 | 2 | 0 | 7 |
+| Ryan v2 Context Injection | 16 | 8 | 3 | 5 |
+| Kaya Branding | 8 | 6 | 0 | 2 |
+| 5-Stage Pipeline (Brain Behind Brain) | 8 | 8 | 0 | 0 |
+| Joy Anne Simulation | 2 | 0 | 0 | 2 |
+| **TOTAL** | **144** | **103** | **8** | **33** |
 
-**51 done + 12 partial = ~88% of original scope complete. Ryan v2 adds 16 new tasks (1 done, 2 in progress).**
+**103 done + 8 partial = ~75% complete. Remaining: 5 Ryan v2 items (2 blocked on data), 7 testing, 4 UX polish, 2 branding inner pages, 2 simulation validation, plus misc.**
 
 ---
 
 ## PRIORITY ORDER FOR NEXT STEPS
 
-1. **R1 + R3 — Calibration derivation + injection** (building now — pre-Friday)
-2. **R6 — Self-deprecation override in extraction** (building now — pre-Friday)
-3. **S10 — Vercel deploy** — live URL for Jakarta
-4. **U1 — Mobile responsive** — PH users are mobile-first
-5. **U8 — Virtualahan branding** — Jakarta-ready polish
-6. **R2 + R15 — Extended disability fields** — after Ryan confirms field spec
-7. **R4 + R5 — Psychometric injection** — blocked on X7 (Ryan provides data)
-8. **R7–R12 — Remaining v2 extraction + prompt updates**
-9. **End-to-end testing with real data (T1–T9)**
-10. **Psychologist validation interface (V1–V6)**
+1. **SIM1-SIM2 — Joy Anne pipeline validation** — test the 5-stage pipeline with a known-good transcript
+2. **BR7 — Kaya palette on inner pages** — extend branding to dashboards, reviewer, employer
+3. **R2 + R15 — Extended disability fields** — after Ryan confirms field spec
+4. **R10 — Experience snapshot synthesis** — "most relevant role + notable achievement" in context
+5. **R11 + R16 — Self-reported challenges** — schema + profile form
+6. **R4 + R5 — Psychometric injection** — blocked on X7 (Ryan provides data)
+7. **S10 — Vercel deploy** — live URL for demo
+8. **U1 — Mobile responsive** — PH users are mobile-first
+9. **T1-T9 — Testing with real data**
+10. **R14 — Session timer + pace enforcement**
