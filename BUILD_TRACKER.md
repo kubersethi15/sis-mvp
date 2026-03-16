@@ -53,24 +53,26 @@ Last updated: March 17, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| E1 | Extraction prompt (post-session) | ✅ Done | Full STAR+E+R + JSON output schema |
-| E2 | Extraction API route | ✅ Done | /api/extract endpoint |
+| E1 | 5-stage extraction pipeline prompts | ✅ Done | All 5 stage prompts in extraction-pipeline.ts (from Ryan's "Brain Behind the Brain" doc) |
+| E2 | Pipeline orchestrator (chains 5 stages) | ✅ Done | runExtractionPipeline() + runLightweightExtraction() |
 | E3 | Extraction results display in UI | ✅ Done | Skills dashboard + psychologist audit trail |
-| E4 | Stage 1: Narrative segmentation | 🔶 Partial | Handled by extraction prompt; no separate stage |
-| E5 | Stage 2: Behavioral evidence extraction (STAR+E+R) | ✅ Done | In extraction prompt |
-| E6 | Stage 3: Skill mapping to PSF taxonomy | ✅ Done | In extraction prompt |
-| E7 | Stage 4: Cross-referencing & consistency check | 🔶 Partial | Gaming flags in prompt; needs stronger logic |
-| E8 | Stage 5: Scoring (Basic/Intermediate/Advanced) | ✅ Done | Proficiency rubrics in prompt |
-| E9 | Confidence score calculation | 🔶 Partial | In prompt; needs validation with real data |
-| E10 | Evidence map (skill → quote → confidence) | ✅ Done | In extraction output schema |
-| E11 | Narrative summary generation | ✅ Done | In extraction output |
-| E12 | Layer 2 seed scenario generation | ✅ Done | In extraction output |
-| E13 | Layer 3 assessment recommendations | ✅ Done | In extraction output |
-| E14 | Gaming flag detection | 🔶 Partial | Basic flags; needs testing with fabricated stories |
-| E15 | Extraction results persistence to Supabase | ✅ Done | Full extraction saved to leee_extractions with audit trail |
-| E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | ✅ Done | Full display in psychologist validation page |
-| E17 | Role-specific extraction (contextualised to vacancy) | ✅ Done | Vacancy context injected into system prompt, steers toward role-relevant stories |
-| E18 | Auto-extract from profile before LEEE | ✅ Done | Profile context injected into Aya — knows name, work, education, disability |
+| E4 | Stage 1: Narrative segmentation (dedicated) | ✅ Done | Separate Claude call — episodes with specificity scoring |
+| E5 | Stage 2: STAR+E+R extraction (dedicated) | ✅ Done | Per-episode evidence with quality tags + complexity + independence |
+| E6 | Stage 3: Skill mapping to all 16 PSF ESC | ✅ Done | Confidence scoring with evidence quality ceiling + disability uplift |
+| E7 | Stage 4: Consistency check (dedicated) | ✅ Done | Cross-story reinforcement, single-source penalty, contradiction check |
+| E8 | Stage 5: Proficiency scoring + output assembly | ✅ Done | Vacancy-aligned + additional + not_assessed. Psychologist review flags |
+| E9 | Confidence score calculation | ✅ Done | Multi-factor: evidence quality, specificity, complexity, independence, penalties, bonuses |
+| E10 | Evidence map (skill → quote → confidence) | ✅ Done | Stage 3 mappings provide full audit trail |
+| E11 | Hiring manager summary generation | ✅ Done | Stage 5 produces warm professional summary for Gate 2 dashboard |
+| E12 | Layer 2 seed scenario generation | ✅ Done | From skills gaps in extraction output |
+| E13 | Layer 3 assessment recommendations | ✅ Done | From skills_not_assessed list |
+| E14 | Gaming flag detection | ✅ Done | Stage 2 flags + Stage 4 anti-gaming review with cultural sensitivity |
+| E15 | Extraction results persistence to Supabase | ✅ Done | Full 5-stage output + pipeline timing saved |
+| E16 | Audit trail: quote → STAR+E+R → skill → score → confidence | ✅ Done | Full per-stage output stored in raw_extraction_response |
+| E17 | Vacancy-weighted extraction | ✅ Done | Vacancy skills passed through pipeline, weighted in Stage 3+5 |
+| E18 | Backwards compatibility with existing UI | ✅ Done | Pipeline output mapped to v1 skills_profile format for existing components |
+| E19 | Lightweight extraction (Stages 1-3 for mid-session bridge) | ✅ Done | runLightweightExtraction() for real-time coverage matrix updates |
+| E20 | Scoring rubrics: Problem Solving, Communication, Collaboration, EQ | ✅ Done | Detailed behavioral signals at Basic/Intermediate/Advanced in Stage 5 prompt |
 
 ### Anti-Gaming
 

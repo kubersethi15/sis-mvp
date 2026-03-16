@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { LEEEOrchestrator } from '@/lib/orchestrator';
 import { LEEESession, LEEEMessage, GapScanResult } from '@/types';
-import { LEEE_GAP_SCAN_PROMPT, LEEE_EXTRACTION_PROMPT } from '@/lib/prompts';
+import { LEEE_GAP_SCAN_PROMPT } from '@/lib/prompts';
 import { createServerClient } from '@/lib/supabase';
 import { buildCalibrationContext } from '@/lib/calibration';
 
@@ -323,126 +323,170 @@ async function handleExtract(sessionId: string) {
     if (!orchestrator) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
   }
 
-  const prompt = LEEE_EXTRACTION_PROMPT.replace('{transcript}', orchestrator.getTranscript());
+  const transcript = orchestrator.getTranscript();
+
+  // Fetch vacancy skills for vacancy-weighted extraction
+  const supabase = db();
+  const { data: session } = await supabase.from('leee_sessions')
+    .select('user_id, application_id').eq('id', sessionId).single();
+
+  let vacancySkills: string[] = [];
+  if (session?.application_id) {
+    const { data: app } = await supabase.from('applications')
+      .select('vacancy_id').eq('id', session.application_id).single();
+    if (app?.vacancy_id) {
+      const { data: vacancy } = await supabase.from('vacancies')
+        .select('competency_blueprint').eq('id', app.vacancy_id).single();
+      if (vacancy?.competency_blueprint?.human_centric_skills) {
+        vacancySkills = vacancy.competency_blueprint.human_centric_skills.map((s: any) => s.skill || s);
+      }
+    }
+  }
+
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
-    });
-    const result = await res.json();
-    const text = result.content?.find((b: any) => b.type === 'text')?.text;
-    if (text) {
-      const match = text.match(/\{[\s\S]*\}/);
-      if (match) {
-        const extraction = JSON.parse(match[0]);
+    const { runExtractionPipeline } = await import('@/lib/extraction-pipeline');
+    const result = await runExtractionPipeline(transcript, vacancySkills);
 
-        // Merge with previous extractions for this user
-        const supabase = db();
-        const { data: session } = await supabase.from('leee_sessions').select('user_id').eq('id', sessionId).single();
+    if (!result.success) {
+      console.error('Pipeline error:', result.error);
+      return NextResponse.json({ error: result.error }, { status: 500 });
+    }
 
-        if (session?.user_id) {
-          // Get all previous extractions for this user
-          const { data: prevSessions } = await supabase.from('leee_sessions')
-            .select('id').eq('user_id', session.user_id).eq('status', 'completed')
-            .neq('id', sessionId).order('created_at', { ascending: false }).limit(5);
+    const profile = result.final_profile;
 
-          if (prevSessions?.length) {
-            const prevSkillsMap: Record<string, any> = {};
+    // Build backwards-compatible extraction object for existing UI
+    const extraction = {
+      // New v2 fields
+      ...profile,
+      // Backwards-compatible fields for existing UI components
+      episodes: (result.stages.stage1_episodes || []).map((ep: any, i: number) => ({
+        episode_id: i + 1,
+        summary: ep.episode_summary,
+        star_er: result.stages.stage2_evidence?.find((ev: any) => ev.episode_id === ep.episode_id)?.star_er || {},
+      })),
+      skills_profile: [
+        ...(profile.vacancy_aligned_skills || []).map((s: any, i: number) => ({
+          skill_id: `SK${i + 1}`,
+          skill_name: s.skill_name,
+          proficiency: s.proficiency?.charAt(0) + s.proficiency?.slice(1).toLowerCase(),
+          confidence: s.top_evidence?.adjusted_confidence || 0.5,
+          evidence: s.top_evidence ? [{
+            episode_id: 1,
+            transcript_quote: s.top_evidence.transcript_quote,
+            behavioral_indicator: s.top_evidence.mapping_rationale,
+            proficiency_justification: s.proficiency_justification,
+          }] : [],
+        })),
+        ...(profile.additional_skills_evidenced || []).map((s: any, i: number) => ({
+          skill_id: `SK${10 + i}`,
+          skill_name: s.skill_name,
+          proficiency: s.proficiency?.charAt(0) + s.proficiency?.slice(1).toLowerCase(),
+          confidence: s.adjusted_confidence || 0.5,
+          evidence: s.top_evidence ? [{
+            episode_id: 1,
+            transcript_quote: s.top_evidence?.transcript_quote || '',
+            behavioral_indicator: s.top_evidence?.mapping_rationale || '',
+            proficiency_justification: s.proficiency_justification,
+          }] : [],
+        })),
+      ],
+      narrative_summary: profile.hiring_manager_summary || '',
+      gaming_flags: [],
+      layer2_seeds: [],
+      session_quality: {
+        stories_completed: profile.session_metadata?.stories_completed || 0,
+        evidence_density: (profile.session_metadata?.behavioral_evidence_count || 0) > 4 ? 'high' : 'medium',
+        user_engagement: 'high',
+        overall_confidence: 0.75,
+      },
+      // Pipeline audit data
+      _pipeline_version: '5-stage-v1',
+      _pipeline_timing: result.timing,
+      _pipeline_stages: result.stages,
+      _psychologist_review_flags: profile.psychologist_review_flags || [],
+      _audit_trail: profile.audit_trail || {},
+    };
 
-            for (const ps of prevSessions) {
-              const { data: ext } = await supabase.from('leee_extractions')
-                .select('skills_profile, episodes').eq('session_id', ps.id).limit(1).single();
-              if (ext?.skills_profile) {
-                for (const s of ext.skills_profile) {
-                  const existing = prevSkillsMap[s.skill_id];
-                  if (!existing || s.confidence > existing.confidence) {
-                    prevSkillsMap[s.skill_id] = s;
-                  }
-                }
+    // Merge with previous session extractions if they exist
+    if (session?.user_id) {
+      const { data: prevSessions } = await supabase.from('leee_sessions')
+        .select('id').eq('user_id', session.user_id).eq('status', 'completed')
+        .neq('id', sessionId).order('created_at', { ascending: false }).limit(5);
+
+      if (prevSessions?.length) {
+        const prevSkillsMap: Record<string, any> = {};
+        for (const ps of prevSessions) {
+          const { data: ext } = await supabase.from('leee_extractions')
+            .select('skills_profile').eq('session_id', ps.id).limit(1).single();
+          if (ext?.skills_profile) {
+            for (const s of ext.skills_profile) {
+              const existing = prevSkillsMap[s.skill_id || s.skill_name];
+              if (!existing || s.confidence > existing.confidence) {
+                prevSkillsMap[s.skill_id || s.skill_name] = s;
               }
             }
-
-            // Merge: new extraction skills override previous if higher confidence, otherwise keep previous
-            const newSkillsMap: Record<string, any> = {};
-            for (const s of (extraction.skills_profile || [])) {
-              newSkillsMap[s.skill_id] = s;
-            }
-
-            // Add previous skills that weren't found in new extraction
-            for (const [id, prevSkill] of Object.entries(prevSkillsMap)) {
-              if (!newSkillsMap[id]) {
-                newSkillsMap[id] = { ...prevSkill, source: 'previous_session' };
-              } else {
-                // Keep the higher confidence/proficiency
-                const newSkill = newSkillsMap[id];
-                const profOrder = ['basic', 'intermediate', 'advanced'];
-                const newLevel = profOrder.indexOf(newSkill.proficiency?.toLowerCase());
-                const prevLevel = profOrder.indexOf((prevSkill as any).proficiency?.toLowerCase());
-                if (prevLevel > newLevel || ((prevSkill as any).confidence > newSkill.confidence && prevLevel >= newLevel)) {
-                  // Merge evidence from both
-                  newSkillsMap[id] = {
-                    ...prevSkill,
-                    evidence: [...((prevSkill as any).evidence || []), ...(newSkill.evidence || [])],
-                    confidence: Math.max((prevSkill as any).confidence, newSkill.confidence),
-                    proficiency: prevLevel > newLevel ? (prevSkill as any).proficiency : newSkill.proficiency,
-                  };
-                } else {
-                  newSkillsMap[id].evidence = [...(newSkill.evidence || []), ...((prevSkill as any).evidence || [])];
-                  newSkillsMap[id].confidence = Math.max((prevSkill as any).confidence, newSkill.confidence);
-                }
-              }
-            }
-
-            extraction.skills_profile = Object.values(newSkillsMap);
-            extraction._merged = true;
-            extraction._sessions_merged = prevSessions.length + 1;
           }
         }
 
-        await supabase.from('leee_extractions').insert({
-          session_id: sessionId,
-          episodes: extraction.episodes || [],
-          skills_profile: extraction.skills_profile || [],
-          evidence_map: extraction.evidence_map || [],
-          narrative_summary: extraction.narrative_summary || '',
-          gaming_flags: extraction.gaming_flags || [],
-          layer2_seeds: extraction.layer2_seeds || [],
-          layer3_recommendations: extraction.layer3_recommendations || [],
-          session_quality: extraction.session_quality || {},
-          extraction_model: 'claude-opus-4-5',
-          extraction_prompt_version: '2.0',
-          raw_extraction_response: extraction,
-        });
-
-        return NextResponse.json({ extraction, session_id: sessionId, status: 'extracted' });
+        const newSkillsMap: Record<string, any> = {};
+        for (const s of extraction.skills_profile) {
+          newSkillsMap[s.skill_id || s.skill_name] = s;
+        }
+        for (const [id, prevSkill] of Object.entries(prevSkillsMap)) {
+          if (!newSkillsMap[id]) {
+            newSkillsMap[id] = { ...prevSkill, source: 'previous_session' };
+          }
+        }
+        extraction.skills_profile = Object.values(newSkillsMap);
+        (extraction as any)._merged = true;
       }
     }
-    return NextResponse.json({ error: 'Extraction failed to parse' }, { status: 500 });
+
+    // Persist to Supabase
+    await supabase.from('leee_extractions').insert({
+      session_id: sessionId,
+      episodes: extraction.episodes || [],
+      skills_profile: extraction.skills_profile || [],
+      evidence_map: result.stages.stage3_mappings || [],
+      narrative_summary: extraction.narrative_summary || '',
+      gaming_flags: extraction.gaming_flags || [],
+      layer2_seeds: extraction.layer2_seeds || [],
+      layer3_recommendations: [],
+      session_quality: extraction.session_quality || {},
+      extraction_model: 'claude-sonnet-4-20250514',
+      extraction_prompt_version: '5-stage-v1',
+      raw_extraction_response: {
+        pipeline_stages: result.stages,
+        pipeline_timing: result.timing,
+        final_profile: result.final_profile,
+      },
+    });
+
+    return NextResponse.json({ extraction, session_id: sessionId, status: 'extracted' });
   } catch (e: any) {
-    console.error('Extraction error:', e);
+    console.error('5-stage extraction error:', e);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
 
-// Direct transcript extraction — for testing
+// Direct transcript extraction — for testing with the 5-stage pipeline
 async function handleExtractTranscript(transcript: string) {
   if (!transcript) return NextResponse.json({ error: 'transcript required' }, { status: 400 });
 
-  const prompt = LEEE_EXTRACTION_PROMPT.replace('{transcript}', transcript);
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
-    });
-    const result = await res.json();
-    const text = result.content?.find((b: any) => b.type === 'text')?.text;
-    if (text) {
-      const match = text.match(/\{[\s\S]*\}/);
-      if (match) return NextResponse.json({ extraction: JSON.parse(match[0]), status: 'extracted' });
+    const { runExtractionPipeline } = await import('@/lib/extraction-pipeline');
+    const result = await runExtractionPipeline(transcript);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 500 });
     }
-    return NextResponse.json({ error: 'Extraction failed to parse' }, { status: 500 });
+
+    return NextResponse.json({
+      extraction: result.final_profile,
+      stages: result.stages,
+      timing: result.timing,
+      status: 'extracted',
+    });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
