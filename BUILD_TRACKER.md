@@ -3,7 +3,7 @@
 ## Deadline: Jakarta Conference, April 13–16, 2026
 ## Pilot Employer: Cebuana Lhuillier
 
-Last updated: March 15, 2026
+Last updated: March 17, 2026
 
 ---
 
@@ -216,9 +216,9 @@ Last updated: March 15, 2026
 
 | # | Task | Status | Priority | Notes |
 |---|------|--------|----------|-------|
-| R1 | Calibration derivation function | 🔶 In Progress | 🔴 High | Compute experience_level, probe_depth, session_pace, communication_style from profile data. Rules defined in Ryan's doc §1.2 |
+| R1 | Calibration derivation function | ✅ Done | 🔴 High | Compute experience_level, probe_depth, session_pace, communication_style from profile data. Rules defined in Ryan's doc §1.2 |
 | R2 | Structured disability context schema | ⬜ Todo | 🔴 High | Extend disability fields: severity, recently_diagnosed, communication_impact, accommodation_notes, sensitivity_level. Currently only disability_type (text) |
-| R3 | Calibration injection into Aya system prompt | 🔶 In Progress | 🔴 High | Append computed calibration block to system prompt at session start. Aya adapts probe depth, pace, language register accordingly |
+| R3 | Calibration injection into Aya system prompt | ✅ Done | 🔴 High | Append computed calibration block to system prompt at session start. Aya adapts probe depth, pace, language register accordingly |
 | R4 | Psychometric data injection into system prompt | ⬜ Pending | 🔴 High | Read RIASEC/HIGH5/saboteur fields from DB → inject coaching note into prompt. Blocked on X7 (Ryan's team to provide data) |
 | R5 | Avoider/Victim coaching note in prompt | ⬜ Pending | 🔴 High | "Gentle persistence on 'what did YOU do'" instruction when saboteurs elevated. Blocked on X7 |
 | R6 | Self-deprecation override in extraction prompt | ✅ Done | 🔴 High | "Score the behavior described, not the self-assessment." Added to LEEE_EXTRACTION_PROMPT |

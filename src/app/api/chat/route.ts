@@ -7,6 +7,7 @@ import { LEEEOrchestrator } from '@/lib/orchestrator';
 import { LEEESession, LEEEMessage, GapScanResult } from '@/types';
 import { LEEE_GAP_SCAN_PROMPT, LEEE_EXTRACTION_PROMPT } from '@/lib/prompts';
 import { createServerClient } from '@/lib/supabase';
+import { buildCalibrationContext } from '@/lib/calibration';
 
 // In-memory orchestrator cache (sessions + messages persisted to Supabase)
 const orchestrators = new Map<string, LEEEOrchestrator>();
@@ -142,138 +143,54 @@ async function handleStart(body: any) {
   }
   if (!userId) userId = await ensureDemoUser();
 
-  // Fetch profile data for context injection — with calibration derivation (R1+R3)
+  // Fetch profile data for context injection — with calibration derivation (Ryan v2 R1+R3)
   let profileContext = '';
-  let previousSkillsContext = '';
   if (body.jobseeker_profile_id) {
     const { data: profile } = await supabase.from('jobseeker_profiles')
       .select('*, user_profiles(full_name)')
       .eq('id', body.jobseeker_profile_id).single();
+
     if (profile) {
-      const name = profile.user_profiles?.full_name || 'Unknown';
-      const firstName = name.split(' ')[0];
-
-      // ── CALIBRATION DERIVATION (Ryan v2 §1.2) ──────────────────────────
-      const workHistory = profile.work_history || [];
-      const totalYears = workHistory.reduce((sum: number, w: any) => sum + (parseFloat(w.years) || 0), 0);
-      const isMostlyInformal = workHistory.length > 0 && workHistory.every((w: any) =>
-        ['freelance','community','family','informal','volunteer','caregiver','sideline'].some(t =>
-          (w.type || w.employment_type || '').toLowerCase().includes(t)));
-      const hasSeniorRoles = workHistory.some((w: any) =>
-        ['manager','director','head','senior','lead','supervisor','vp','ceo'].some(t =>
-          (w.role || '').toLowerCase().includes(t)));
-
-      const experienceLevel =
-        isMostlyInformal ? 'non_traditional' :
-        totalYears < 3 ? 'early_career' :
-        totalYears > 10 && hasSeniorRoles ? 'senior' :
-        'mid_career';
-
-      const disability = profile.disability_context || {};
-      const psychometrics = profile.psychometric_data || {};
-      const avoiderScore = psychometrics?.saboteurs?.avoider || 0;
-      const victimScore = psychometrics?.saboteurs?.victim || 0;
-      const hasElevatedSensitivity = disability.recently_diagnosed || disability.sensitivity_level === 'high' || avoiderScore >= 7;
-
-      const probeDepth =
-        hasElevatedSensitivity ? 'gentle' :
-        totalYears > 10 && hasSeniorRoles ? 'deep' :
-        'standard';
-
-      const sessionPace =
-        (disability.communication_impact || avoiderScore >= 7) ? 'unhurried' :
-        (totalYears > 10 && hasSeniorRoles) ? 'efficient' :
-        'standard';
-
-      // ── COACHING NOTES from psychometrics ──────────────────────────────
-      let coachingNotes = '';
-      if (avoiderScore >= 7 || victimScore >= 7) {
-        coachingNotes = `\n- ⚠️ COACHING NOTE: This person may minimize achievements ("anyone could do that", "swerte lang"). Use gentle persistence on "what did YOU specifically do?" questions. Don't accept self-deprecating deflections — follow up warmly but firmly.`;
+      // Fetch vacancy data if available
+      let vacancy = null;
+      if (body.vacancy_id) {
+        const { data: v } = await supabase.from('vacancies')
+          .select('title, description, competency_blueprint, employer_name').eq('id', body.vacancy_id).single();
+        vacancy = v;
       }
-      const high5 = (psychometrics?.high5_strengths || []).join(', ');
-      const riasecDominant = (psychometrics?.riasec_dominant || []).join(', ');
 
-      // ── BUILD CONTEXT BLOCK ─────────────────────────────────────────────
-      const workStr = workHistory.map((w: any) => `${w.role} at ${w.company || 'unknown'}`).join(', ');
-      const eduStr = (profile.education || []).map((e: any) => `${e.degree} from ${e.institution}`).join(', ');
-
-      profileContext = `
-
-═══════════════════════════════════════
-CONTEXT FOR THIS SESSION (INTERNAL — NEVER REVEAL TO JOBSEEKER)
-═══════════════════════════════════════
-
-## WHO YOU'RE TALKING TO
-- Name: ${name} — GREET THEM AS "${firstName}" IN YOUR VERY FIRST MESSAGE
-- Work: ${workStr || 'None listed'}
-- Education: ${eduStr || 'None listed'}
-- Career goals: ${profile.career_goals || 'Not specified'}
-- Disability: ${disability.type || profile.disability_type || 'Not disclosed'}${disability.accommodation_notes ? `\n- Accommodation: ${disability.accommodation_notes}` : ''}
-
-## CALIBRATION — HOW TO RUN THIS SESSION
-- experience_level: ${experienceLevel} → ${
-  experienceLevel === 'early_career' ? 'Use simpler story prompts. Accept community, school, family stories. Don\'t expect corporate language.' :
-  experienceLevel === 'non_traditional' ? 'Actively invite non-work stories. Frame "work" broadly. Diskarte and community stories are primary evidence territory.' :
-  experienceLevel === 'senior' ? 'Deeper follow-ups OK. Can handle complex situational probes. Watch for identity adjustment if role is below previous level.' :
-  'Standard probe depth. Can reference work scenarios directly.'
-}
-- probe_depth: ${probeDepth} → ${
-  probeDepth === 'gentle' ? 'Maximum 2 follow-ups per element. Accept surface-level answers gracefully. Prioritize comfort over extraction completeness.' :
-  probeDepth === 'deep' ? 'Can push further on specifics. Use verification probes freely. Can handle "was it really that easy?" style challenges.' :
-  'Standard 3 follow-up limit. Use full probe range.'
-}
-- session_pace: ${sessionPace} → ${
-  sessionPace === 'unhurried' ? 'Longer pauses are fine. Acknowledge pauses warmly ("Take your time, no rush"). 15–20 min target.' :
-  sessionPace === 'efficient' ? 'Can move through phases faster. 10–15 min target. More direct transitions.' :
-  '12–18 min target. Standard cadence.'
-}
-${high5 ? `- Strengths (HIGH5): ${high5}` : ''}
-${riasecDominant ? `- RIASEC dominant: ${riasecDominant}` : ''}${coachingNotes}
-
-## SELF-DEPRECATION WATCH
-If this person says "hindi naman special" / "anyone could do that" / "swerte lang" — do NOT accept it. Follow up gently: "But it sounds like YOU were the one who [action they described]. What made you decide to do it that way?" Score behavior, not self-assessment.`;
-    }
-
-    // Fetch previous extractions to know what skills are already evidenced
-    const { data: prevSessions } = await supabase.from('leee_sessions')
-      .select('id').eq('user_id', userId).eq('status', 'completed')
-      .order('created_at', { ascending: false }).limit(3);
-
-    if (prevSessions?.length) {
+      // Fetch previous session skills for continuity
       const prevSkills: string[] = [];
       const prevGaps: string[] = [];
       const allPsfSkills = ['Emotional Intelligence', 'Communication', 'Collaboration', 'Problem-Solving', 'Adaptability / Resilience', 'Learning Agility', 'Sense Making', 'Building Inclusivity'];
 
-      for (const ps of prevSessions) {
-        const { data: ext } = await supabase.from('leee_extractions')
-          .select('skills_profile').eq('session_id', ps.id).limit(1).single();
-        if (ext?.skills_profile) {
-          for (const s of ext.skills_profile) {
-            if (!prevSkills.includes(s.skill_name)) prevSkills.push(s.skill_name);
+      const { data: prevSessions } = await supabase.from('leee_sessions')
+        .select('id').eq('user_id', userId).eq('status', 'completed')
+        .order('created_at', { ascending: false }).limit(3);
+
+      if (prevSessions?.length) {
+        for (const ps of prevSessions) {
+          const { data: ext } = await supabase.from('leee_extractions')
+            .select('skills_profile').eq('session_id', ps.id).limit(1).single();
+          if (ext?.skills_profile) {
+            for (const s of ext.skills_profile) {
+              if (!prevSkills.includes(s.skill_name)) prevSkills.push(s.skill_name);
+            }
           }
+        }
+        for (const sk of allPsfSkills) {
+          if (!prevSkills.includes(sk)) prevGaps.push(sk);
         }
       }
 
-      for (const sk of allPsfSkills) {
-        if (!prevSkills.includes(sk)) prevGaps.push(sk);
-      }
+      // Build full calibration context using Ryan's v2 logic
+      const psychometrics = profile.psychometric_data || profile.riasec_scores ? {
+        riasec_scores: profile.riasec_scores,
+        high5_strengths: profile.high5_strengths,
+        saboteur_scores: profile.saboteur_scores,
+      } : null;
 
-      if (prevSkills.length > 0) {
-        previousSkillsContext = `\n\n## PREVIOUS SESSION RESULTS
-This person has chatted with you before. Skills ALREADY evidenced: ${prevSkills.join(', ')}
-Skills NOT YET evidenced (try to surface stories that might demonstrate these): ${prevGaps.join(', ')}
-Do NOT tell them which skills you're looking for — just gently steer toward story domains that might surface these gaps. For example, if Adaptability is a gap, ask about times things changed unexpectedly.`;
-      }
-    }
-  }
-
-  // Fetch vacancy context for role-specific extraction (E17)
-  let vacancyContext = '';
-  if (body.vacancy_id) {
-    const { data: vacancy } = await supabase.from('vacancies').select('title, description, competency_blueprint, essential_requirements').eq('id', body.vacancy_id).single();
-    if (vacancy) {
-      const hcSkills = (vacancy.competency_blueprint?.human_centric_skills || []).map((s: any) => s.skill).join(', ');
-      vacancyContext = `\n\n## ROLE CONTEXT (for role-specific evidence building)\n- Role: ${vacancy.title}\n- Description: ${vacancy.description}\n- Key human-centric skills needed: ${hcSkills}\nWhen probing stories, gently steer toward experiences that would demonstrate skills relevant to this role. Do NOT mention the role or skills directly — just prioritize story domains that would surface relevant evidence.`;
+      profileContext = buildCalibrationContext(profile, vacancy, psychometrics, prevSkills, prevGaps);
     }
   }
 
@@ -308,9 +225,9 @@ Do NOT tell them which skills you're looking for — just gently steer toward st
 
   const orchestrator = new LEEEOrchestrator(leeeSession);
 
-  // Inject profile and vacancy context into the orchestrator's dynamic context
-  if (profileContext || vacancyContext || previousSkillsContext) {
-    (orchestrator as any)._extraContext = profileContext + previousSkillsContext + vacancyContext;
+  // Inject full calibration context (Ryan v2 R1+R3)
+  if (profileContext) {
+    (orchestrator as any)._extraContext = profileContext;
   }
 
   orchestrators.set(session.id, orchestrator);
@@ -318,7 +235,6 @@ Do NOT tell them which skills you're looking for — just gently steer toward st
   return NextResponse.json({
     session_id: session.id, session_status: 'active', stage: 'opening',
     has_profile_context: !!profileContext,
-    has_vacancy_context: !!vacancyContext,
   });
 }
 
