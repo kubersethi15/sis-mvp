@@ -159,8 +159,8 @@ export default function SkillsDashboard() {
 
           {/* Identity block */}
           <div className="flex items-start gap-5 mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-3xl shadow-xl flex-none">
-              ✨
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold shadow-xl flex-none" style={{ background: 'linear-gradient(135deg, #48BB78, #2A9D8F)', color: 'white', fontFamily: 'Georgia, serif' }}>
+              K
             </div>
             <div>
               <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Kaya · Virtualahan</p>
@@ -177,7 +177,7 @@ export default function SkillsDashboard() {
           <div className="grid grid-cols-3 gap-4 mb-8">
             {[
               { value: skills.length, label: 'Skills Found', icon: '💎' },
-              { value: `${overallConfidence}%`, label: 'Confidence', icon: '🎯' },
+              { value: `${overallConfidence}%`, label: 'Confidence', icon: '' },
               { value: quality?.stories_completed || 0, label: 'Stories Shared', icon: '📖' },
             ].map((stat, i) => (
               <div key={i} className="rounded-2xl p-4 text-center" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -192,7 +192,7 @@ export default function SkillsDashboard() {
           <div className="flex gap-1 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
             {[
               { id: 'skills', label: '💎 Skills', count: skills.length },
-              { id: 'evidence', label: '📋 Evidence', count: null },
+              { id: 'evidence', label: 'Evidence', count: null },
               { id: 'gaps', label: '🌱 Gaps', count: gaps.length },
               { id: 'passport', label: '🪪 Passport', count: null },
             ].map(tab => (
@@ -223,7 +223,7 @@ export default function SkillsDashboard() {
           <div className="space-y-3">
             {skills.length === 0 && (
               <div className="text-center py-16 text-stone-400">
-                <p className="text-4xl mb-3">🔍</p>
+                <p className="text-sm font-medium" style={{ color: '#627D98' }}>No data yet</p>
                 <p>No skills extracted yet. Complete a conversation with Aya first.</p>
               </div>
             )}
@@ -377,7 +377,7 @@ export default function SkillsDashboard() {
             </div>
             {gaps.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-4xl mb-3">🎉</p>
+                <p className="text-sm font-medium" style={{ color: '#48BB78' }}>All skills mapped</p>
                 <p className="text-emerald-600 font-semibold">All core skills were demonstrated!</p>
                 <p className="text-stone-500 text-sm mt-1">Excellent coverage across the PSF framework.</p>
               </div>
@@ -506,7 +506,7 @@ export default function SkillsDashboard() {
                 className="flex-1 py-3.5 rounded-2xl font-semibold text-white text-sm shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
                 style={{ background: 'linear-gradient(135deg, #F4A261, #E76F51)', fontFamily: "'Nunito', sans-serif" }}
               >
-                📥 Export JSON (for Randy)
+                Export JSON
               </button>
               <button
                 onClick={() => window.print()}

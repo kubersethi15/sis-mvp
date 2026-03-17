@@ -125,14 +125,14 @@ export default function MyDashboard() {
             {[
               { step: 1, label: 'Create Profile', done: hasProfile, icon: '👤', href: '/profile', description: profileCompletion > 0 ? `${profileCompletion}% complete` : 'Tell us about yourself' },
               { step: 2, label: 'Tell Your Story', done: hasLEEE, icon: '🦋', href: '/chat', description: hasLEEE ? `${skillsCount} skills discovered` : 'Chat with Aya' },
-              { step: 3, label: 'Browse Jobs', done: data.matches.length > 0, icon: '📋', href: '/vacancy', description: data.matches.length > 0 ? `${data.matches.length} matches` : 'Find matching vacancies' },
-              { step: 4, label: 'Apply & Grow', done: data.applications.length > 0, icon: '🚀', href: '/vacancy', description: data.applications.length > 0 ? `${data.applications.length} application(s)` : 'Start your journey' },
+              { step: 3, label: 'Browse Jobs', done: data.matches.length > 0, icon: '', href: '/vacancy', description: data.matches.length > 0 ? `${data.matches.length} matches` : 'Find matching vacancies' },
+              { step: 4, label: 'Apply & Grow', done: data.applications.length > 0, icon: '', href: '/vacancy', description: data.applications.length > 0 ? `${data.applications.length} application(s)` : 'Start your journey' },
             ].map((s) => (
               <Link key={s.step} href={s.href}
                 className={`p-4 rounded-xl border text-center transition-all hover:shadow-md hover:scale-[1.02] ${
                   s.done ? 'bg-amber-50 border-amber-200' : 'bg-white border-stone-200 hover:border-amber-200'
                 }`}>
-                <div className="text-2xl mb-2">{s.done ? '✅' : s.icon}</div>
+                <div className="text-2xl mb-2">{s.done ? '•' : '○'}</div>
                 <div className="text-xs font-semibold text-stone-700">{s.label}</div>
                 <div className="text-[10px] text-stone-400 mt-1">{s.description}</div>
               </Link>
@@ -310,11 +310,11 @@ export default function MyDashboard() {
             <p className="text-xs font-medium text-stone-700 mt-1">Talk to Aya</p>
           </Link>
           <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
-            <span className="text-xl">✨</span>
+            <span className="text-sm font-semibold" style={{ color: '#48BB78' }}>NEW</span>
             <p className="text-xs font-medium text-stone-700 mt-1">My Skills</p>
           </Link>
           <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
-            <span className="text-xl">📋</span>
+            <span className="text-sm font-semibold" style={{ color: '#486581' }}>JOBS</span>
             <p className="text-xs font-medium text-stone-700 mt-1">Browse Jobs</p>
           </Link>
         </div>

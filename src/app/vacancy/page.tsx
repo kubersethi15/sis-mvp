@@ -145,7 +145,7 @@ export default function VacancyPage() {
         </div>
         {vacancies.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p className="text-4xl mb-2">📋</p>
+            
             <p>No vacancies published yet. Ask an employer to upload a JD at <a href="/employer" className="text-blue-500 underline">/employer</a></p>
           </div>
         ) : (
@@ -221,16 +221,16 @@ export default function VacancyPage() {
                   <div className="mt-6 flex gap-3">
                     <button onClick={checkAlignment} disabled={alignmentLoading}
                       className="px-4 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50">
-                      {alignmentLoading ? '⏳ Checking...' : '📊 Check My Alignment'}
+                      {alignmentLoading ? 'Checking...' : 'Check My Alignment'}
                     </button>
                     {!applied ? (
                       <button onClick={handleApply}
                         className="px-4 py-2 text-sm bg-teal-500 text-white rounded-lg hover:bg-teal-600 font-medium transition-colors">
-                        ✅ Apply Now
+                        Apply Now
                       </button>
                     ) : (
                       <span className="px-4 py-2 text-sm bg-green-50 text-green-600 rounded-lg border border-green-200 font-medium">
-                        ✅ Applied!
+                        Applied
                       </span>
                     )}
                   </div>

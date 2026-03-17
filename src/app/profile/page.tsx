@@ -213,7 +213,7 @@ export default function ProfilePage() {
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
         <div className="flex items-center gap-3">
-          {saved && <span className="text-xs font-medium" style={{ color: '#48BB78' }}>✅ Saved</span>}
+          {saved && <span className="text-xs font-medium" style={{ color: '#48BB78' }}>Saved</span>}
           {fullName && (
             <span className="text-xs hidden sm:inline" style={{ color: '#BCCCDC' }}>{fullName}</span>
           )}
@@ -411,16 +411,14 @@ export default function ProfilePage() {
                     <input type="text" value={e.institution} onChange={ev => updateEdu(i, 'institution', ev.target.value)} placeholder="School / Institution" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                     <input type="text" value={e.degree} onChange={ev => updateEdu(i, 'degree', ev.target.value)} placeholder="Degree / Certificate" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" value={e.field} onChange={ev => updateEdu(i, 'field', ev.target.value)} placeholder="Field of study" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                    <div className="flex gap-2">
-                      <input type="text" value={e.year} onChange={ev => updateEdu(i, 'year', ev.target.value)} placeholder="Year" className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                      <select value={e.status} onChange={ev => updateEdu(i, 'status', ev.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none bg-white">
-                        <option value="completed">Completed</option>
-                        <option value="ongoing">Ongoing</option>
-                        <option value="incomplete">Incomplete</option>
-                      </select>
-                    </div>
+                    <input type="text" value={e.year} onChange={ev => updateEdu(i, 'year', ev.target.value)} placeholder="Year" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <select value={e.status} onChange={ev => updateEdu(i, 'status', ev.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none bg-white">
+                      <option value="completed">Completed</option>
+                      <option value="ongoing">Ongoing</option>
+                      <option value="incomplete">Incomplete</option>
+                    </select>
                   </div>
                 </div>
               ))}
@@ -495,7 +493,7 @@ export default function ProfilePage() {
                 disabled={saving || !fullName.trim()}
                 className="px-4 py-2 text-sm text-teal-600 border border-teal-200 rounded-lg hover:bg-teal-50 disabled:opacity-30 transition-colors"
               >
-                {saving ? '⏳ Saving...' : '💾 Save Progress'}
+                {saving ? 'Saving...' : 'Save Progress'}
               </button>
 
               {step < totalSteps ? (
@@ -514,7 +512,7 @@ export default function ProfilePage() {
                   disabled={saving || !fullName.trim()}
                   className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all"
                 >
-                  ✅ Save & Talk to Aya →
+                  Save & Talk to Aya →
                 </button>
               )}
             </div>

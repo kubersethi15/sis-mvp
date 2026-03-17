@@ -178,7 +178,7 @@ export default function SuperpowersReveal({ extraction, onDismiss }: Superpowers
             className="text-8xl"
             style={{ animation: 'burstIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
           >
-            ✨
+
           </div>
           <h1
             className="text-3xl font-bold text-white text-center px-8"
@@ -195,7 +195,7 @@ export default function SuperpowersReveal({ extraction, onDismiss }: Superpowers
 
           {/* Header */}
           <div className="text-center mb-8" style={{ animation: 'fadeInUp 0.6s ease-out both' }}>
-            <div className="text-5xl mb-3" style={{ animation: 'breathe 4s ease-in-out infinite' }}>✨</div>
+            <div className="text-2xl mb-3 font-bold" style={{ color: "#48BB78", fontFamily: "Georgia, serif", animation: "breathe 4s ease-in-out infinite" }}>kaya</div>
             <h1
               className="text-2xl font-bold text-white mb-2"
               style={{ fontFamily: "'Nunito', sans-serif" }}

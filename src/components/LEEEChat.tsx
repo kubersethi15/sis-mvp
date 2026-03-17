@@ -53,9 +53,9 @@ const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string;
   elicitation: { label: 'Setting the Scene',       color: '#E9C46A', icon: '🦋', progress: 32, description: 'Tell me what happened',     bg: 'linear-gradient(160deg, #1a1205 0%, #2d2010 50%, #0a1a14 100%)',     orb1: 'rgba(233,196,106,0.18)', orb2: 'rgba(42,157,143,0.12)' },
   core_probe:  { label: 'The Heart of It',         color: '#2A9D8F', icon: '🔮', progress: 52, description: 'Going deeper now',          bg: 'linear-gradient(160deg, #051a18 0%, #0a2d28 50%, #051520 100%)',     orb1: 'rgba(42,157,143,0.22)',  orb2: 'rgba(244,162,97,0.12)' },
   skill_probe: { label: 'What It Revealed',        color: '#f59e0b', icon: '💎', progress: 68, description: 'The really good part',      bg: 'linear-gradient(160deg, #1a1005 0%, #2d1f00 50%, #0a1a0a 100%)',     orb1: 'rgba(245,158,11,0.22)',  orb2: 'rgba(42,157,143,0.15)' },
-  verification:{ label: 'Bringing It Together',    color: '#f97316', icon: '🌟', progress: 82, description: 'Almost there',              bg: 'linear-gradient(160deg, #1a0d05 0%, #2d1508 50%, #0a1510 100%)',     orb1: 'rgba(249,115,22,0.22)',  orb2: 'rgba(244,162,97,0.18)' },
-  micro_story: { label: 'One More Story',          color: '#F4A261', icon: '⚡', progress: 90, description: 'Quick one more',            bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.20)',  orb2: 'rgba(42,157,143,0.12)' },
-  closing:     { label: 'Journey Complete',        color: '#2A9D8F', icon: '✨', progress: 100,'description': 'You did it',              bg: 'linear-gradient(160deg, #051a18 0%, #0a2518 50%, #0a1520 100%)',     orb1: 'rgba(42,157,143,0.25)',  orb2: 'rgba(244,162,97,0.15)' },
+  verification:{ label: 'Bringing It Together',    color: '#f97316', icon: '', progress: 82, description: 'Almost there',              bg: 'linear-gradient(160deg, #1a0d05 0%, #2d1508 50%, #0a1510 100%)',     orb1: 'rgba(249,115,22,0.22)',  orb2: 'rgba(244,162,97,0.18)' },
+  micro_story: { label: 'One More Story',          color: '#F4A261', icon: '', progress: 90, description: 'Quick one more',            bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.20)',  orb2: 'rgba(42,157,143,0.12)' },
+  closing:     { label: 'Journey Complete',        color: '#2A9D8F', icon: '', progress: 100,'description': 'You did it',              bg: 'linear-gradient(160deg, #051a18 0%, #0a2518 50%, #0a1520 100%)',     orb1: 'rgba(42,157,143,0.25)',  orb2: 'rgba(244,162,97,0.15)' },
 };
 
 // ============================================================
@@ -473,7 +473,7 @@ export default function LEEEChat() {
                   { icon: '🌿', threshold: 18, stage: 'story_select' },
                   { icon: '🦋', threshold: 45, stage: 'core_probe' },
                   { icon: '💎', threshold: 68, stage: 'skill_probe' },
-                  { icon: '✨', threshold: 95, stage: 'closing' },
+                  { icon: '', threshold: 95, stage: 'closing' },
                 ].map((m, i) => {
                   const reached = stageConfig.progress >= m.threshold;
                   const isCurrent = i === [
@@ -586,7 +586,7 @@ export default function LEEEChat() {
               {msg.isScenarioChoice ? (
                 <div className="max-w-[78%] px-4 py-2.5 rounded-2xl rounded-br-md flex items-center gap-2"
                   style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: `1px solid ${stageConfig.color}50` }}>
-                  <span className="text-xs" style={{ color: stageConfig.color }}>⚡</span>
+                  <span className="text-xs" style={{ color: stageConfig.color }}>•</span>
                   <span className="text-sm text-white/80" style={{ fontFamily: 'system-ui, sans-serif' }}>{msg.choiceText}</span>
                 </div>
               ) : (
@@ -661,7 +661,7 @@ export default function LEEEChat() {
             <div className="mt-8 mb-4" style={{ animation: 'messageIn 0.5s ease-out' }}>
               <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border border-amber-200/50 shadow-xl">
                 <h3 className="text-xl font-bold text-stone-800 mb-2 flex items-center gap-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                  ✨ Your Superpowers
+                  Your Superpowers
                 </h3>
                 {extraction.narrative_summary && (
                   <p className="text-sm text-stone-500 mb-5 italic">{extraction.narrative_summary}</p>
@@ -701,7 +701,7 @@ export default function LEEEChat() {
                   </a>
                   <button onClick={downloadTranscript}
                     className="px-4 py-2.5 text-xs text-stone-500 border border-stone-200 rounded-xl hover:bg-white transition-all">
-                    📥 Transcript
+                    Download Transcript
                   </button>
                 </div>
               </div>
@@ -805,12 +805,12 @@ export default function LEEEChat() {
           <div className="flex items-center justify-center gap-3">
             <button onClick={() => session.sessionId && runExtraction(session.sessionId)}
               className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all">
-              ✨ Discover My Superpowers
+              Discover My Superpowers
             </button>
             <button onClick={downloadTranscript}
               className="px-4 py-2.5 text-xs rounded-xl transition-all"
               style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.1)', fontFamily: 'system-ui, sans-serif' }}>
-              📥 Transcript
+              Download Transcript
             </button>
           </div>
         </footer>

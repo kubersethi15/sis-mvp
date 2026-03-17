@@ -147,7 +147,7 @@ export default function AuthPage() {
             <button type="submit" disabled={loading}
               className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
               style={{ fontFamily: "'Nunito', sans-serif" }}>
-              {loading ? '⏳ Please wait...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
+              {loading ? 'Please wait...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
             </button>
           </form>
 
