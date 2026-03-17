@@ -36,6 +36,11 @@ export default function AuthPage() {
 
         // Create user profile in our table
         if (data.user) {
+          // Clear any previous user's cached data
+          localStorage.removeItem('kaya_jobseeker_profile_id');
+          localStorage.removeItem('kaya_last_session_id');
+          localStorage.removeItem('kaya_last_extraction');
+
           await fetch('/api/profile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -61,6 +66,14 @@ export default function AuthPage() {
         if (signInError) { setError(signInError.message); return; }
 
         if (data.user) {
+          // Clear previous user's cached data
+          const previousUserId = localStorage.getItem('kaya_user_id');
+          if (previousUserId && previousUserId !== data.user.id) {
+            localStorage.removeItem('kaya_jobseeker_profile_id');
+            localStorage.removeItem('kaya_last_session_id');
+            localStorage.removeItem('kaya_last_extraction');
+          }
+
           localStorage.setItem('kaya_user_id', data.user.id);
 
           // Get their jobseeker profile
@@ -72,6 +85,8 @@ export default function AuthPage() {
           const profileData = await profileRes.json();
           if (profileData.profile) {
             localStorage.setItem('kaya_jobseeker_profile_id', profileData.profile.id);
+          } else {
+            localStorage.removeItem('kaya_jobseeker_profile_id');
           }
         }
 
