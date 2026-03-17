@@ -39,6 +39,13 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [disabilityType, setDisabilityType] = useState('');
   const [location, setLocation] = useState('');
+  // R2: Structured disability context
+  const [disabilitySeverity, setDisabilitySeverity] = useState('');
+  const [recentlyDiagnosed, setRecentlyDiagnosed] = useState(false);
+  const [communicationImpact, setCommunicationImpact] = useState('');
+  const [accommodationNotes, setAccommodationNotes] = useState('');
+  // R11: Self-reported challenges
+  const [challenges, setChallenges] = useState<string[]>([]);
 
   // Step 2: Work History
   const [workHistory, setWorkHistory] = useState<WorkEntry[]>([{
@@ -83,6 +90,16 @@ export default function ProfilePage() {
         email,
         phone,
         disability_type: disabilityType || null,
+        disability_context: disabilityType ? {
+          disclosed: true,
+          type: disabilityType,
+          severity: disabilitySeverity || null,
+          recently_diagnosed: recentlyDiagnosed,
+          communication_impact: communicationImpact || null,
+          accommodation_notes: accommodationNotes || null,
+          sensitivity_level: (recentlyDiagnosed || disabilitySeverity === 'severe') ? 'high' : (disabilitySeverity === 'moderate' ? 'moderate' : 'low'),
+        } : {},
+        self_reported_challenges: challenges,
         preferred_location: location,
         work_history: workHistory.filter(w => w.company || w.role),
         education: education.filter(e => e.institution || e.degree),
@@ -106,8 +123,8 @@ export default function ProfilePage() {
       if (data.profile) {
         setProfileId(data.profile.id);
         // Store for use in other parts of the app
-        localStorage.setItem('sis_jobseeker_profile_id', data.profile.id);
-        if (data.user_id) localStorage.setItem('sis_user_id', data.user_id);
+        localStorage.setItem('kaya_jobseeker_profile_id', data.profile.id);
+        if (data.user_id) localStorage.setItem('kaya_user_id', data.user_id);
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
       }
@@ -116,7 +133,7 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
-  }, [fullName, email, phone, disabilityType, location, workHistory, education, certifications, training, skillsInventory, careerGoals, preferredArrangement, salaryMin, salaryMax, profileId]);
+  }, [fullName, email, phone, disabilityType, disabilitySeverity, recentlyDiagnosed, communicationImpact, accommodationNotes, challenges, location, workHistory, education, certifications, training, skillsInventory, careerGoals, preferredArrangement, salaryMin, salaryMax, profileId]);
 
   const totalSteps = 4;
   const progress = Math.round((step / totalSteps) * 100);
@@ -178,8 +195,8 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Disability Type <span className="text-gray-400 font-normal">(optional — helps us provide better support)</span></label>
-                <select value={disabilityType} onChange={e => setDisabilityType(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none bg-white">
+                <label className="block text-sm font-medium mb-1" style={{ color: '#334E68' }}>Disability Type <span className="font-normal" style={{ color: '#829AB1' }}>(optional — helps us adapt your experience)</span></label>
+                <select value={disabilityType} onChange={e => setDisabilityType(e.target.value)} className="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 outline-none bg-white" style={{ borderColor: '#D9E2EC' }}>
                   <option value="">Prefer not to say</option>
                   <option value="physical">Physical disability</option>
                   <option value="visual">Visual impairment</option>
@@ -189,6 +206,75 @@ export default function ProfilePage() {
                   <option value="chronic">Chronic illness</option>
                   <option value="other">Other</option>
                 </select>
+              </div>
+
+              {/* R2: Disability context — only shown if disability type selected */}
+              {disabilityType && (
+                <div className="p-4 rounded-xl space-y-4" style={{ background: '#F0F4F8', border: '1px solid #D9E2EC' }}>
+                  <p className="text-xs" style={{ color: '#627D98' }}>These details help us adapt your conversation experience. All fields are optional and treated with care.</p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: '#486581' }}>How would you describe the impact?</label>
+                      <select value={disabilitySeverity} onChange={e => setDisabilitySeverity(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white" style={{ borderColor: '#D9E2EC' }}>
+                        <option value="">Prefer not to say</option>
+                        <option value="mild">Mild — I manage most things independently</option>
+                        <option value="moderate">Moderate — I need some accommodations</option>
+                        <option value="severe">Severe — I need significant support</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: '#486581' }}>Does it affect how you communicate?</label>
+                      <select value={communicationImpact} onChange={e => setCommunicationImpact(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white" style={{ borderColor: '#D9E2EC' }}>
+                        <option value="">No impact</option>
+                        <option value="speech_variation">Speech patterns may vary</option>
+                        <option value="verbal_difficulty">Verbal communication is harder</option>
+                        <option value="processing_time">I need more time to process</option>
+                        <option value="written_preference">I express myself better in writing</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" id="recentlyDiagnosed" checked={recentlyDiagnosed} onChange={e => setRecentlyDiagnosed(e.target.checked)} className="rounded" />
+                    <label htmlFor="recentlyDiagnosed" className="text-sm" style={{ color: '#486581' }}>This is a recent diagnosis or change (within the last year)</label>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium mb-1" style={{ color: '#486581' }}>Anything else we should know? <span className="font-normal" style={{ color: '#829AB1' }}>(optional)</span></label>
+                    <textarea value={accommodationNotes} onChange={e => setAccommodationNotes(e.target.value)} placeholder="e.g. I work best with shorter questions, I may need extra time to respond..." rows={2} className="w-full px-3 py-2 border rounded-lg text-sm resize-none" style={{ borderColor: '#D9E2EC' }} />
+                  </div>
+                </div>
+              )}
+
+              {/* R11: Self-reported challenges */}
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: '#334E68' }}>What challenges do you face in finding work? <span className="font-normal" style={{ color: '#829AB1' }}>(select all that apply)</span></label>
+                <div className="space-y-2">
+                  {[
+                    'Interview communication — expressing myself professionally',
+                    'Getting past initial screening — qualifications or bias',
+                    'Limited professional network or references',
+                    'Limited formal work experience or credentials',
+                    'Career transition — moving into a new field',
+                    'Time pressure — need to find work urgently',
+                    'Confidence — I undersell what I can do',
+                    'Accessibility — workplaces don\'t accommodate my needs',
+                  ].map(challenge => (
+                    <label key={challenge} className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={challenges.includes(challenge)}
+                        onChange={e => {
+                          if (e.target.checked) setChallenges(prev => [...prev, challenge]);
+                          else setChallenges(prev => prev.filter(c => c !== challenge));
+                        }}
+                        className="rounded mt-0.5"
+                      />
+                      <span className="text-sm" style={{ color: '#486581' }}>{challenge}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div>

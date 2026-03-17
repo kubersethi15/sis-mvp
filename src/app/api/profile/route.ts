@@ -52,6 +52,8 @@ async function createProfile(body: any) {
   const { data, error } = await supabase.from('jobseeker_profiles').insert({
     user_id: userId,
     disability_type: body.disability_type || null,
+    disability_context: body.disability_context || {},
+    self_reported_challenges: body.self_reported_challenges || [],
     education: body.education || [],
     certifications: body.certifications || [],
     training: body.training || [],
@@ -119,9 +121,11 @@ async function getByUser(body: any) {
 
 function calculateCompletion(data: any): number {
   let filled = 0;
-  let total = 10;
+  let total = 12;
 
   if (data.disability_type) filled++;
+  if (data.disability_context?.severity) filled++; // R2
+  if (data.self_reported_challenges?.length > 0) filled++; // R11
   if (data.education?.length > 0) filled++;
   if (data.certifications?.length > 0) filled++;
   if (data.training?.length > 0) filled++;

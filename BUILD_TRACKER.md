@@ -219,7 +219,7 @@ Last updated: March 17, 2026
 | # | Task | Status | Priority | Notes |
 |---|------|--------|----------|-------|
 | R1 | Calibration derivation function | ✅ Done | 🔴 High | Compute experience_level, probe_depth, session_pace, communication_style from profile data. Rules defined in Ryan's doc §1.2 |
-| R2 | Structured disability context schema | ⬜ Todo | 🔴 High | Extend disability fields: severity, recently_diagnosed, communication_impact, accommodation_notes, sensitivity_level. Currently only disability_type (text) |
+| R2 | Structured disability context schema | ✅ Done | 🔴 High | Extend disability fields: severity, recently_diagnosed, communication_impact, accommodation_notes, sensitivity_level. Currently only disability_type (text) |
 | R3 | Calibration injection into Aya system prompt | ✅ Done | 🔴 High | Append computed calibration block to system prompt at session start. Aya adapts probe depth, pace, language register accordingly |
 | R4 | Psychometric data injection into system prompt | 🔶 Partial | 🔴 High | Saboteur-aware probing instructions now in v2 system prompt. But actual RIASEC/HIGH5/saboteur data injection blocked on X7 (Ryan's team to provide per-candidate JSON) |
 | R5 | Avoider/Victim coaching note in prompt | 🔶 Partial | 🔴 High | v2 system prompt has all 7 saboteur response strategies. Coaching notes inject Avoider/Victim when psychometrics available. Full injection blocked on X7 |
@@ -228,12 +228,12 @@ Last updated: March 17, 2026
 | R8 | Informal/non-traditional experience equivalence | ✅ Done | 🟡 Med | In v2 system prompt AND extraction pipeline. Behavioral evidence = formal credentials |
 | R9 | Vacancy competency weighting in extraction | ✅ Done | 🟡 Med | Vacancy skills passed through 5-stage pipeline. Stage 3 weights, Stage 5 highlights vacancy-aligned first |
 | R10 | Experience snapshot synthesis | ⬜ Todo | 🟡 Med | Compute "most relevant role + notable achievement" summary from work history for context injection |
-| R11 | Self-reported challenges field in profile | ⬜ Todo | 🟡 Med | Add challenges[] array to jobseeker_profiles schema. Ryan's doc shows 5 challenge types |
+| R11 | Self-reported challenges field in profile | ✅ Done | 🟡 Med | Add challenges[] array to jobseeker_profiles schema. Ryan's doc shows 5 challenge types |
 | R12 | System prompt v2 full replacement | ✅ Done | 🟡 Med | Full v2 with Cultural Intelligence Layer, saboteur-aware probing, confidence-capability gap, bridge logic v2, scenario trigger preserved |
 | R13 | Coverage matrix tracking | 🔶 Partial | 🟢 Low | runLightweightExtraction() runs Stages 1-3 for mid-session bridge. Full real-time tracking needs UI integration |
 | R14 | Session timer + pace enforcement | ⬜ Todo | 🟢 Low | Enforce session_pace (unhurried 15-20min / standard 12-18 / efficient 10-15) from calibration |
-| R15 | Profile form — extended disability fields | ⬜ Todo | 🟡 Med | UI for severity, communication_impact, accommodation_notes. Sensitive — needs careful UX |
-| R16 | Profile form — self-reported challenges | ⬜ Todo | 🟡 Med | Free-text or structured challenges input on profile form |
+| R15 | Profile form — extended disability fields | ✅ Done | 🟡 Med | UI for severity, communication_impact, accommodation_notes. Sensitive — needs careful UX |
+| R16 | Profile form — self-reported challenges | ✅ Done | 🟡 Med | Free-text or structured challenges input on profile form |
 
 ---
 
@@ -298,9 +298,9 @@ Last updated: March 17, 2026
 | Kaya Branding | 8 | 7 | 1 | 0 |
 | 5-Stage Pipeline (Brain Behind Brain) | 8 | 8 | 0 | 0 |
 | Joy Anne Simulation | 2 | 0 | 0 | 2 |
-| **TOTAL** | **144** | **104** | **9** | **31** |
+| **TOTAL** | **144** | **108** | **8** | **28** |
 
-**104 done + 9 partial = ~77% complete. Remaining: 6 Ryan v2 items (2 blocked on data), 7 testing, 3 UX polish, 1 branding (SVG), 2 simulation validation, plus misc.**
+**108 done + 8 partial = ~79% complete. R2+R11+R15+R16 done (disability + challenges). Old /api/extract removed. localStorage sis_* → kaya_*. Remaining: 2 blocked on Ryan data, 7 testing, 3 UX, 2 simulation, misc.**
 
 ---
 

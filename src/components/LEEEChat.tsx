@@ -149,8 +149,8 @@ export default function LEEEChat() {
     setIsLoading(true);
 
     try {
-      const profileId = localStorage.getItem('sis_jobseeker_profile_id');
-      const userId = localStorage.getItem('sis_user_id');
+      const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
+      const userId = localStorage.getItem('kaya_user_id');
 
       const startRes = await fetch('/api/chat', {
         method: 'POST',
@@ -167,7 +167,7 @@ export default function LEEEChat() {
         sessionId: startData.session_id, status: 'active', stage: 'opening',
         storiesCompleted: 0, skillsEvidenced: null,
       });
-      localStorage.setItem('sis_last_session_id', startData.session_id);
+      localStorage.setItem('kaya_last_session_id', startData.session_id);
 
       const chatRes = await fetch('/api/chat', {
         method: 'POST',
@@ -272,7 +272,7 @@ export default function LEEEChat() {
       const data = await res.json();
       if (data.extraction) {
         setExtraction(data.extraction);
-        localStorage.setItem('sis_last_extraction', JSON.stringify(data.extraction));
+        localStorage.setItem('kaya_last_extraction', JSON.stringify(data.extraction));
         // Animate skill reveal
         setRevealedSkills(0);
         const total = data.extraction.skills_profile?.length || 0;
@@ -290,7 +290,7 @@ export default function LEEEChat() {
         const data2 = await res2.json();
         if (data2.extraction) {
           setExtraction(data2.extraction);
-          localStorage.setItem('sis_last_extraction', JSON.stringify(data2.extraction));
+          localStorage.setItem('kaya_last_extraction', JSON.stringify(data2.extraction));
         }
       }
     } catch (e) {

@@ -102,7 +102,7 @@ export default function PsychologistPage() {
   // Also try loading from localStorage as fallback
   useEffect(() => {
     if (extractions.length === 0 && !loading) {
-      const stored = localStorage.getItem('sis_last_extraction');
+      const stored = localStorage.getItem('kaya_last_extraction');
       if (stored) {
         try {
           const ext = JSON.parse(stored);

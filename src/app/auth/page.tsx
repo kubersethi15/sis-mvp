@@ -46,7 +46,7 @@ export default function AuthPage() {
               email,
             }),
           });
-          localStorage.setItem('sis_user_id', data.user.id);
+          localStorage.setItem('kaya_user_id', data.user.id);
         }
 
         setSuccess('Account created! Redirecting...');
@@ -61,7 +61,7 @@ export default function AuthPage() {
         if (signInError) { setError(signInError.message); return; }
 
         if (data.user) {
-          localStorage.setItem('sis_user_id', data.user.id);
+          localStorage.setItem('kaya_user_id', data.user.id);
 
           // Get their jobseeker profile
           const profileRes = await fetch('/api/profile', {
@@ -71,7 +71,7 @@ export default function AuthPage() {
           });
           const profileData = await profileRes.json();
           if (profileData.profile) {
-            localStorage.setItem('sis_jobseeker_profile_id', profileData.profile.id);
+            localStorage.setItem('kaya_jobseeker_profile_id', profileData.profile.id);
           }
         }
 

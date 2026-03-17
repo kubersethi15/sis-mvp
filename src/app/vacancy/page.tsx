@@ -46,7 +46,7 @@ export default function VacancyPage() {
 
   const fetchMatches = async () => {
     try {
-      const profileId = localStorage.getItem('sis_jobseeker_profile_id');
+      const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
       if (profileId) {
         // Use matching engine
         const res = await fetch('/api/match', {
@@ -105,7 +105,7 @@ export default function VacancyPage() {
     if (!selected) return;
     setAlignmentLoading(true);
     try {
-      const profileId = localStorage.getItem('sis_jobseeker_profile_id');
+      const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
       const res = await fetch('/api/vacancy', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'check_alignment', vacancy_id: selected.id, jobseeker_profile_id: profileId }),
@@ -119,7 +119,7 @@ export default function VacancyPage() {
   // Apply
   const handleApply = useCallback(async () => {
     if (!selected) return;
-    const profileId = localStorage.getItem('sis_jobseeker_profile_id');
+    const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
     if (!profileId) { alert('Please create your profile first at /profile'); return; }
 
     try {
@@ -130,7 +130,7 @@ export default function VacancyPage() {
       const data = await res.json();
       if (data.application) {
         setApplied(true);
-        localStorage.setItem('sis_last_application_id', data.application.id);
+        localStorage.setItem('kaya_last_application_id', data.application.id);
       }
     } catch (e) { console.error(e); }
   }, [selected]);

@@ -71,7 +71,7 @@ export default function SkillsDashboard() {
   const [animatedBars, setAnimatedBars] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem('sis_last_extraction');
+    const stored = localStorage.getItem('kaya_last_extraction');
     if (stored) {
       try { setExtraction(JSON.parse(stored)); } catch (e) {}
     }

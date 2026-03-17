@@ -96,6 +96,8 @@ CREATE TABLE jobseeker_profiles (
   user_id UUID NOT NULL REFERENCES user_profiles(id),
   -- Basic info
   disability_type TEXT,
+  disability_context JSONB DEFAULT '{}', -- R2: severity, recently_diagnosed, communication_impact, accommodation_notes, sensitivity_level
+  self_reported_challenges JSONB DEFAULT '[]', -- R11: array of challenge strings from Ryan's 5 types
   education JSONB DEFAULT '[]',
   certifications JSONB DEFAULT '[]',
   training JSONB DEFAULT '[]',

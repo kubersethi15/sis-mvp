@@ -136,10 +136,10 @@ export function useChat() {
     if (!sessionId) return;
 
     try {
-      const response = await fetch('/api/extract', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId }),
+        body: JSON.stringify({ action: 'extract', session_id: sessionId }),
       });
 
       if (!response.ok) throw new Error('Extraction failed');

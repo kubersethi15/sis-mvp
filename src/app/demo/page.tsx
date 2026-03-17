@@ -36,8 +36,8 @@ export default function DemoPage() {
 
   useEffect(() => {
     setLocalData({
-      profileId: localStorage.getItem('sis_jobseeker_profile_id') || '',
-      sessionId: localStorage.getItem('sis_last_session_id') || '',
+      profileId: localStorage.getItem('kaya_jobseeker_profile_id') || '',
+      sessionId: localStorage.getItem('kaya_last_session_id') || '',
     });
   }, []);
 
@@ -58,8 +58,8 @@ export default function DemoPage() {
 
   // Step 2: Check for existing profile
   const checkProfile = useCallback(async () => {
-    const profileId = localStorage.getItem('sis_jobseeker_profile_id');
-    const userId = localStorage.getItem('sis_user_id');
+    const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
+    const userId = localStorage.getItem('kaya_user_id');
     if (profileId && userId) {
       setState(prev => ({ ...prev, jobseeker_profile_id: profileId, user_id: userId }));
       addLog(`✅ Found existing profile: ${profileId.substring(0, 8)}...`);
@@ -107,7 +107,7 @@ export default function DemoPage() {
     setState(prev => ({ ...prev, gate2_status: 'running' }));
 
     // Check for LEEE session
-    const sessionId = localStorage.getItem('sis_last_session_id');
+    const sessionId = localStorage.getItem('kaya_last_session_id');
     addLog(`🟢 Running Gate 2: Evidence building...${sessionId ? ` (LEEE session: ${sessionId.substring(0, 8)}...)` : ' (No LEEE session — profile data only)'}`);
 
     try {

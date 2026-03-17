@@ -29,8 +29,8 @@ export default function MyDashboard() {
   const loadDashboard = async () => {
     setLoading(true);
     try {
-      const profileId = localStorage.getItem('sis_jobseeker_profile_id');
-      const userId = localStorage.getItem('sis_user_id');
+      const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
+      const userId = localStorage.getItem('kaya_user_id');
 
       let profile = null;
       let user = null;
@@ -49,11 +49,11 @@ export default function MyDashboard() {
       // Get LEEE session
       let leeeSession = null;
       let extraction = null;
-      const storedExtraction = localStorage.getItem('sis_last_extraction');
+      const storedExtraction = localStorage.getItem('kaya_last_extraction');
       if (storedExtraction) {
         try { extraction = JSON.parse(storedExtraction); } catch (e) {}
       }
-      const sessionId = localStorage.getItem('sis_last_session_id');
+      const sessionId = localStorage.getItem('kaya_last_session_id');
       if (sessionId) {
         leeeSession = { id: sessionId, status: extraction ? 'completed' : 'active', stories: extraction?.session_quality?.stories_completed || 0 };
       }
