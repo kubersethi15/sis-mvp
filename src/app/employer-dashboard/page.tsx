@@ -8,7 +8,8 @@ export default function EmployerDashboardPage() {
   const [vacancies, setVacancies] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'vacancies' | 'applicants' | 'settings'>('vacancies');
+  const [activeTab, setActiveTab] = useState<'vacancies' | 'applicants' | 'talent' | 'settings'>('vacancies');
+  const [talentMatches, setTalentMatches] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
@@ -26,6 +27,16 @@ export default function EmployerDashboardPage() {
       }
       setVacancies(state.vacancies || []);
       setApplications(state.applications || []);
+
+      // Load talent matches — jobseekers with extracted skills
+      try {
+        const talentRes = await fetch('/api/psychologist', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_all_extractions' }),
+        });
+        const talentData = await talentRes.json();
+        setTalentMatches(talentData.extractions || []);
+      } catch (e) { /* skip */ }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -77,8 +88,9 @@ export default function EmployerDashboardPage() {
         <div className="flex gap-1 border-b border-gray-200">
           {[
             { id: 'vacancies' as const, label: `Vacancies (${vacancies.length})` },
-            { id: 'applicants' as const, label: `All Applicants (${applications.length})` },
-            { id: 'settings' as const, label: 'Company Settings' },
+            { id: 'talent' as const, label: `Talent Matches (${talentMatches.length})` },
+            { id: 'applicants' as const, label: `Applicants (${applications.length})` },
+            { id: 'settings' as const, label: 'Settings' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
@@ -146,6 +158,72 @@ export default function EmployerDashboardPage() {
                   </div>
                 );
               })
+            )}
+          </div>
+        )}
+
+        {/* TALENT MATCHES TAB — Jobseekers with extracted skills that match vacancy */}
+        {activeTab === 'talent' && (
+          <div>
+            <p className="text-sm mb-4" style={{ color: '#627D98' }}>
+              Candidates who have completed skills extraction through Kaya. Their skills are automatically matched against your vacancy requirements.
+            </p>
+            {talentMatches.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-xl border" style={{ borderColor: '#E2E8F0' }}>
+                <p className="text-sm" style={{ color: '#829AB1' }}>No candidates with extracted skills yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {talentMatches.map((ext: any, i: number) => {
+                  const skills = ext.skills_profile || [];
+                  const topSkills = skills.slice(0, 4);
+                  const avgConf = skills.length > 0
+                    ? Math.round((skills.reduce((a: number, s: any) => a + (s.confidence || 0.5), 0) / skills.length) * 100)
+                    : 0;
+                  const date = ext.created_at ? new Date(ext.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) : '';
+
+                  return (
+                    <div key={ext.id || i} className="bg-white rounded-xl border p-5 hover:shadow-md transition-shadow" style={{ borderColor: '#E2E8F0' }}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold" style={{ color: '#102A43' }}>Candidate {i + 1}</h3>
+                          <p className="text-xs mt-0.5" style={{ color: '#829AB1' }}>{skills.length} skills extracted · {avgConf}% confidence · {date}</p>
+                        </div>
+                        <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: '#E8F8F5', color: '#27AE60' }}>
+                          Skills Ready
+                        </span>
+                      </div>
+
+                      {/* Top skills */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {topSkills.map((s: any, j: number) => (
+                          <span key={j} className="text-xs px-2.5 py-1 rounded-full font-medium" style={{
+                            background: s.proficiency?.toLowerCase() === 'intermediate' ? '#EBF5FB' : s.proficiency?.toLowerCase() === 'advanced' ? '#E8F8F5' : '#FEF3E2',
+                            color: s.proficiency?.toLowerCase() === 'intermediate' ? '#2E86C1' : s.proficiency?.toLowerCase() === 'advanced' ? '#27AE60' : '#E67E22',
+                          }}>
+                            {s.skill_name} · {s.proficiency}
+                          </span>
+                        ))}
+                        {skills.length > 4 && (
+                          <span className="text-xs" style={{ color: '#829AB1' }}>+{skills.length - 4} more</span>
+                        )}
+                      </div>
+
+                      {/* Summary */}
+                      {ext.narrative_summary && (
+                        <p className="text-xs leading-relaxed mb-3" style={{ color: '#486581' }}>
+                          {ext.narrative_summary.substring(0, 150)}...
+                        </p>
+                      )}
+
+                      <div className="flex gap-3 pt-2" style={{ borderTop: '1px solid #F0F4F8' }}>
+                        <Link href="/reviewer" className="text-xs font-medium" style={{ color: '#2E86C1' }}>View Full Profile →</Link>
+                        <Link href="/psychologist" className="text-xs" style={{ color: '#829AB1' }}>Psychologist Review →</Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         )}
