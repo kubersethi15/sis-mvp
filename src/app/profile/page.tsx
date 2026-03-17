@@ -1,7 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { kayaFetch } from '@/lib/kaya-fetch';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
 
 // ============================================================
 // TYPES
@@ -69,6 +75,67 @@ export default function ProfilePage() {
 
   // Add/remove work entries
   const addWorkEntry = () => setWorkHistory(prev => [...prev, { company: '', role: '', start_date: '', end_date: '', description: '', is_informal: false }]);
+
+  // Pre-fill from auth session + load existing profile
+  useEffect(() => {
+    async function loadData() {
+      // 1. Pre-fill from Supabase auth
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const user = session.user;
+          if (user.user_metadata?.full_name && !fullName) setFullName(user.user_metadata.full_name);
+          if (user.email && !email) setEmail(user.email);
+          localStorage.setItem('kaya_user_id', user.id);
+        }
+      } catch {}
+
+      // 2. Load existing profile if we have one
+      const storedProfileId = localStorage.getItem('kaya_jobseeker_profile_id');
+      const userId = localStorage.getItem('kaya_user_id');
+
+      if (storedProfileId) {
+        try {
+          const res = await kayaFetch('/api/profile', { action: 'get', profile_id: storedProfileId });
+          const data = await res.json();
+          if (data.profile) {
+            const p = data.profile;
+            setProfileId(p.id);
+            if (p.user_profiles?.full_name) setFullName(p.user_profiles.full_name);
+            if (p.disability_type) setDisabilityType(p.disability_type);
+            if (p.disability_context?.severity) setDisabilitySeverity(p.disability_context.severity);
+            if (p.disability_context?.recently_diagnosed) setRecentlyDiagnosed(true);
+            if (p.disability_context?.communication_impact) setCommunicationImpact(p.disability_context.communication_impact);
+            if (p.disability_context?.accommodation_notes) setAccommodationNotes(p.disability_context.accommodation_notes);
+            if (p.self_reported_challenges?.length) setChallenges(p.self_reported_challenges);
+            if (p.preferred_location) setLocation(p.preferred_location);
+            if (p.work_history?.length) setWorkHistory(p.work_history);
+            if (p.education?.length) setEducation(p.education);
+            if (p.certifications?.length) setCertifications(p.certifications.join(', '));
+            if (p.training?.length) setTraining(p.training.join(', '));
+            if (p.skills_inventory?.length) setSkillsInventory(p.skills_inventory.join(', '));
+            if (p.career_goals) setCareerGoals(p.career_goals);
+            if (p.preferred_work_arrangement) setPreferredArrangement(p.preferred_work_arrangement);
+            if (p.salary_expectations?.min) setSalaryMin(p.salary_expectations.min);
+            if (p.salary_expectations?.max) setSalaryMax(p.salary_expectations.max);
+          }
+        } catch {}
+      } else if (userId) {
+        // Try to find profile by user_id
+        try {
+          const res = await kayaFetch('/api/profile', { action: 'get_by_user', user_id: userId });
+          const data = await res.json();
+          if (data.profile) {
+            localStorage.setItem('kaya_jobseeker_profile_id', data.profile.id);
+            setProfileId(data.profile.id);
+            // Reload to populate fields
+            window.location.reload();
+          }
+        } catch {}
+      }
+    }
+    loadData();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const removeWorkEntry = (i: number) => setWorkHistory(prev => prev.filter((_, idx) => idx !== i));
   const updateWork = (i: number, field: keyof WorkEntry, value: any) => {
     setWorkHistory(prev => prev.map((w, idx) => idx === i ? { ...w, [field]: value } : w));
