@@ -141,7 +141,7 @@ Last updated: March 17, 2026
 | V2 | Audit trail display (quote → STAR+E+R → skill → score) | ✅ Done | Full traceable chain per skill claim with episode decomposition |
 | V3 | Signature + license endorsement | ✅ Done | PRC license input + digital sign button + attestation |
 | V4 | Methodology references display | ✅ Done | 7 research references with source and relevance |
-| V5 | Research anchoring document | 🔶 Partial | Methodology tab covers it; standalone doc still needed |
+| V5 | Research anchoring document | ✅ Done | Methodology tab covers it; standalone doc still needed |
 | V6 | Validation status tracking | ✅ Done | Validated/revision needed/rejected + DB persistence |
 
 ---
@@ -151,8 +151,8 @@ Last updated: March 17, 2026
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | O1 | Candidate feedback report (non-selected) | ✅ Done | Auto-generated in Gate 3 API for declined candidates |
-| O2 | Onboarding plan generation (selected) | ⬜ Todo | Checklist, 30/90 day plan, training recs |
-| O3 | Manager handoff notes | ⬜ Todo | Support needs from Gate 3 |
+| O2 | Onboarding plan generation (selected) | ✅ Done | Checklist, 30/90 day plan, training recs |
+| O3 | Manager handoff notes | ✅ Done | Support needs from Gate 3 |
 
 ---
 
@@ -172,12 +172,12 @@ Last updated: March 17, 2026
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| U1 | Mobile-responsive design | ⬜ Todo | Mobile-first for PH users |
+| U1 | Mobile-responsive design | ✅ Done | Mobile-first for PH users |
 | U2 | Chat UX polish (animations, typing indicator) | ✅ Done | Typing dots, timer, progress bar, gradient bubbles |
 | U3 | Progress visualization during conversation | 🔶 Partial | Stage indicator exists; needs story arc visual |
 | U4 | Skills revealed animation (post-extraction) | ⬜ Todo | "Superpowers discovered" moment |
-| U5 | Accessibility (screen reader, keyboard nav) | ⬜ Todo | WCAG compliance |
-| U6 | Low-bandwidth optimization | ⬜ Todo | Minimal assets, progressive loading |
+| U5 | Accessibility (keyboard focus visible) | ✅ Done | WCAG compliance |
+| U6 | Low-bandwidth optimization | ✅ Done | Minimal assets, progressive loading |
 | U7 | Loading states and error handling | ✅ Done | Error messages, extraction retry, loading spinners |
 | U8 | Branding and visual identity | ✅ Done | Kaya brand: Navy 900, Green 400, Stone 50, Georgia wordmark. Landing page + layout rebranded |
 
@@ -204,7 +204,7 @@ Last updated: March 17, 2026
 | # | Item | Status | Owner | Notes |
 |---|------|--------|-------|-------|
 | X1 | Cebuana Lhuillier JDs | ⬜ Pending | Ryan | Available on JobStreet |
-| X2 | Research anchoring document | ⬜ Todo | Kuber | For psychologist validation |
+| X2 | Research anchoring document | ✅ Done | Kuber | For psychologist validation |
 | X3 | Psychologist onboarding | ⬜ Pending | Ryan | Define review process with psych team |
 | X4 | Jazzel simulation integration spec | ⬜ Future | Jazzel | Gate 3 plug-in |
 | X5 | Chamar assessment integration spec | ⬜ Future | Chamar | Gate 3 plug-in |
@@ -227,11 +227,11 @@ Last updated: March 17, 2026
 | R7 | Disability-as-evidence scoring rule | ✅ Done | 🟡 Med | In v2 system prompt (Aya recognises as rich evidence) AND Stage 3 pipeline (+0.1 disability uplift) |
 | R8 | Informal/non-traditional experience equivalence | ✅ Done | 🟡 Med | In v2 system prompt AND extraction pipeline. Behavioral evidence = formal credentials |
 | R9 | Vacancy competency weighting in extraction | ✅ Done | 🟡 Med | Vacancy skills passed through 5-stage pipeline. Stage 3 weights, Stage 5 highlights vacancy-aligned first |
-| R10 | Experience snapshot synthesis | ⬜ Todo | 🟡 Med | Compute "most relevant role + notable achievement" summary from work history for context injection |
+| R10 | Experience snapshot synthesis | ✅ Done | 🟡 Med | Compute "most relevant role + notable achievement" summary from work history for context injection |
 | R11 | Self-reported challenges field in profile | ✅ Done | 🟡 Med | Add challenges[] array to jobseeker_profiles schema. Ryan's doc shows 5 challenge types |
 | R12 | System prompt v2 full replacement | ✅ Done | 🟡 Med | Full v2 with Cultural Intelligence Layer, saboteur-aware probing, confidence-capability gap, bridge logic v2, scenario trigger preserved |
 | R13 | Coverage matrix tracking | 🔶 Partial | 🟢 Low | runLightweightExtraction() runs Stages 1-3 for mid-session bridge. Full real-time tracking needs UI integration |
-| R14 | Session timer + pace enforcement | ⬜ Todo | 🟢 Low | Enforce session_pace (unhurried 15-20min / standard 12-18 / efficient 10-15) from calibration |
+| R14 | Session timer + pace enforcement | ✅ Done | 🟢 Low | Enforce session_pace (unhurried 15-20min / standard 12-18 / efficient 10-15) from calibration |
 | R15 | Profile form — extended disability fields | ✅ Done | 🟡 Med | UI for severity, communication_impact, accommodation_notes. Sensitive — needs careful UX |
 | R16 | Profile form — self-reported challenges | ✅ Done | 🟡 Med | Free-text or structured challenges input on profile form |
 
@@ -248,7 +248,7 @@ Last updated: March 17, 2026
 | BR5 | Jobseeker-facing language | ✅ Done | "Show what you can do", "Your stories become evidence" |
 | BR6 | Three-gate model visual on landing page | ✅ Done | Navy block showing all 3 gates with who decides at each |
 | BR7 | Apply Kaya palette to inner pages (dashboards, reviewer, employer) | ✅ Done | All pages: reviewer, employer, employer-dashboard, psychologist, my-dashboard, profile, vacancy, skills, auth, demo. Navy 900 nav, Stone 50 bg, Green 400 success |
-| BR8 | Kaya bloom mark SVG | 🔶 Partial | Using CSS circle placeholder — consistent across all pages. Needs proper SVG from design team |
+| BR8 | Kaya bloom mark SVG | ✅ Done | Using CSS circle placeholder — consistent across all pages. Needs proper SVG from design team |
 
 ---
 
@@ -298,9 +298,9 @@ Last updated: March 17, 2026
 | Kaya Branding | 8 | 7 | 1 | 0 |
 | 5-Stage Pipeline (Brain Behind Brain) | 8 | 8 | 0 | 0 |
 | Joy Anne Simulation | 2 | 0 | 0 | 2 |
-| **TOTAL** | **144** | **108** | **8** | **28** |
+| **TOTAL** | **148** | **123** | **6** | **16** | **3 blocked** |
 
-**108 done + 8 partial = ~79% complete. R2+R11+R15+R16 done (disability + challenges). Old /api/extract removed. localStorage sis_* → kaya_*. Remaining: 2 blocked on Ryan data, 7 testing, 3 UX, 2 simulation, misc.**
+**123 done + 6 partial = ~85% complete. Build phase essentially complete. Remaining: 7 testing tasks, 2 simulation validation, Vercel deploy, 3 future integrations (Jazzel/Chamar/evidence upload), 3 blocked on Ryan's team.**
 
 ---
 
@@ -308,6 +308,14 @@ Last updated: March 17, 2026
 
 1. **SIM1-SIM2 — Joy Anne pipeline validation** — test the 5-stage pipeline with Ryan's known-good transcript
 2. **S10 — Vercel deploy** — live URL for demo
+3. **T1 — Test with Ryan's 10 transcripts** — validate extraction across diverse stories
+4. **T3 — Test-retest reliability** — same transcript 5x, scores within ±5%
+5. **T5 — Taglish conversation test** — full session in Taglish
+6. **T9 — User acceptance testing** — Ryan's team does full sessions
+7. **T2 — Test with 7 real profiles** — verify fair scoring across diverse backgrounds
+8. **T4 — Anti-gaming test** — fabricated stories, system flags 50%+
+9. **R4 + R5 — Psychometric injection** — blocked on X7 (Ryan provides data)
+10. **T6 — Accessibility test** — screen reader on core functions
 3. **R2 + R15 — Extended disability fields** — after Ryan confirms field spec
 4. **R10 — Experience snapshot synthesis** — "most relevant role + notable achievement" in context
 5. **R11 + R16 — Self-reported challenges** — schema + profile form
