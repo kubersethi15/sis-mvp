@@ -452,3 +452,71 @@ Output JSON:
   "learning_recommendations": ["specific courses, resources, or experiences that could help"]
 }
 `;
+
+// O2 + O3: Onboarding plan + Manager handoff notes
+const ONBOARDING_PROMPT = `Generate an onboarding plan and manager handoff notes for a selected candidate. This candidate has passed all three gates and been approved by the Final Approver.
+
+Role: {vacancy_title} at {employer_name}
+Candidate skills profile: {skills_profile}
+Gate 3 support needs: {support_needs}
+Gate 3 success conditions: {success_conditions}
+Disability context: {disability_context}
+
+Output JSON:
+{
+  "onboarding_checklist": [
+    {"item": "task description", "timeline": "Day 1 / Week 1 / Week 2", "owner": "HR / Manager / Buddy", "priority": "high|medium|low"}
+  ],
+  "first_30_day_plan": {
+    "focus": "What the first 30 days should focus on",
+    "goals": ["measurable goals for the first month"],
+    "check_in_cadence": "weekly / biweekly",
+    "training_needed": ["specific training or onboarding modules"]
+  },
+  "first_90_day_plan": {
+    "focus": "What months 2-3 should focus on",
+    "goals": ["measurable goals for the first quarter"],
+    "performance_markers": ["what success looks like at 90 days"]
+  },
+  "training_recommendations": [
+    {"topic": "training area", "reason": "why this matters for their success", "priority": "high|medium|low"}
+  ],
+  "manager_handoff_notes": "3-5 paragraph handoff brief for the direct manager. Cover: candidate's demonstrated strengths (with evidence), areas where they may need support, communication style insights from the LEEE conversation, recommended accommodation or adjustments, and suggested management approach. Write this as if you are a colleague briefing a manager who wasn't part of the hiring process."
+}
+`;
+
+// O2+O3: Generate onboarding plan for selected candidate
+async function generateOnboardingPlan(applicationId: string) {
+  const supabase = db();
+  const { data: app } = await supabase.from('applications').select('*, vacancies(title, employer_name, competency_blueprint)').eq('id', applicationId).single();
+  if (!app) return;
+
+  const { data: g2 } = await supabase.from('gate2_results').select('*').eq('application_id', applicationId).limit(1).single();
+  const { data: g3 } = await supabase.from('gate3_results').select('*').eq('application_id', applicationId).limit(1).single();
+  const { data: profile } = await supabase.from('jobseeker_profiles').select('disability_context').eq('id', app.jobseeker_id).limit(1).single();
+
+  const prompt = ONBOARDING_PROMPT
+    .replace('{vacancy_title}', app.vacancies?.title || 'Role')
+    .replace('{employer_name}', app.vacancies?.employer_name || 'Employer')
+    .replace('{skills_profile}', JSON.stringify(g2?.leee_skills_profile || {}))
+    .replace('{support_needs}', JSON.stringify(g3?.support_needs || []))
+    .replace('{success_conditions}', JSON.stringify(g3?.success_conditions || []))
+    .replace('{disability_context}', JSON.stringify(profile?.disability_context || 'Not disclosed'));
+
+  const plan = await callClaude(prompt, 2000);
+
+  if (plan) {
+    await supabase.from('onboarding_plans').insert({
+      application_id: applicationId,
+      onboarding_checklist: plan.onboarding_checklist || [],
+      first_30_day_plan: plan.first_30_day_plan || {},
+      first_90_day_plan: plan.first_90_day_plan || {},
+      training_recommendations: plan.training_recommendations || [],
+      manager_handoff_notes: plan.manager_handoff_notes || '',
+    });
+  }
+}
+
+// Export for use in demo route
+export { generateOnboardingPlan };
+

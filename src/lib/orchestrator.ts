@@ -424,16 +424,34 @@ export class LEEEOrchestrator {
     return messages;
   }
 
-  // Check if session should end
+  // Check if session should end — respects calibration pace (R14)
   shouldEndSession(): boolean {
     const duration = this.getSessionDurationMinutes();
     const totalUserTurns = this.state.messages.filter(m => m.role === 'user').length;
+
+    // R14: Pace-aware time limits from calibration
+    const extraContext = (this as any)._extraContext || '';
+    let maxMinutes = 18; // default standard
+    if (extraContext.includes('session_pace: unhurried')) maxMinutes = 22;
+    else if (extraContext.includes('session_pace: efficient')) maxMinutes = 15;
+
     return (
       this.state.currentStage === 'closing' ||
-      duration >= 20 ||
+      duration >= maxMinutes ||
       totalUserTurns >= 30 || // Hard limit: 30 user messages max
       this.state.userDistressLevel >= 3
     );
+  }
+
+  // Get pace-aware time remaining for UI display
+  getTimeInfo(): { elapsed: number; target: number; pace: string } {
+    const elapsed = this.getSessionDurationMinutes();
+    const extraContext = (this as any)._extraContext || '';
+    let target = 18;
+    let pace = 'standard';
+    if (extraContext.includes('session_pace: unhurried')) { target = 20; pace = 'unhurried'; }
+    else if (extraContext.includes('session_pace: efficient')) { target = 15; pace = 'efficient'; }
+    return { elapsed, target, pace };
   }
 
   // Get the transcript for extraction

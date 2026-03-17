@@ -1,4 +1,5 @@
 'use client';
+'use client';
 
 import { useState, useCallback } from 'react';
 
@@ -183,7 +184,7 @@ export default function ProfilePage() {
                 <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
@@ -213,7 +214,7 @@ export default function ProfilePage() {
                 <div className="p-4 rounded-xl space-y-4" style={{ background: '#F0F4F8', border: '1px solid #D9E2EC' }}>
                   <p className="text-xs" style={{ color: '#627D98' }}>These details help us adapt your conversation experience. All fields are optional and treated with care.</p>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium mb-1" style={{ color: '#486581' }}>How would you describe the impact?</label>
                       <select value={disabilitySeverity} onChange={e => setDisabilitySeverity(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white" style={{ borderColor: '#D9E2EC' }}>
@@ -300,11 +301,11 @@ export default function ProfilePage() {
                       <button onClick={() => removeWorkEntry(i)} className="text-xs text-red-400 hover:text-red-600">Remove</button>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input type="text" value={w.company} onChange={e => updateWork(i, 'company', e.target.value)} placeholder="Company / Organization / Client" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                     <input type="text" value={w.role} onChange={e => updateWork(i, 'role', e.target.value)} placeholder="Your role / title" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input type="text" value={w.start_date} onChange={e => updateWork(i, 'start_date', e.target.value)} placeholder="Start (e.g. Jan 2020)" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                     <input type="text" value={w.end_date} onChange={e => updateWork(i, 'end_date', e.target.value)} placeholder="End (or 'Present')" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   </div>
@@ -338,11 +339,11 @@ export default function ProfilePage() {
                       <button onClick={() => removeEduEntry(i)} className="text-xs text-red-400 hover:text-red-600">Remove</button>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input type="text" value={e.institution} onChange={ev => updateEdu(i, 'institution', ev.target.value)} placeholder="School / Institution" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                     <input type="text" value={e.degree} onChange={ev => updateEdu(i, 'degree', ev.target.value)} placeholder="Degree / Certificate" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input type="text" value={e.field} onChange={ev => updateEdu(i, 'field', ev.target.value)} placeholder="Field of study" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                     <div className="flex gap-2">
                       <input type="text" value={e.year} onChange={ev => updateEdu(i, 'year', ev.target.value)} placeholder="Year" className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
@@ -402,7 +403,7 @@ export default function ProfilePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Salary Expectations (PHP monthly)</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input type="text" value={salaryMin} onChange={e => setSalaryMin(e.target.value)} placeholder="Minimum" className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   <input type="text" value={salaryMax} onChange={e => setSalaryMax(e.target.value)} placeholder="Maximum" className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                 </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import BloomMark from './BloomMark';
 
 // ============================================================
 // KAYA NAV — Shared navigation component
