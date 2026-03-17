@@ -86,6 +86,8 @@ const EXPECTED = {
 
   skills_not_assessed_should_include: [
     'Digital Fluency', 'Global Perspective', 'Creative Thinking',
+    'Decision Making', 'Sense Making', 'Transdisciplinary Thinking',
+    'Influence', 'Learning Agility',
   ],
 
   disability_uplift_count: 3,

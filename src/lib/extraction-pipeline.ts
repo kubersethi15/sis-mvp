@@ -205,7 +205,12 @@ MAPPING RULES:
    If self_deprecation_detected = true, ignore the person's self-assessment and map based on the DESCRIBED ACTION.
 
 7. DISABILITY-EXPERIENCE UPLIFT:
-   If the action involves navigating inaccessible systems, self-advocating, managing health alongside work, supporting other PWDs, or creating workarounds for limitations — apply +0.1 confidence bonus (capped at 1.0).
+   Apply a +0.1 confidence bonus (capped at 1.0) when ANY of these conditions are true:
+   a) The action involves navigating inaccessible systems, self-advocating, managing health alongside work, supporting other PWDs, or creating workarounds for limitations.
+   b) The person PERFORMED the action WHILE managing disability-related challenges (e.g., presenting publicly while managing speech-affecting cerebral palsy, communicating professionally while managing hearing loss).
+   c) The person EXPLICITLY connects the action to their disability experience in the transcript (e.g., "alam ko yung feeling kasi may disability ako" / "I know what it's like because of my condition"). This means the action was MOTIVATED by lived disability experience, even if the action itself isn't about disability.
+   
+   When uplift is applied, set disability_uplift_applied: true in confidence_factors and note the reason.
 
 OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
 [
@@ -324,19 +329,35 @@ SCORING RULES:
 1. PROFICIENCY IS DETERMINED BY THE HIGHEST-QUALITY EVIDENCE, NOT THE AVERAGE.
    If someone shows Intermediate in one episode and Basic in another, score Intermediate.
 
-2. PROFICIENCY CEILING FROM SIMPLE SITUATIONS:
+2. CRITICAL: CROSS-STORY REINFORCEMENT DOES NOT UPGRADE PROFICIENCY LEVEL.
+   Multiple instances of Basic-level behavior = CONFIDENT Basic, NOT Intermediate.
+   Three examples of "helped a teammate" (Basic collaboration) does not become Intermediate collaboration.
+   Intermediate requires the SPECIFIC behavioral indicators listed above — analyzing options, adapting approaches, coordinating across stakeholders, making independent judgments in non-routine situations.
+   Cross-story reinforcement increases CONFIDENCE within a level, not the level itself.
+
+3. PROFICIENCY CEILING FROM SIMPLE SITUATIONS:
    If ALL evidence for a skill comes from "simple" situations → cap at Basic.
 
-3. VACANCY-WEIGHTED PRESENTATION:
+4. VACANCY-WEIGHTED PRESENTATION:
    Highlight vacancy-aligned skills FIRST, then additional skills, then "not assessed."
 
-4. "NOT ASSESSED" IS HONEST:
-   If a skill has insufficient evidence, report it as "not_assessed" — NOT "low." The LEEE captures a 12-18 minute window. Many real skills simply didn't come up.
+5. COMPLETE SKILL CATEGORIZATION:
+   You MUST categorize ALL 16 PSF Enabling Skills into exactly one of three categories:
+   - vacancy_aligned_skills (if evidenced AND in the vacancy competency list)
+   - additional_skills_evidenced (if evidenced but NOT in vacancy list)
+   - skills_not_assessed (if no sufficient evidence)
+   Every one of these 16 skills must appear in exactly one category:
+   Building Inclusivity, Collaboration, Communication, Customer Orientation, Developing People, Influence,
+   Adaptability, Digital Fluency, Global Perspective, Learning Agility, Self-Management,
+   Creative Thinking, Decision Making, Problem Solving, Sense Making, Transdisciplinary Thinking.
 
-5. SELF-DEPRECATION TRANSPARENCY:
+6. "NOT ASSESSED" IS HONEST:
+   If a skill has insufficient evidence, report it as "not_assessed" — NOT "low."
+
+7. SELF-DEPRECATION TRANSPARENCY:
    If the self_deprecation_override was applied, note it in psychologist_review_flags.
 
-6. NARRATIVE SUMMARY:
+8. NARRATIVE SUMMARY:
    Write a hiring_manager_summary in warm professional tone. This reads like a peer recommendation from someone who watched the person work.
 
 OUTPUT FORMAT — respond with ONLY this JSON, no other text:
