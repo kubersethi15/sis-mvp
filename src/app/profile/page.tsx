@@ -205,16 +205,21 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
       {/* Kaya Nav */}
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+      <nav className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
         <a href="/" className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {saved && <span className="text-xs font-medium" style={{ color: '#48BB78' }}>✅ Saved</span>}
-          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>Profile</span>
+          {fullName && (
+            <span className="text-xs hidden sm:inline" style={{ color: '#BCCCDC' }}>{fullName}</span>
+          )}
+          <a href="/my-dashboard" className="text-xs font-medium px-2 py-1 rounded hover:opacity-80 transition-opacity" style={{ background: '#243B53', color: '#BCCCDC' }}>
+            Dashboard
+          </a>
         </div>
       </nav>
 

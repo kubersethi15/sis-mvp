@@ -30,25 +30,30 @@ export const KAYA = {
 
 interface KayaNavProps {
   currentPage?: string;
+  userName?: string;
 }
 
-export default function KayaNav({ currentPage }: KayaNavProps) {
+export default function KayaNav({ currentPage, userName }: KayaNavProps) {
   return (
-    <nav className="px-6 py-3 flex items-center justify-between" style={{ background: KAYA.navy900 }}>
+    <nav className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ background: KAYA.navy900 }}>
       <Link href="/" className="flex items-center gap-3">
-        {/* Bloom mark placeholder — circle with node */}
         <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: KAYA.navy600 }}>
           <div className="w-2.5 h-2.5 rounded-full" style={{ background: KAYA.green400 }} />
         </div>
         <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: KAYA.navy50 }}>kaya</span>
       </Link>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {currentPage && (
           <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: KAYA.navy800, color: KAYA.navy100 }}>
             {currentPage}
           </span>
         )}
-        <span className="text-xs hidden sm:inline" style={{ color: KAYA.navy100 }}>kaya.work</span>
+        {userName && (
+          <span className="text-xs hidden sm:inline" style={{ color: KAYA.navy100 }}>{userName}</span>
+        )}
+        <Link href="/my-dashboard" className="text-xs hidden sm:inline hover:opacity-80 transition-opacity" style={{ color: KAYA.navy100 }}>
+          Dashboard
+        </Link>
       </div>
     </nav>
   );
