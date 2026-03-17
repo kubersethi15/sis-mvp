@@ -265,6 +265,42 @@ export default function LEEEChat() {
         skillsEvidenced: data.skills_evidenced || prev.skillsEvidenced,
       }));
 
+      // Client-side scenario card trigger — detect story transitions
+      // If Aya didn't emit [SCENARIO:...] but we detect a story boundary, trigger one ourselves
+      if (!scenarioMatch && scenarioCount < 2) {
+        const userMsgCount = messages.filter(m => m.role === 'user').length;
+        const transitionPhrases = [
+          'different kind of situation', 'hear about a different', 'different experience',
+          'something else', 'another time', 'switch gears', 'new topic', 'another story',
+          'curious about', 'tell me about a time', 'have you ever',
+        ];
+        const isTransition = transitionPhrases.some(p => messageContent.toLowerCase().includes(p));
+
+        if (isTransition && userMsgCount >= 5) {
+          // Generate scenario card based on conversation so far
+          try {
+            const recentContext = messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n');
+            const scenRes = await fetch('/api/scenario', {
+              method: 'POST',
+              headers: await authHeaders(),
+              body: JSON.stringify({
+                domain: 'work',
+                skill_gap: 'PS',
+                emotional_register: 'pressure',
+                recent_context: recentContext,
+              }),
+            });
+            const scenData = await scenRes.json();
+            if (scenData.scenario) {
+              setTimeout(() => setPendingScenario(scenData.scenario), 1200);
+              setScenarioCount(c => c + 1);
+            }
+          } catch (e) {
+            console.error('Client-side scenario trigger error:', e);
+          }
+        }
+      }
+
       if (data.should_extract) runExtraction(session.sessionId);
     } catch (error) {
       console.error('Send error:', error);
