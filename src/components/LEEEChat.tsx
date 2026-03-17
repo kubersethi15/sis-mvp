@@ -718,8 +718,8 @@ export default function LEEEChat() {
           style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="max-w-2xl mx-auto px-4 py-3">
 
-            {/* Quick Reply Chips */}
-            {quickReplies.length > 0 && !isLoading && messages.length > 0 && messages.length < 8 && (
+            {/* Quick Reply Chips — only shown until user has sent their first message in this stage */}
+            {quickReplies.length > 0 && !isLoading && messages.length > 0 && messages.filter(m => m.role === 'user').length < 2 && (
               <div className="flex flex-wrap gap-2 mb-3">
                 {quickReplies.map((reply, i) => (
                   <button key={i} onClick={() => sendMessage(reply)}
