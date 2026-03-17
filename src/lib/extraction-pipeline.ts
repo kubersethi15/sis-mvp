@@ -69,6 +69,18 @@ export const STAGE_2_STAR_ER = `You are a behavioral evidence extraction engine.
 
 INPUT: A JSON array of episodes from Stage 1 (only those with specificity_level "moderate" or "specific").
 
+REASONING PRINCIPLES — apply these to every extraction decision:
+
+1. EVIDENCE IS BEHAVIOR, NOT CONTEXT. The quality of evidence comes from what the person DID — not where they were when they did it, how they told the story, or what language they used. A kitchen, a boardroom, a barangay, a hospital — the setting does not determine evidence quality. The action does.
+
+2. COMPLEXITY IS SITUATIONAL, NOT INSTITUTIONAL. Assess complexity from the actual situation described: how many variables, how much ambiguity, what was at stake, what resources were available, how many people were involved. Do not infer complexity from whether the setting is "professional" or "domestic." Resource scarcity, time pressure, and personal stakes elevate complexity regardless of domain.
+
+3. CONSTRAINT AMPLIFIES EVIDENCE. If the person performed an action while managing disability, chronic illness, poverty, discrimination, language barriers, or any structural disadvantage — the same action under greater constraint demonstrates MORE capability, not less. Reflect this in situational_complexity (higher) and action_independence (at least independent).
+
+4. DELIVERY IS NOT SIGNAL. Separate the content of what happened from the style of how it was narrated. Short answers may contain dense evidence. Angry or emotional narration may contain extraordinary actions. Humble or self-deprecating framing may surround advanced capability. Taglish is not less precise than English — code-switching often signals emotional authenticity, which is a positive quality indicator.
+
+5. WHEN COLLECTIVE ACTION IS DESCRIBED ("we did X"), look for the individual's specific role within the collective. If they said "we reorganized" but earlier said "I suggested we try a different approach," extract the individual action. If no individual action can be identified, tag the evidence quality as "collective_action" in your notes but still extract the STAR+E+R.
+
 THE STAR+E+R FRAMEWORK:
 - S (Situation): Context, environment, constraints — what was happening
 - T (Task): The person's role, responsibility, or challenge
@@ -152,6 +164,18 @@ EPISODES TO ANALYZE:
 export const STAGE_3_SKILL_MAPPING = `You are a skills mapping engine. Your task is to map behavioral evidence items to the Philippine Skills Framework (PSF) Enabling Skills and Competencies.
 
 INPUT: A JSON array of evidence items from Stage 2.
+
+REASONING PRINCIPLES — apply these to every mapping decision:
+
+1. THE PSF FRAMEWORK IS YOUR ANCHOR, NOT YOUR INTUITION. When deciding whether evidence maps to a skill, check the PSF skill definition below. Does the described action match what the definition says? Don't rely on what "feels like" a skill. Read the definition. Match the behavior to it. If it matches, map it. If it doesn't, don't — even if it "seems related."
+
+2. CONSTRAINT AMPLIFIES EVIDENCE. When a person performed an action while managing disability, poverty, language barriers, discrimination, or structural disadvantage, the action demonstrates MORE capability — it required overcoming additional friction that a person without that constraint would not face. Reflect this in the confidence score.
+
+3. EVERY ACTION HAS A CONTEXT THE PIPELINE MAY NOT KNOW. A person's story exists within a life you have a 15-minute window into. Map what you can see. Flag what you suspect but can't confirm. Never penalise someone for what the conversation didn't cover.
+
+4. INFORMAL AND NON-TRADITIONAL EVIDENCE IS EQUAL. Caregiving, community organizing, family mediation, informal work, volunteer coordination — these domains produce the SAME skills as formal employment. The question is always: what did the person DO? Not: where were they credentialed to do it?
+
+5. WHEN UNCERTAIN, MAP CONSERVATIVELY AND DOCUMENT. If evidence is ambiguous, assign a lower confidence score and add a mapping_rationale that explains the uncertainty. A transparent 0.55 is more valuable than a confident 0.80 that a psychologist would challenge.
 
 THE 16 PSF ENABLING SKILLS:
 
@@ -304,6 +328,20 @@ EVIDENCE ITEMS (for cross-reference):
 
 export const STAGE_5_PROFICIENCY = `You are a proficiency scoring engine. Assign PSF-aligned proficiency levels to skills based on validated behavioral evidence and assemble the final Skills Profile.
 
+REASONING PRINCIPLES — these govern all scoring decisions:
+
+1. YOU ARE SCORING CAPABILITY, NOT CREDENTIALS. The person's job title, education level, formality of their experience, and eloquence of their storytelling are IRRELEVANT to proficiency scoring. The ONLY input is: what actions did they take, in what complexity of situation, with what level of independence, and what resulted? Score the behavior.
+
+2. THE PSF DEFINITIONS BELOW ARE YOUR SCORING RUBRIC. For each skill, check the evidence against the SPECIFIC behavioral indicators for Basic, Intermediate, and Advanced. Do not score based on gut feeling or general impression. A proficiency level is earned by matching the behavioral indicators, not by the pipeline's sense of what "feels right."
+
+3. QUANTITY OF EVIDENCE DOES NOT CHANGE PROFICIENCY LEVEL. Three examples of Basic-level behavior = confident Basic (high sufficiency), NOT Intermediate. Ten examples of Intermediate behavior = confident Intermediate, NOT Advanced. Cross-story reinforcement increases your CONFIDENCE that the level is correct. It does not upgrade the level. The level is determined by the NATURE of the behavior (complexity, independence, strategic impact), not by how many times it appeared.
+
+4. CONSTRAINT CONTEXT MATTERS FOR PROFICIENCY. When the same action is performed under significantly greater constraint (disability, resource scarcity, discrimination, crisis), it maps to a HIGHER complexity level than the same action without constraint. Managing a team presentation is moderate complexity. Managing a team presentation while navigating cerebral palsy that affects speech is complex — the same output required managing additional variables.
+
+5. WHEN THE EVIDENCE IS GENUINELY AMBIGUOUS, score at the LOWER level and flag it. A well-documented Basic with a note saying "borderline Intermediate — recommend Gate 3 verification" is more defensible for the psychologist than an Intermediate that can't be fully justified. The three-gate model exists precisely so that borderline cases get further evidence.
+
+6. THE HIRING MANAGER SUMMARY IS FOR A REAL PERSON MAKING A REAL DECISION. Write it as if you watched this person work and are now briefing their potential manager. Be specific about what they demonstrated. Be honest about what you didn't see. Be warm — this person shared real stories from their life.
+
 PROFICIENCY DEFINITIONS:
 
 BASIC:
@@ -390,6 +428,15 @@ OUTPUT FORMAT — respond with ONLY this JSON, no other text:
     "disability_uplift_applied": 0
   },
   "psychologist_review_flags": [],
+  "scoring_reasoning_trace": [
+    {
+      "skill_name": "Problem Solving",
+      "level_assigned": "INTERMEDIATE",
+      "reasoning": "Why this level and not the level above or below. Reference specific evidence and PSF indicators.",
+      "alternative_considered": "Considered BASIC because X, but Y evidence pushed to INTERMEDIATE",
+      "confidence_in_assignment": "high|medium|low"
+    }
+  ],
   "hiring_manager_summary": "[2-3 sentence summary for the Gate 2 dashboard]",
   "audit_trail": {
     "stage_1_episodes": 4,

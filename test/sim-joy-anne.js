@@ -385,6 +385,14 @@ async function main() {
   for (const f of (profile?.psychologist_review_flags || [])) {
     md += `- ${typeof f === 'string' ? f : JSON.stringify(f)}\n`;
   }
+  md += `\n## Scoring Reasoning Trace\n`;
+  md += `_This section shows HOW the pipeline reasoned about each proficiency assignment. When a psychologist or reviewer disagrees, read the reasoning to understand where the logic should be refined._\n\n`;
+  for (const r of (profile?.scoring_reasoning_trace || [])) {
+    md += `### ${r.skill_name}: ${r.level_assigned} (confidence: ${r.confidence_in_assignment})\n`;
+    md += `**Reasoning:** ${r.reasoning}\n`;
+    if (r.alternative_considered) md += `**Alternative considered:** ${r.alternative_considered}\n`;
+    md += `\n`;
+  }
   md += `\n## Check Results\n`;
   for (const c of report.checks) {
     md += `- ${c.passed ? '✅' : '❌'} ${c.name}: ${c.detail}\n`;
