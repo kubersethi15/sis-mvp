@@ -97,7 +97,7 @@ const EXPECTED = {
 // SIM2: Run the 5-stage pipeline
 // ============================================================
 
-async function callClaude(prompt, maxTokens = 4000) {
+async function callClaude(prompt, maxTokens = 4000, model = 'claude-sonnet-4-20250514') {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY environment variable required');
 
@@ -109,7 +109,7 @@ async function callClaude(prompt, maxTokens = 4000) {
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model,
       max_tokens: maxTokens,
       messages: [{ role: 'user', content: prompt }],
     }),
@@ -172,7 +172,7 @@ async function runPipeline(transcript) {
   console.log('⏳ Stage 2: STAR+E+R Evidence Extraction...');
   t0 = Date.now();
   const s2Prompt = STAGE_2.replace('{episodes}', JSON.stringify(qualified, null, 2));
-  results.stage2 = await callClaude(s2Prompt, 4000);
+  results.stage2 = await callClaude(s2Prompt, 4000, 'claude-opus-4-5');
   timing.stage2 = Date.now() - t0;
   console.log(`   ✅ ${results.stage2.length} evidence items extracted (${timing.stage2}ms)`);
 
@@ -182,7 +182,7 @@ async function runPipeline(transcript) {
   const s3Prompt = STAGE_3
     .replace('{evidence}', JSON.stringify(results.stage2, null, 2))
     .replace('{vacancy_skills}', vacancySkills);
-  results.stage3 = await callClaude(s3Prompt, 4000);
+  results.stage3 = await callClaude(s3Prompt, 4000, 'claude-opus-4-5');
   timing.stage3 = Date.now() - t0;
   console.log(`   ✅ ${results.stage3.length} skill mappings (${timing.stage3}ms)`);
 
@@ -205,7 +205,7 @@ async function runPipeline(transcript) {
     .replace('{evidence}', JSON.stringify(results.stage2, null, 2))
     .replace('{episodes}', JSON.stringify(qualified, null, 2))
     .replace('{vacancy_skills}', vacancySkills);
-  results.stage5 = await callClaude(s5Prompt, 4000);
+  results.stage5 = await callClaude(s5Prompt, 4000, 'claude-opus-4-5');
   timing.stage5 = Date.now() - t0;
   console.log(`   ✅ Final profile generated (${timing.stage5}ms)`);
 

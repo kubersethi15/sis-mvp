@@ -453,7 +453,7 @@ async function handleExtract(sessionId: string) {
       layer2_seeds: extraction.layer2_seeds || [],
       layer3_recommendations: [],
       session_quality: extraction.session_quality || {},
-      extraction_model: 'claude-sonnet-4-20250514',
+      extraction_model: 'mixed: opus-4-5 (S2,S3,S5) + sonnet (S1,S4)',
       extraction_prompt_version: '5-stage-v1',
       raw_extraction_response: {
         pipeline_stages: result.stages,

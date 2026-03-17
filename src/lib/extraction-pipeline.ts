@@ -413,6 +413,19 @@ interface PipelineResult {
   timing: { [key: string]: number };
 }
 
+// Model selection: Opus for judgment-heavy stages (2,3,5), Sonnet for rule-following stages (1,4)
+const STAGE_MODELS: Record<string, string> = {
+  'Stage 1: Segmentation': 'claude-sonnet-4-20250514',     // Rule-following — Sonnet is fine
+  'Stage 2: STAR+E+R': 'claude-opus-4-5',                  // Nuanced evidence extraction — Opus
+  'Stage 3: Skill Mapping': 'claude-opus-4-5',              // Complex judgment — Opus
+  'Stage 4: Consistency': 'claude-sonnet-4-20250514',       // Rule-following — Sonnet is fine
+  'Stage 5: Proficiency': 'claude-opus-4-5',                // Holistic scoring + summary — Opus
+  // Lightweight mode uses Sonnet for speed
+  'Lightweight S1': 'claude-sonnet-4-20250514',
+  'Lightweight S2': 'claude-sonnet-4-20250514',
+  'Lightweight S3': 'claude-sonnet-4-20250514',
+};
+
 async function callClaudeForStage(
   prompt: string,
   stageName: string,
@@ -420,6 +433,8 @@ async function callClaudeForStage(
 ): Promise<any> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY not configured');
+
+  const model = STAGE_MODELS[stageName] || 'claude-sonnet-4-20250514';
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -429,7 +444,7 @@ async function callClaudeForStage(
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model,
       max_tokens: maxTokens,
       messages: [{ role: 'user', content: prompt }],
     }),
