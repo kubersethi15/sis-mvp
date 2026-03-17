@@ -107,7 +107,7 @@ export default function ReviewerDashboard() {
         </div>
         <div className="flex gap-1 border-b border-gray-200">
           {[
-            { id: 'pipeline' as const, label: '📊 Pipeline Overview' },
+            { id: 'pipeline' as const, label: 'Pipeline Overview' },
             { id: 'gate1' as const, label: '🔵 Gate 1: Alignment' },
             { id: 'gate2' as const, label: '🟢 Gate 2: Evidence' },
             { id: 'gate3' as const, label: '🟣 Gate 3: Predictability' },
@@ -270,32 +270,113 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
 
       {gateApps.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
-          <p className="text-4xl mb-2">{gate === 1 ? '📋' : gate === 2 ? '🔍' : '🎯'}</p>
+          <p className="text-4xl mb-2">{gate === 1 ? '' : gate === 2 ? '' : ''}</p>
           <p className="text-sm">No candidates have reached this gate yet.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {gateApps.map(app => {
             const gateData = gate === 1 ? app.gate1 : gate === 2 ? app.gate2 : app.gate3;
+            const isPending = !gateData?.reviewer_decision || gateData?.reviewer_decision === 'pending';
+            const gateTable = gate === 1 ? 'gate1_results' : gate === 2 ? 'gate2_results' : 'gate3_results';
+
+            const handleDecision = async (decision: string) => {
+              try {
+                const res = await fetch('/api/demo', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    action: 'gate_decision',
+                    application_id: app.id,
+                    gate: gate,
+                    decision: decision,
+                  }),
+                });
+                if (res.ok) {
+                  // Reload data
+                  window.location.reload();
+                }
+              } catch (e) { console.error('Decision error:', e); }
+            };
+
             return (
-              <div key={app.id} className="border border-gray-100 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-gray-900">{app.jobseeker?.full_name}</span>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    gateData?.reviewer_decision === 'passed' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
+              <div key={app.id} className="border rounded-xl p-5 bg-white" style={{ borderColor: '#E2E8F0' }}>
+                {/* Candidate header */}
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <span className="font-semibold text-base" style={{ color: '#102A43' }}>{app.jobseeker?.full_name || 'Candidate'}</span>
+                    <span className="text-xs ml-2" style={{ color: '#829AB1' }}>→ {app.vacancy?.title || 'Branch Staff'}</span>
+                  </div>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                    gateData?.reviewer_decision === 'passed' ? 'bg-green-50 text-green-700' :
+                    gateData?.reviewer_decision === 'held' ? 'bg-amber-50 text-amber-700' :
+                    gateData?.reviewer_decision === 'stopped' ? 'bg-red-50 text-red-700' :
+                    'bg-gray-100 text-gray-500'
                   }`}>
-                    {gateData?.reviewer_decision || 'pending'}
+                    {gateData?.reviewer_decision || 'Pending Review'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600">{gateData?.ai_recommendation || 'No recommendation yet'}</p>
+
+                {/* AI Recommendation */}
+                <div className="p-3 rounded-lg mb-3" style={{ background: '#F0F4F8' }}>
+                  <p className="text-xs font-medium mb-1" style={{ color: '#486581' }}>AI Recommendation</p>
+                  <p className="text-sm" style={{ color: '#334E68' }}>{gateData?.ai_recommendation || 'No recommendation yet'}</p>
+                </div>
+
+                {/* Gate-specific data */}
                 {gate === 1 && app.gate1 && (
-                  <div className="mt-2 text-xs text-gray-500">Alignment: {app.gate1.alignment_score}/100</div>
+                  <div className="flex items-center gap-4 mb-3 text-sm">
+                    <span style={{ color: '#486581' }}>Alignment Score: <strong style={{ color: '#102A43' }}>{app.gate1.alignment_score}/100</strong></span>
+                    {app.gate1.strengths?.length > 0 && (
+                      <div className="flex gap-1">
+                        {app.gate1.strengths.slice(0, 3).map((s: any, i: number) => (
+                          <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#E8F8F5', color: '#27AE60' }}>{typeof s === 'string' ? s : s.skill || s.name}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
                 {gate === 2 && app.gate2 && (
-                  <div className="mt-2 text-xs text-gray-500">Evidence: {app.gate2.evidence_rating}</div>
+                  <div className="flex items-center gap-4 mb-3 text-sm">
+                    <span style={{ color: '#486581' }}>Evidence Rating: <strong style={{ color: '#102A43' }}>{app.gate2.evidence_rating}</strong></span>
+                  </div>
                 )}
                 {gate === 3 && app.gate3 && (
-                  <div className="mt-2 text-xs text-gray-500">Readiness: {app.gate3.readiness_index}/100</div>
+                  <div className="flex items-center gap-4 mb-3 text-sm">
+                    <span style={{ color: '#486581' }}>Readiness Index: <strong style={{ color: '#102A43' }}>{app.gate3.readiness_index}/100</strong></span>
+                  </div>
+                )}
+
+                {/* APPROVAL BUTTONS — Human in the loop */}
+                {isPending && (
+                  <div className="flex items-center gap-2 pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
+                    <button
+                      onClick={() => handleDecision('passed')}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
+                      style={{ background: '#48BB78' }}
+                    >
+                      Approve — Pass to {gate < 3 ? `Gate ${gate + 1}` : 'Selection'}
+                    </button>
+                    <button
+                      onClick={() => handleDecision('held')}
+                      className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
+                      style={{ background: '#FEF3E2', color: '#E67E22' }}
+                    >
+                      Hold
+                    </button>
+                    <button
+                      onClick={() => handleDecision('stopped')}
+                      className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
+                      style={{ background: '#FDEDEC', color: '#E74C3C' }}
+                    >
+                      Stop
+                    </button>
+                  </div>
+                )}
+                {!isPending && (
+                  <div className="text-xs pt-2" style={{ color: '#829AB1', borderTop: '1px solid #F0F4F8' }}>
+                    Decision recorded: {gateData?.reviewer_decision}
+                  </div>
                 )}
               </div>
             );

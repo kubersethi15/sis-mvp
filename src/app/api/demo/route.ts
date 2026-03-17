@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       case 'advance_gate': return advanceGate(body);
       case 'get_demo_state': return getDemoState();
       case 'seed_demo_data': return seedDemoData();
+      case 'gate_decision': return handleGateDecision(body);
       default:
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
     }
@@ -448,4 +449,47 @@ async function seedDemoData() {
 // Helper to get base URL for internal API calls
 function getBaseUrl() {
   return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+}
+
+// Human-in-the-loop gate decision
+async function handleGateDecision(body: any) {
+  const { application_id, gate, decision } = body;
+  if (!application_id || !gate || !decision) {
+    return NextResponse.json({ error: 'application_id, gate, and decision required' }, { status: 400 });
+  }
+
+  const supabase = db();
+  const gateTable = gate === 1 ? 'gate1_results' : gate === 2 ? 'gate2_results' : 'gate3_results';
+
+  // Update the gate result with the reviewer's decision
+  const { error: gateErr } = await supabase.from(gateTable)
+    .update({
+      reviewer_decision: decision,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq('application_id', application_id);
+
+  if (gateErr) {
+    return NextResponse.json({ error: gateErr.message }, { status: 500 });
+  }
+
+  // Update application status based on decision
+  let newStatus = '';
+  if (decision === 'passed') {
+    if (gate === 1) newStatus = 'gate2_pending';
+    else if (gate === 2) newStatus = 'gate3_pending';
+    else if (gate === 3) newStatus = 'selected';
+  } else if (decision === 'held') {
+    newStatus = `gate${gate}_held`;
+  } else if (decision === 'stopped') {
+    newStatus = `gate${gate}_stopped`;
+  }
+
+  if (newStatus) {
+    await supabase.from('applications')
+      .update({ status: newStatus, current_gate: decision === 'passed' && gate < 3 ? gate + 1 : gate })
+      .eq('id', application_id);
+  }
+
+  return NextResponse.json({ success: true, decision, new_status: newStatus });
 }
