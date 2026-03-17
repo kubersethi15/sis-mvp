@@ -135,6 +135,24 @@ async function handleStart(req: NextRequest, body: any) {
   let userId = await getAuthenticatedUserId(req, body);
   if (!userId) userId = await ensureDemoUser();
 
+  // Ensure user_profiles row exists (auth user may not have one yet)
+  const { data: existingProfile } = await supabase.from('user_profiles').select('id').eq('id', userId).single();
+  if (!existingProfile) {
+    // Get name from auth if available
+    const authHeader = req.headers.get('authorization');
+    let fullName = body.full_name || 'Kaya User';
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const authClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+        const { data: { user } } = await authClient.auth.getUser(authHeader.slice(7));
+        if (user?.user_metadata?.full_name) fullName = user.user_metadata.full_name;
+        if (user?.email && fullName === 'Kaya User') fullName = user.email.split('@')[0];
+      } catch {}
+    }
+    await supabase.from('user_profiles').insert({ id: userId, full_name: fullName, role: 'jobseeker' });
+  }
+
   // Fetch profile data for context injection — with calibration derivation (Ryan v2 R1+R3)
   let profileContext = '';
   if (body.jobseeker_profile_id) {
