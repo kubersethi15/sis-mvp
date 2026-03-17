@@ -286,7 +286,10 @@ async function saveMessage(msg: LEEEMessage) {
 async function callClaude(orchestrator: LEEEOrchestrator): Promise<string> {
   const msgs = orchestrator.buildLLMMessages();
   const system = msgs[0].content;
-  let conversation = msgs.slice(1).map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+  // Filter out any system messages from the conversation — API only accepts user/assistant roles
+  let conversation = msgs.slice(1)
+    .filter(m => m.role === 'user' || m.role === 'assistant')
+    .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
 
   if (conversation.length === 0) {
     conversation = [{ role: 'user', content: '[Session started. Greet the user warmly and begin.]' }];

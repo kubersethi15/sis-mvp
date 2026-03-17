@@ -409,7 +409,7 @@ export class LEEEOrchestrator {
       // Summarize older messages
       const older = allMessages.slice(0, -MAX_MESSAGES);
       const summary = `[Earlier in the conversation: ${older.length} messages exchanged. ${this.state.storiesCompleted} stories discussed.]`;
-      messages.push({ role: 'system', content: summary });
+      messages.push({ role: 'user', content: summary });
 
       // Add recent messages in full
       allMessages.slice(-MAX_MESSAGES).forEach(m => {
