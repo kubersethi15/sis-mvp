@@ -68,7 +68,7 @@ export default function EmployerDashboardPage() {
 
       <div className="max-w-6xl mx-auto px-6 pt-6">
         <div className="mb-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg text-white shadow-md" style={{ background: '#102A43' }}>🏢</div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg text-white shadow-md" style={{ background: '#102A43' }}>CL</div>
           <div>
             <h1 className="text-lg font-bold" style={{ color: '#102A43' }}>{employer?.organization_name || 'Employer Dashboard'}</h1>
             <p className="text-xs" style={{ color: '#627D98' }}>Kaya Employer Portal — Manage vacancies and hiring pipeline</p>
@@ -76,9 +76,9 @@ export default function EmployerDashboardPage() {
         </div>
         <div className="flex gap-1 border-b border-gray-200">
           {[
-            { id: 'vacancies' as const, label: `📋 Vacancies (${vacancies.length})` },
-            { id: 'applicants' as const, label: `👥 All Applicants (${applications.length})` },
-            { id: 'settings' as const, label: '⚙️ Company Settings' },
+            { id: 'vacancies' as const, label: `Vacancies (${vacancies.length})` },
+            { id: 'applicants' as const, label: `All Applicants (${applications.length})` },
+            { id: 'settings' as const, label: 'Company Settings' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
@@ -95,7 +95,7 @@ export default function EmployerDashboardPage() {
           <div className="space-y-4">
             {vacancies.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                <p className="text-3xl mb-2">📋</p>
+                
                 <p className="text-gray-500 mb-3">No vacancies yet</p>
                 <Link href="/employer" className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">Create Your First Vacancy →</Link>
               </div>
@@ -104,39 +104,44 @@ export default function EmployerDashboardPage() {
                 const apps = getApplicantsForVacancy(v.id);
                 const selected = apps.filter(a => a.status === 'selected').length;
                 const inPipeline = apps.filter(a => a.status?.includes('gate') || a.status === 'applied').length;
+                const createdDate = v.created_at ? new Date(v.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
                 return (
-                  <div key={v.id} className="bg-white rounded-lg border border-gray-200 p-5">
-                    <div className="flex items-start justify-between mb-3">
+                  <div key={v.id} className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+                    <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="font-semibold text-gray-900">{v.title}</h3>
-                        <p className="text-xs text-gray-400 mt-0.5">ID: {v.id?.substring(0, 8)}... • Created: {new Date(v.created_at || '').toLocaleDateString()}</p>
+                        <h3 className="text-lg font-semibold" style={{ color: '#102A43' }}>{v.title}</h3>
+                        <p className="text-xs mt-1" style={{ color: '#829AB1' }}>
+                          {v.description?.substring(0, 80) || 'No description'}
+                          {createdDate ? ` · Posted ${createdDate}` : ''}
+                        </p>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColor(v.status)}`}>{v.status}</span>
+                      <span className={`text-xs px-3 py-1 rounded-full font-medium ${v.status === 'published' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {v.status === 'published' ? 'Active' : v.status === 'draft' ? 'Draft' : v.status}
+                      </span>
                     </div>
 
-                    {/* Pipeline mini-view */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex-1 bg-gray-100 rounded-lg p-3 text-center">
-                        <div className="text-lg font-bold text-gray-700">{apps.length}</div>
-                        <div className="text-[10px] text-gray-500">Applied</div>
+                    {/* Pipeline funnel */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="flex-1 rounded-xl p-4 text-center" style={{ background: '#F0F4F8' }}>
+                        <div className="text-2xl font-bold" style={{ color: '#334E68' }}>{apps.length}</div>
+                        <div className="text-[11px] font-medium" style={{ color: '#627D98' }}>Applied</div>
                       </div>
-                      <span className="text-gray-300">→</span>
-                      <div className="flex-1 bg-blue-50 rounded-lg p-3 text-center">
-                        <div className="text-lg font-bold text-blue-700">{inPipeline}</div>
-                        <div className="text-[10px] text-blue-500">In Pipeline</div>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D9E2EC" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                      <div className="flex-1 rounded-xl p-4 text-center" style={{ background: '#EBF5FB' }}>
+                        <div className="text-2xl font-bold" style={{ color: '#2E86C1' }}>{inPipeline}</div>
+                        <div className="text-[11px] font-medium" style={{ color: '#5DADE2' }}>In Pipeline</div>
                       </div>
-                      <span className="text-gray-300">→</span>
-                      <div className="flex-1 bg-green-50 rounded-lg p-3 text-center">
-                        <div className="text-lg font-bold text-green-700">{selected}</div>
-                        <div className="text-[10px] text-green-500">Selected</div>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D9E2EC" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                      <div className="flex-1 rounded-xl p-4 text-center" style={{ background: '#E8F8F5' }}>
+                        <div className="text-2xl font-bold" style={{ color: '#27AE60' }}>{selected}</div>
+                        <div className="text-[11px] font-medium" style={{ color: '#48BB78' }}>Selected</div>
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
-                      <Link href="/reviewer" className="text-xs text-blue-600 hover:text-blue-700 font-medium">View Pipeline →</Link>
-                      <span className="text-gray-300">•</span>
-                      <Link href="/employer" className="text-xs text-gray-500 hover:text-gray-700">Edit JD →</Link>
+                    <div className="flex gap-4">
+                      <Link href="/reviewer" className="text-xs font-medium hover:opacity-80 transition-opacity" style={{ color: '#2E86C1' }}>View Pipeline →</Link>
+                      <Link href="/employer" className="text-xs hover:opacity-80 transition-opacity" style={{ color: '#829AB1' }}>Edit JD →</Link>
                     </div>
                   </div>
                 );
@@ -147,56 +152,82 @@ export default function EmployerDashboardPage() {
 
         {/* APPLICANTS TAB */}
         {activeTab === 'applicants' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">All Applicants</h2>
+          <div className="bg-white rounded-xl border overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
+            <div className="px-6 py-4" style={{ borderBottom: '1px solid #E2E8F0' }}>
+              <h2 className="text-base font-semibold" style={{ color: '#102A43' }}>All Applicants</h2>
+              <p className="text-xs" style={{ color: '#829AB1' }}>{applications.length} total applicant{applications.length !== 1 ? 's' : ''}</p>
+            </div>
             {applications.length === 0 ? (
-              <p className="text-center py-8 text-gray-400">No applications yet</p>
+              <p className="text-center py-12 text-sm" style={{ color: '#829AB1' }}>No applications yet</p>
             ) : (
-              <div className="space-y-3">
-                {applications.map((app, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
-                    <div>
-                      <span className="text-sm font-medium text-gray-800">Application {app.id?.substring(0, 8)}...</span>
-                      <span className="text-xs text-gray-400 ml-2">Gate {app.current_gate || 0}</span>
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${appStatusColor(app.status)}`}>
-                      {app.status?.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <table className="w-full">
+                <thead>
+                  <tr style={{ background: '#F0F4F8' }}>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Applicant</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Position</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Current Gate</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {applications.map((app, i) => {
+                    const gateNum = app.current_gate || (app.status?.match(/gate(\d)/)?.[1]) || '—';
+                    const gateLabel = gateNum === '1' || gateNum === 1 ? 'Alignment' : gateNum === '2' || gateNum === 2 ? 'Evidence' : gateNum === '3' || gateNum === 3 ? 'Predictability' : 'Applied';
+                    const statusClean = (app.status || 'pending').replace(/_/g, ' ').replace(/gate\d /i, '');
+                    const vacancy = vacancies.find(v => v.id === app.vacancy_id);
+
+                    return (
+                      <tr key={i} className="border-t hover:bg-stone-50 transition-colors" style={{ borderColor: '#F0F4F8' }}>
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium" style={{ color: '#102A43' }}>Candidate {i + 1}</div>
+                        </td>
+                        <td className="px-6 py-4 text-sm" style={{ color: '#486581' }}>{vacancy?.title || 'Unknown'}</td>
+                        <td className="px-6 py-4">
+                          <span className="text-xs font-medium" style={{ color: '#486581' }}>Gate {gateNum} — {gateLabel}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${appStatusColor(app.status)}`}>
+                            {statusClean}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             )}
           </div>
         )}
 
         {/* SETTINGS TAB */}
         {activeTab === 'settings' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Company Settings</h2>
+          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+            <h2 className="text-base font-semibold mb-4" style={{ color: '#102A43' }}>Company Settings</h2>
             {employer ? (
-              <div className="space-y-3 text-sm text-gray-600">
-                <div><span className="font-medium text-gray-700">Organization:</span> {employer.organization_name}</div>
-                <div><span className="font-medium text-gray-700">Employer ID:</span> {employer.id?.substring(0, 12)}...</div>
-                <div className="pt-4 border-t border-gray-100">
-                  <h3 className="font-medium text-gray-700 mb-2">Human Validators</h3>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 bg-blue-50 rounded-lg text-center">
-                      <div className="text-xs font-medium text-blue-700">Gate 1</div>
-                      <div className="text-xs text-blue-500">Recruiter</div>
+              <div className="space-y-4">
+                <div className="text-sm" style={{ color: '#486581' }}>
+                  <span className="font-medium" style={{ color: '#334E68' }}>Organization:</span> {employer.organization_name}
+                </div>
+                <div className="pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
+                  <h3 className="text-sm font-medium mb-3" style={{ color: '#334E68' }}>Hiring Pipeline — Human Validators</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-4 rounded-xl text-center" style={{ background: '#EBF5FB' }}>
+                      <div className="text-xs font-semibold" style={{ color: '#2E86C1' }}>Gate 1 — Alignment</div>
+                      <div className="text-xs mt-1" style={{ color: '#5DADE2' }}>Recruiter</div>
                     </div>
-                    <div className="p-3 bg-green-50 rounded-lg text-center">
-                      <div className="text-xs font-medium text-green-700">Gate 2</div>
-                      <div className="text-xs text-green-500">Hiring Manager</div>
+                    <div className="p-4 rounded-xl text-center" style={{ background: '#E8F8F5' }}>
+                      <div className="text-xs font-semibold" style={{ color: '#27AE60' }}>Gate 2 — Evidence</div>
+                      <div className="text-xs mt-1" style={{ color: '#48BB78' }}>Hiring Manager</div>
                     </div>
-                    <div className="p-3 bg-purple-50 rounded-lg text-center">
-                      <div className="text-xs font-medium text-purple-700">Gate 3</div>
-                      <div className="text-xs text-purple-500">Final Approver</div>
+                    <div className="p-4 rounded-xl text-center" style={{ background: '#F4ECF7' }}>
+                      <div className="text-xs font-semibold" style={{ color: '#8E44AD' }}>Gate 3 — Predictability</div>
+                      <div className="text-xs mt-1" style={{ color: '#AF7AC5' }}>Final Approver</div>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <p className="text-gray-400">No employer profile yet. <Link href="/employer" className="text-blue-600 underline">Create one</Link></p>
+              <p style={{ color: '#829AB1' }}>No employer profile yet. <Link href="/employer" className="font-medium" style={{ color: '#2E86C1' }}>Create one</Link></p>
             )}
           </div>
         )}
