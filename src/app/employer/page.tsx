@@ -116,22 +116,26 @@ export default function EmployerDashboard() {
   }, [jdText, employer, setupEmployer]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">SIS Employer Dashboard</h1>
-            <p className="text-sm text-gray-500">Skills Intelligence System — Gate 1 Alignment</p>
+    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+      {/* Kaya Nav */}
+      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+        <a href="/" className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Recruiter View</span>
-          </div>
+          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+        </a>
+        <div className="flex items-center gap-4">
+          <span className="text-xs font-medium px-2 py-1 rounded-full" style={{ background: '#243B53', color: '#90CDF4' }}>Recruiter</span>
+          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>Gate 1: Alignment</span>
         </div>
-      </header>
+      </nav>
 
-      {/* Tabs */}
-      <div className="max-w-6xl mx-auto px-6 pt-4">
+      <div className="max-w-6xl mx-auto px-6 pt-6">
+        <div className="mb-4">
+          <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Vacancy Design & Alignment</h1>
+          <p className="text-sm" style={{ color: '#627D98' }}>Upload a job description → AI creates a competency blueprint → match candidates</p>
+        </div>
         <div className="flex gap-1 border-b border-gray-200">
           {[
             { id: 'upload' as const, label: '📄 Upload JD' },
@@ -397,7 +401,7 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
       ${d.compensation?.range ? `<div class="section"><h3>Compensation</h3><p>${d.compensation.range}</p></div>` : ''}
       ${d.inclusion_statement ? `<div class="section"><h3>Inclusion</h3><p>${d.inclusion_statement}</p></div>` : ''}
       <div class="qr"><h3>Apply Now — Scan QR Code</h3><img src="${d.qr_code_url}" alt="QR Code" /><p style="font-size:12px;color:#666">${d.share_url}</p></div>
-      <div class="footer">Powered by Skills Intelligence System — Virtualahan Inc.</div>
+      <div class="footer">Powered by Kaya — Virtualahan Inc.</div>
       </body></html>
     `);
     win.document.close();

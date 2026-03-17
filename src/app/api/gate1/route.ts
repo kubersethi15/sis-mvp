@@ -151,7 +151,7 @@ function generateJDRecommendations(jdText: string, blueprint: any): Array<{ type
   // Check for human-centric skills
   const hcSkills = blueprint?.competency_blueprint?.human_centric_skills || blueprint?.human_centric_skills || [];
   if (hcSkills.length === 0) {
-    recs.push({ type: 'human_skills', priority: 'high', recommendation: 'This JD focuses on technical/hard skills but doesn\'t mention human-centric skills like communication, teamwork, problem-solving, or adaptability. Adding these helps SIS match candidates more effectively and signals what you truly value in employees.' });
+    recs.push({ type: 'human_skills', priority: 'high', recommendation: 'This JD focuses on technical/hard skills but doesn\'t mention human-centric skills like communication, teamwork, problem-solving, or adaptability. Adding these helps Kaya match candidates more effectively and signals what you truly value in employees.' });
   }
 
   // Check for work arrangement clarity
@@ -338,7 +338,7 @@ async function getPipeline(body: any) {
 // PROMPTS
 // ============================================================
 
-const JD_PARSE_PROMPT = `You are a job description parser for the Skills Intelligence System. Parse the following job description into a structured competency blueprint.
+const JD_PARSE_PROMPT = `You are a job description parser for Kaya (Skills Intelligence System by Virtualahan). Parse the following job description into a structured competency blueprint.
 
 Output JSON only:
 {
@@ -370,7 +370,7 @@ Job Description to parse:
 {jd_text}
 `;
 
-const ALIGNMENT_PROMPT = `You are an alignment assessor for the Skills Intelligence System. Compare a vacancy's requirements against a jobseeker's profile to produce an alignment assessment.
+const ALIGNMENT_PROMPT = `You are an alignment assessor for Kaya (Skills Intelligence System by Virtualahan). Compare a vacancy's requirements against a jobseeker's profile to produce an alignment assessment.
 
 IMPORTANT: Be fair and inclusive. Non-traditional experience (informal work, caregiving, community service, disability navigation) should be valued alongside formal credentials. Focus on capability signals, not just credential matches.
 

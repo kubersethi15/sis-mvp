@@ -329,7 +329,7 @@ export default function LEEEChat() {
     const lines = messages.map(m =>
       `[${m.stage || 'unknown'}] ${m.role === 'assistant' ? 'Aya' : 'User'}: ${m.content}`
     ).join('\n\n');
-    const header = `SIS LEEE Conversation Transcript\nSession: ${session.sessionId}\nDate: ${new Date().toISOString()}\nStories completed: ${session.storiesCompleted}\n${'='.repeat(60)}\n\n`;
+    const header = `Kaya LEEE Conversation Transcript\nSession: ${session.sessionId}\nDate: ${new Date().toISOString()}\nStories completed: ${session.storiesCompleted}\n${'='.repeat(60)}\n\n`;
     const blob = new Blob([header + lines], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -419,7 +419,7 @@ export default function LEEEChat() {
               <div>
                 <h1 className="text-sm font-semibold text-white/90" style={{ fontFamily: "'Nunito', sans-serif", letterSpacing: '0.01em' }}>Aya</h1>
                 <p className="text-[10px] transition-all duration-500" style={{ color: stageConfig.color, fontFamily: 'system-ui, sans-serif' }}>
-                  {session.status === 'active' ? stageConfig.description : 'Skills Intelligence System'}
+                  {session.status === 'active' ? stageConfig.description : 'Kaya'}
                 </p>
               </div>
             </div>

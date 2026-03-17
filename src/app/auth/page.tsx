@@ -86,17 +86,17 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}>
       <div className="w-full max-w-md px-6">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-3xl shadow-lg mb-4">
-            🦋
+          <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center shadow-lg mb-4" style={{ background: '#102A43' }}>
+            <div className="w-5 h-5 rounded-full" style={{ background: '#48BB78' }} />
           </div>
-          <h1 className="text-2xl font-bold text-stone-800" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Skills Intelligence System
+          <h1 className="text-3xl font-bold" style={{ fontFamily: 'Georgia, serif', color: '#102A43' }}>
+            kaya
           </h1>
-          <p className="text-sm text-stone-500 mt-1">Virtualahan Inc.</p>
+          <p className="text-sm mt-1" style={{ color: '#627D98' }}>Show what you can do</p>
         </div>
 
         {/* Auth Card */}

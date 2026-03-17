@@ -146,11 +146,12 @@ export default function SkillsDashboard() {
 
           {/* Top nav */}
           <div className="flex items-center justify-between mb-8">
-            <a href="/chat" className="flex items-center gap-1.5 text-white/50 hover:text-white/80 text-sm transition-colors">
+            <a href="/my-dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white/80 text-sm transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
-              Back to Aya
+              Dashboard
             </a>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: 'rgba(255,255,255,0.7)' }}>kaya</span>
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-white/50 text-xs">PSF-HCD Aligned</span>
             </div>
@@ -162,7 +163,7 @@ export default function SkillsDashboard() {
               ✨
             </div>
             <div>
-              <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Skills Intelligence System · Virtualahan</p>
+              <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Kaya · Virtualahan</p>
               <h1 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 Your Skills Profile
               </h1>
@@ -435,7 +436,7 @@ export default function SkillsDashboard() {
               <div className="p-6" style={{ background: 'linear-gradient(135deg, #0F0C29, #302B63)' }}>
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-1">Skills Intelligence System</p>
+                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-1">Kaya · Skills Passport</p>
                     <h2 className="text-lg font-bold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>Skills Passport</h2>
                     <p className="text-white/50 text-xs mt-1">Philippine Qualifications Framework Aligned</p>
                   </div>

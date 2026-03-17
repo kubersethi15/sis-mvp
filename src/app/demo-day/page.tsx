@@ -121,7 +121,7 @@ const ACTS: Record<Lens, { label: string; persona: string; icon: string; color: 
         caption: 'The recruiter looks at the alignment report. The AI recommends: Proceed to Gate 2. But this is not automatic.',
         action: 'Show the decision panel. Point to the "Recruiter Decision" section. The options: Proceed / Hold / Reroute / Stop.',
         humanMoment: true,
-        note: 'This is the first human checkpoint. Say: "The AI never makes the final call. Every gate requires a human to look at the evidence and decide. SIS is a decision-support tool, not a decision-making tool."',
+        note: 'This is the first human checkpoint. Say: "The AI never makes the final call. Every gate requires a human to look at the evidence and decide. Kaya is a decision-support tool, not a decision-making tool."',
       },
       {
         id: 'e4',
@@ -167,7 +167,7 @@ const ACTS: Record<Lens, { label: string; persona: string; icon: string; color: 
       {
         id: 'p1',
         title: 'Why a psychologist at all?',
-        caption: 'SIS doesn\'t just claim Maria has skills. It invites a licensed psychologist to review the evidence and formally endorse the profile. This is what makes the Skills Passport credible.',
+        caption: 'Kaya doesn\'t just claim Maria has skills. It invites a licensed psychologist to review the evidence and formally endorse the profile. This is what makes the Skills Passport credible.',
         action: 'Open the psychologist validation page.',
         url: '/psychologist',
         urlLabel: 'Open Psychologist View →',
@@ -209,7 +209,7 @@ const ACTS: Record<Lens, { label: string; persona: string; icon: string; color: 
         title: 'The full picture',
         caption: 'Maria told stories. The system extracted evidence. Three human professionals reviewed it. A psychologist signed it. Now Cebuana has something they can genuinely trust.',
         action: 'Pause. Let that land. Then summarise the full journey in one sentence.',
-        note: 'Closing line: "SIS doesn\'t replace human judgement. It makes human judgement better — faster, fairer, and fully documented."',
+        note: 'Closing line: "Kaya doesn\'t replace human judgement. It makes human judgement better — faster, fairer, and fully documented."',
       },
     ],
   },
@@ -258,7 +258,7 @@ export default function DemoDay() {
               🦋
             </div>
             <div>
-              <span className="text-white font-semibold text-sm tracking-wide">Skills Intelligence System</span>
+              <span className="text-white font-semibold text-sm tracking-wide">Kaya</span>
               <span className="text-xs ml-3 px-2 py-0.5 rounded" style={{ background: '#1e1e2e', color: '#F4A261' }}>
                 Demo Director — Friday Session
               </span>
@@ -464,7 +464,7 @@ export default function DemoDay() {
                     <div className="text-sm font-bold mb-1" style={{ color: '#F4A261', fontFamily: 'system-ui, sans-serif' }}>Human Checkpoint</div>
                     <p className="text-xs leading-relaxed" style={{ color: '#a87040', fontFamily: 'system-ui, sans-serif' }}>
                       This is a deliberate pause point. The AI has done its work. Now a human reviews, questions, and decides.
-                      SIS is a <em>decision-support system</em> — not a decision-making system.
+                      Kaya is a <em>decision-support system</em> — not a decision-making system.
                       Every gate requires a human to look at the evidence and sign off.
                     </p>
                   </div>

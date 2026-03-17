@@ -49,27 +49,31 @@ export default function EmployerDashboardPage() {
     return 'bg-gray-100 text-gray-600';
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-400">Loading employer dashboard...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9', color: '#829AB1' }}>Loading employer dashboard...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-lg text-white shadow-md">🏢</div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">{employer?.organization_name || 'Employer Dashboard'}</h1>
-              <p className="text-xs text-gray-500">Skills Intelligence System — Employer Portal</p>
-            </div>
+    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+        <Link href="/" className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/employer" className="text-xs text-blue-600 font-medium px-3 py-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">+ New Vacancy</Link>
-            <Link href="/" className="text-xs text-gray-400 hover:text-gray-600">Home</Link>
+          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/employer" className="text-xs font-medium px-3 py-1.5 rounded-lg hover:opacity-90 transition-colors" style={{ background: '#48BB78', color: '#102A43' }}>+ New Vacancy</Link>
+          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>Employer</span>
+        </div>
+      </nav>
+
+      <div className="max-w-6xl mx-auto px-6 pt-6">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg text-white shadow-md" style={{ background: '#102A43' }}>🏢</div>
+          <div>
+            <h1 className="text-lg font-bold" style={{ color: '#102A43' }}>{employer?.organization_name || 'Employer Dashboard'}</h1>
+            <p className="text-xs" style={{ color: '#627D98' }}>Kaya Employer Portal — Manage vacancies and hiring pipeline</p>
           </div>
         </div>
-      </header>
-
-      <div className="max-w-6xl mx-auto px-6 pt-4">
         <div className="flex gap-1 border-b border-gray-200">
           {[
             { id: 'vacancies' as const, label: `📋 Vacancies (${vacancies.length})` },

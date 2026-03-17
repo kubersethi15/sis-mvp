@@ -247,8 +247,8 @@ Last updated: March 17, 2026
 | BR4 | Employer-facing language — gate names + reviewer roles | ✅ Done | Alignment/Evidence/Predictability. Recruiter/Hiring Manager/Final Approver |
 | BR5 | Jobseeker-facing language | ✅ Done | "Show what you can do", "Your stories become evidence" |
 | BR6 | Three-gate model visual on landing page | ✅ Done | Navy block showing all 3 gates with who decides at each |
-| BR7 | Apply Kaya palette to inner pages (dashboards, reviewer, employer) | ⬜ Todo | Landing done; inner pages still use old colours |
-| BR8 | Kaya bloom mark SVG | ⬜ Todo | Currently using CSS circles as placeholder; needs proper SVG |
+| BR7 | Apply Kaya palette to inner pages (dashboards, reviewer, employer) | ✅ Done | All pages: reviewer, employer, employer-dashboard, psychologist, my-dashboard, profile, vacancy, skills, auth, demo. Navy 900 nav, Stone 50 bg, Green 400 success |
+| BR8 | Kaya bloom mark SVG | 🔶 Partial | Using CSS circle placeholder — consistent across all pages. Needs proper SVG from design team |
 
 ---
 
@@ -295,24 +295,24 @@ Last updated: March 17, 2026
 | UX Polish | 8 | 3 | 1 | 4 |
 | Testing & Validation | 9 | 2 | 0 | 7 |
 | Ryan v2 Context Injection | 16 | 8 | 3 | 5 |
-| Kaya Branding | 8 | 6 | 0 | 2 |
+| Kaya Branding | 8 | 7 | 1 | 0 |
 | 5-Stage Pipeline (Brain Behind Brain) | 8 | 8 | 0 | 0 |
 | Joy Anne Simulation | 2 | 0 | 0 | 2 |
-| **TOTAL** | **144** | **103** | **8** | **33** |
+| **TOTAL** | **144** | **104** | **9** | **31** |
 
-**103 done + 8 partial = ~75% complete. Remaining: 5 Ryan v2 items (2 blocked on data), 7 testing, 4 UX polish, 2 branding inner pages, 2 simulation validation, plus misc.**
+**104 done + 9 partial = ~77% complete. Remaining: 6 Ryan v2 items (2 blocked on data), 7 testing, 3 UX polish, 1 branding (SVG), 2 simulation validation, plus misc.**
 
 ---
 
 ## PRIORITY ORDER FOR NEXT STEPS
 
-1. **SIM1-SIM2 — Joy Anne pipeline validation** — test the 5-stage pipeline with a known-good transcript
-2. **BR7 — Kaya palette on inner pages** — extend branding to dashboards, reviewer, employer
+1. **SIM1-SIM2 — Joy Anne pipeline validation** — test the 5-stage pipeline with Ryan's known-good transcript
+2. **S10 — Vercel deploy** — live URL for demo
 3. **R2 + R15 — Extended disability fields** — after Ryan confirms field spec
 4. **R10 — Experience snapshot synthesis** — "most relevant role + notable achievement" in context
 5. **R11 + R16 — Self-reported challenges** — schema + profile form
 6. **R4 + R5 — Psychometric injection** — blocked on X7 (Ryan provides data)
-7. **S10 — Vercel deploy** — live URL for demo
-8. **U1 — Mobile responsive** — PH users are mobile-first
-9. **T1-T9 — Testing with real data**
-10. **R14 — Session timer + pace enforcement**
+7. **U1 — Mobile responsive** — PH users are mobile-first
+8. **T1-T9 — Testing with real data**
+9. **R14 — Session timer + pace enforcement**
+10. **BR8 — Bloom mark SVG from design team**

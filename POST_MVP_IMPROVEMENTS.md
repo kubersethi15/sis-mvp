@@ -1,103 +1,94 @@
-# SIS Post-MVP Improvements
-## Items to address after Jakarta conference (April 13-16, 2026)
-## Keep this updated as we find things during build and testing!
-
-Last updated: March 15, 2026
+# Kaya — Improvements & Outstanding Items
+## Updated: March 17, 2026
+## Product: Kaya (kaya.work) by Virtualahan Inc.
 
 ---
 
-## GATE 1 — ALIGNMENT
+## COMPLETED THIS SESSION (March 17, 2026)
 
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| G1-01 | SK mappings in JD parser not accurate | Medium | SK8 is Building Inclusivity, not Adaptability (should be SK5). Parser sometimes maps skills to wrong PSF IDs. Need to tighten the mapping logic in the JD parse prompt. | Testing with Cebuana Lhuillier Branch Staff JD |
-| G1-02 | Requirement type tagging too broad | Low | "Can start ASAP" and "willing to work Sundays" tagged as "experience" — should be "availability" or "schedule". Need to add availability/schedule as a requirement type in the parser. | Testing with Cebuana Lhuillier Branch Staff JD |
-| G1-03 | JobStreet screening questions not filtered | Low | Employer screening questions from JobStreet (salary expectations, qualifications, etc.) get included in the raw JD text. Not harmful but clutters the input. Could add a pre-filter to strip common job board boilerplate. | Testing with Cebuana Lhuillier Branch Staff JD |
-
----
-
-## GATE 2 — LEEE CHATBOT
-
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| | | | | |
-
----
-
-## GATE 2 — EXTRACTION PIPELINE
-
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| E-01 | EQ not extracted when present | Medium | Kuber's story had clear empathy signals (understanding client needs, making them feel heard, patience with closed client) but Emotional Intelligence was not extracted. Extraction prompt may need stronger EQ indicators for relationship-building contexts. | Testing with Kuber CSM story |
-| E-02 | All skills scored at same level (Intermediate) | Medium | 4 skills all scored Intermediate. Problem-Solving evidence was arguably stronger than Collaboration evidence but both got same proficiency. Extraction should differentiate more between levels based on evidence strength. | Testing with Kuber CSM story |
-| E-03 | Proficiency case sensitivity | Low | Extraction returned "Intermediate" (capital I) but PROFICIENCY_CONFIG expected "intermediate" (lowercase). Fixed with .toLowerCase() but extraction prompt should specify lowercase output. | Skills dashboard crash |
-| E-04 | 5-stage pipeline latency | Medium | New 5-stage pipeline makes 5 sequential API calls (~15-30 sec total vs ~5 sec monolithic). Consider parallelising Stages 1+2 or using Sonnet instead of Opus for faster stages. | Architecture review March 17 |
-| E-05 | Pipeline error recovery | Low | If Stage 3 fails, Stages 4-5 don't run and entire extraction fails. Should implement partial-result return so psychologist can review whatever stages completed. | Architecture review March 17 |
-| E-06 | Old monolithic extraction prompt still in prompts.ts | Low | LEEE_EXTRACTION_PROMPT is still exported but no longer called by the API. Remove or mark as deprecated to avoid confusion. | Code review March 17 |
+| # | What | Source Doc | Details |
+|---|------|-----------|---------|
+| R12 | System prompt v2 full replacement | LEEE_PreSession_Context_and_SystemPrompt_v2.md | 7 saboteur response patterns, confidence-capability gap, thematic bridge v2, HIGH5-informed story selection, disability-as-evidence live, recently-diagnosed safety, capability-not-difficulty closing, contextual follow-up rules 7-9. Scenario trigger + Golden Rule preserved. |
+| EX1-8 | 5-stage extraction pipeline | Internal Pipeline Prompts and Scoring Logic | Stage 1: Segmentation, Stage 2: STAR+E+R, Stage 3: Skill Mapping (16 PSF ESC), Stage 4: Consistency Check, Stage 5: Proficiency Scoring. Full audit trail. Psychologist review flags. Replaces monolithic prompt. |
+| IMP-03 | Self-deprecation override — both layers | Ryan v2 | Aya probes past minimization live. Stage 3 scores behavior not self-assessment. Flagged for psychologist. |
+| IMP-04 | Disability uplift (+0.1) | Ryan v2 + Pipeline | Stage 3 applies +0.1 to disability-navigating actions. Flagged in psychologist_review_flags. |
+| IMP-05 | Vacancy-weighted extraction | Ryan v2 | Vacancy skills weighted in Stage 3 + highlighted first in Stage 5. |
+| IMP-06 | All 16 PSF ESC in extraction | Pipeline doc | Expanded from 8 to 16. "not_assessed" for missing skills (not "low"). |
+| IMP-07 | Cross-story reinforcement (+0.1) | Pipeline Stage 4 | Same skill across stories gets confidence bonus. |
+| IMP-08 | Single-source penalty (-0.15) | Pipeline Stage 4 | Single evidence = penalised + flagged for psychologist. |
+| IMP-09 | Evidence quality ceiling | Pipeline Stage 3 | behavioral=uncapped, situational=0.7, outcome_focused=0.6, self_descriptive=0.4. |
+| IMP-10 | Anti-gaming cultural sensitivity | Pipeline Stage 4 | external_attribution = no penalty (pakikisama). rehearsed = -0.15. |
+| BR1-7 | Kaya branding — all pages | Kaya_Brand_Guidelines_v1.0 | Navy 900 nav, Stone 50 background, Green 400 success states, Georgia wordmark. Applied to: landing, auth, profile, chat, my-dashboard, employer, employer-dashboard, reviewer, psychologist, vacancy, skills. All "SIS" references → "Kaya". |
 
 ---
 
-## GATE 3 — PREDICTABILITY
+## REMAINING — RYAN V2 DOC (LEEE_PreSession_Context_and_SystemPrompt_v2.md)
 
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| | | | | |
-
----
-
-## UX / DESIGN
-
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| UX-01 | Kaya branding only on landing page | Medium | Inner pages (dashboards, reviewer, employer, psychologist) still use old amber/teal colour scheme. Need to extend Navy 900 / Stone 50 / Green 400 palette across all pages. | Branding pass March 17 |
-| UX-02 | Bloom mark is CSS placeholder | Low | Using a CSS circle with green dot as the Kaya bloom mark. Need proper SVG of the 7-node network from brand guidelines. | Branding pass March 17 |
-| UX-03 | Chat UI uses dark theme — needs Kaya alignment | Low | LEEEChat.tsx has its own living landscape dark theme which is intentional for the story experience. But the chrome around it (header, controls) should use Navy palette. Assess post-demo. | Branding pass March 17 |
+| # | Item | Status | Blocked? | Notes |
+|---|------|--------|----------|-------|
+| R2 | Structured disability context schema | ⬜ Todo | Ryan | Extend DB: severity, recently_diagnosed, communication_impact, accommodation_notes, sensitivity_level. |
+| R4 | Psychometric data injection (full) | 🔶 Blocked | X7 | v2 prompt has all 7 saboteur instructions. Needs per-candidate JSON from Ryan's team. |
+| R5 | Full saboteur injection per candidate | 🔶 Blocked | X7 | Same as R4. |
+| R10 | Experience snapshot synthesis | ⬜ Todo | — | "most relevant role + notable achievement" computed from work history. |
+| R11 | Self-reported challenges field | ⬜ Todo | — | Add challenges[] to schema + profile form. Ryan's doc shows 5 types. |
+| R13 | Coverage matrix — UI integration | 🔶 Partial | — | runLightweightExtraction() exists. Needs UI to show real-time skill coverage. |
+| R14 | Session timer + pace enforcement | ⬜ Todo | — | Enforce calibration pace targets in orchestrator. |
+| R15 | Profile form — extended disability fields | ⬜ Todo | Ryan | Sensitive UX. Needs confirmed field spec. |
+| R16 | Profile form — self-reported challenges | ⬜ Todo | — | Free-text or structured input. |
 
 ---
 
-## PSYCHOLOGIST VALIDATION
+## REMAINING — PIPELINE DOC (Internal Pipeline Prompts and Scoring Logic)
 
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| | | | | |
-
----
-
-## ACCESSIBILITY
-
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| | | | | |
+| # | Item | Status | Notes |
+|---|------|--------|-------|
+| SIM1 | Load Joy Anne simulation as test fixture | ⬜ Next | Extract transcript from docs/LEEE_Full_Simulation_JoyAnne_Cebuana.md |
+| SIM2 | Run Joy Anne through 5-stage pipeline | ⬜ Next | Compare actual output against Ryan's expected skills profile |
+| PERF1 | Pipeline performance testing | ⬜ Todo | Measure 5-stage timing. Target <30s total. |
 
 ---
 
-## PERFORMANCE / SCALABILITY
+## REMAINING — KAYA BRAND GUIDELINES (Kaya_Brand_Guidelines_v1.0)
 
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| | | | | |
+| # | Item | Status | Notes |
+|---|------|--------|-------|
+| BR8 | Bloom mark SVG | 🔶 Placeholder | CSS circle placeholder consistent across all pages. Needs proper SVG from design. |
 
 ---
 
-## RESEARCH & ACCREDITATION
+## REMAINING — GENERAL BUILD
 
-| # | Issue | Severity | Details | Found During |
-|---|-------|----------|---------|--------------|
-| | | | | |
+| # | Item | Status | Notes |
+|---|------|--------|-------|
+| S10 | Vercel deploy | ⬜ Todo | Live URL for demo. Next week. |
+| U1 | Mobile responsive | ⬜ Todo | PH users are mobile-first. |
+| U8 | Virtualahan branding for Jakarta | ✅ Done | Now Kaya branding. |
+| T1-T9 | Testing with real data | ⬜ Todo | Ryan's 10 transcripts + 7 profiles. |
+| O2 | Onboarding plan generation | ⬜ Todo | 30/90 day plan for selected candidates. |
+| O3 | Manager handoff notes | ⬜ Todo | Support needs from Gate 3. |
+
+---
+
+## PREVIOUSLY LOGGED ISSUES
+
+| # | Issue | Severity | Status |
+|---|-------|----------|--------|
+| G1-01 | SK mappings in JD parser wrong | Medium | Open |
+| G1-02 | Requirement type tagging too broad | Low | Open |
+| G1-03 | JobStreet boilerplate not filtered | Low | Open |
+| E-01 | EQ not extracted when present | Medium | Likely fixed by 5-stage pipeline — needs re-test |
+| E-02 | All skills same proficiency level | Medium | Likely fixed by Stage 5 matrix — needs re-test |
+| E-03 | Proficiency case sensitivity | Low | Fixed |
 
 ---
 
 ## SUMMARY
 
-| Category | Count |
-|----------|-------|
-| Gate 1 | 3 |
-| Gate 2 — Chatbot | 0 |
-| Gate 2 — Extraction | 6 |
-| Gate 3 | 0 |
-| UX / Design | 3 |
-| Psychologist | 0 |
-| Accessibility | 0 |
-| Performance | 0 |
-| Research | 0 |
-| **Total** | **12** |
+| Category | Done | Remaining | Blocked |
+|----------|------|-----------|---------|
+| Ryan v2 doc (R1-R16) | 8 | 6 | 2 |
+| Pipeline doc (EX + SIM) | 8 | 3 | 0 |
+| Kaya branding (BR1-8) | 7 | 0 | 1 (SVG) |
+| Joy Anne simulation | 0 | 2 | 0 |
+| General build | many | 8 | 0 |
+| Previous issues | 1 fixed | 5 | 0 |

@@ -195,7 +195,7 @@ export default function DemoPage() {
       <header className="border-b border-gray-800 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-white">SIS End-to-End Demo</h1>
+            <h1 className="text-xl font-bold text-white">Kaya End-to-End Demo</h1>
             <p className="text-sm text-gray-400">Full pipeline: Profile → Apply → Gate 1 → Gate 2 → Gate 3 → Decision</p>
           </div>
           <a href="/" className="text-xs text-gray-500 hover:text-gray-300">← Home</a>

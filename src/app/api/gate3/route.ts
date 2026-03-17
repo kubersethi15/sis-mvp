@@ -296,7 +296,7 @@ async function callClaude(prompt: string, maxTokens: number): Promise<any | null
 // PROMPTS
 // ============================================================
 
-const SIMULATION_PROMPT = `You are a workplace simulation designer for the Skills Intelligence System. Generate a realistic workplace simulation scenario for a candidate applying to this role.
+const SIMULATION_PROMPT = `You are a workplace simulation designer for Kaya (Skills Intelligence System by Virtualahan). Generate a realistic workplace simulation scenario for a candidate applying to this role.
 
 Role: {vacancy_title}
 Description: {vacancy_description}

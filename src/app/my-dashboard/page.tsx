@@ -94,34 +94,37 @@ export default function MyDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
-        <div className="text-stone-400">Loading your dashboard...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}>
+        <div style={{ color: '#829AB1' }}>Loading your dashboard...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 30%, #F0F7F4 60%, #EDF6F9 100%)' }}>
-      {/* Header */}
-      <header className="bg-white/60 backdrop-blur-md border-b border-amber-100/50 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-lg shadow-md">🦋</div>
-            <div>
-              <h1 className="text-lg font-bold text-stone-800" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                {data.user?.name ? `Kumusta, ${data.user.name.split(' ')[0]}!` : 'My Dashboard'}
-              </h1>
-              <p className="text-xs text-stone-400">Skills Intelligence System</p>
-            </div>
+    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+      {/* Kaya Nav */}
+      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+        <a href="/" className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/profile" className="text-xs text-amber-600 hover:text-amber-700 font-medium">Edit Profile</Link>
-            <Link href="/" className="text-xs text-stone-400 hover:text-stone-600">Home</Link>
-          </div>
+          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+        </a>
+        <div className="flex items-center gap-4">
+          <Link href="/profile" className="text-xs font-medium hover:opacity-80" style={{ color: '#BCCCDC' }}>Edit Profile</Link>
+          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>My Dashboard</span>
         </div>
-      </header>
+      </nav>
 
-      <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
+      {/* Greeting */}
+      <div className="max-w-5xl mx-auto px-6 pt-6 pb-2">
+        <h1 className="text-lg font-bold" style={{ color: '#102A43' }}>
+          {data.user?.name ? `Kumusta, ${data.user.name.split(' ')[0]}!` : 'My Dashboard'}
+        </h1>
+        <p className="text-xs" style={{ color: '#627D98' }}>Show what you can do — your stories become evidence</p>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-4 space-y-6">
 
         {/* JOURNEY PROGRESS */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">

@@ -272,7 +272,7 @@ Output JSON only:
     const { data: g2 } = await supabase.from('gate2_results').select('*').eq('application_id', application_id).limit(1).single();
 
     // Build readiness assessment directly
-    const readinessPrompt = `You are a readiness assessor for the Skills Intelligence System. Based on the data below, calculate a readiness index for this candidate.
+    const readinessPrompt = `You are a readiness assessor for Kaya (Skills Intelligence System by Virtualahan). Based on the data below, calculate a readiness index for this candidate.
 
 Vacancy: ${vacancy?.title || 'Unknown'} — ${vacancy?.description || ''}
 Gate 1 Alignment: Score ${g1?.alignment_score || 'N/A'}/100, Strengths: ${JSON.stringify(g1?.strengths || [])}, Gaps: ${JSON.stringify(g1?.gaps || [])}
