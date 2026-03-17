@@ -99,7 +99,13 @@ EXTRACTION RULES:
    "I'm a good problem solver" is self-description — NOT evidence.
    "I called three suppliers, compared their prices, and chose the one that could deliver by Friday" IS evidence.
 
-3. PRESERVE ORIGINAL LANGUAGE.
+3. SIMPLE ACTIONS ARE STILL ACTIONS.
+   "I watched tutorial videos and practiced" IS behavioral evidence — it describes a specific learning action.
+   "I checked the records carefully and reported it to my supervisor" IS behavioral evidence — it describes verification and escalation.
+   "I listened and apologized first" IS behavioral evidence — it describes de-escalation behavior.
+   Do NOT discard evidence just because the action is simple. Simple actions in appropriate contexts still demonstrate skills. Tag them as evidence_quality "behavioral" with lower situational_complexity — but EXTRACT them.
+
+4. PRESERVE ORIGINAL LANGUAGE.
    Capture transcript quotes EXACTLY as spoken, including Taglish, grammatical variations, and colloquialisms.
 
 4. ONE EVIDENCE ITEM PER DISTINCT ACTION-OUTCOME CHAIN.
@@ -209,8 +215,8 @@ MAPPING RULES:
 2. MAP TO THE ACTION, NOT THE SITUATION.
    A difficult situation doesn't prove Problem Solving. What the person DID does.
 
-3. ONE EVIDENCE ITEM CAN MAP TO MULTIPLE SKILLS (maximum 3).
-   Be conservative — don't map to skills that are only tangentially connected.
+3. ONE EVIDENCE ITEM CAN MAP TO MULTIPLE SKILLS (maximum 4).
+   Be conservative — don't map to skills that are only tangentially connected. But if an action genuinely demonstrates 4 distinct skills (e.g., resolving a customer complaint shows Communication + Customer Orientation + Problem Solving + Self-Management), map all 4.
 
 4. CONFIDENCE SCORING (0.0 to 1.0):
    - 0.9-1.0: Clear, specific behavioral evidence directly matching the skill definition.
