@@ -114,6 +114,16 @@ export default function MyDashboard() {
         <div className="flex items-center gap-4">
           <Link href="/profile" className="text-xs font-medium hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Edit Profile</Link>
           <span className="text-xs" style={{ color: '#627D98' }}>My Dashboard</span>
+          <button
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = '/auth';
+            }}
+            className="text-xs hover:opacity-80 transition-opacity"
+            style={{ color: '#829AB1' }}
+          >
+            Sign Out
+          </button>
         </div>
       </nav>
 

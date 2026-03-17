@@ -220,6 +220,16 @@ export default function ProfilePage() {
           <a href="/my-dashboard" className="text-xs font-medium px-2 py-1 rounded hover:opacity-80 transition-opacity" style={{ background: '#243B53', color: '#BCCCDC' }}>
             Dashboard
           </a>
+          <button
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = '/auth';
+            }}
+            className="text-xs hover:opacity-80 transition-opacity"
+            style={{ color: '#829AB1' }}
+          >
+            Sign Out
+          </button>
         </div>
       </nav>
 

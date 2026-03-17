@@ -61,28 +61,39 @@ export default function PsychologistPage() {
   const fetchExtractions = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/demo', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get_demo_state' }),
-      });
-      const data = await res.json();
-
-      // Fetch extractions for each session
       const exts: Extraction[] = [];
-      for (const session of (data.sessions || [])) {
-        if (session.status === 'completed') {
-          try {
-            const extRes = await fetch(`/api/psychologist`, {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action: 'get_extraction', session_id: session.id }),
-            });
-            const extData = await extRes.json();
-            if (extData.extraction) exts.push(extData.extraction);
-          } catch (e) { /* skip */ }
+
+      // 1. Try loading all recent extractions directly (most reliable)
+      try {
+        const allRes = await fetch('/api/psychologist', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_all_extractions' }),
+        });
+        const allData = await allRes.json();
+        if (allData.extractions?.length) {
+          for (const ext of allData.extractions) {
+            exts.push(ext);
+          }
         }
+      } catch (e) { /* skip */ }
+
+      // 2. Fallback: also check localStorage for the most recent extraction
+      if (exts.length === 0) {
+        try {
+          const stored = localStorage.getItem('kaya_last_extraction');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            exts.push({
+              id: 'local-' + Date.now(),
+              session_id: localStorage.getItem('kaya_last_session_id') || 'unknown',
+              ...parsed,
+            } as any);
+          }
+        } catch (e) { /* skip */ }
       }
+
       setExtractions(exts);
-      if (exts.length > 0) setSelected(exts[0]);
+      if (exts.length > 0) setSelected(exts[0]); // Most recent first
     } catch (e) {
       console.error('Fetch error:', e);
     } finally {
