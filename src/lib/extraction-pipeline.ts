@@ -526,9 +526,54 @@ async function callClaudeForStage(
   const data = await response.json();
   const text = data.content?.[0]?.text || '';
 
-  // Parse JSON from response — handle markdown fences
+  // Parse JSON from response — handle markdown fences and truncation
   const cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-  return JSON.parse(cleaned);
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (firstError) {
+    // Try to repair truncated JSON (common when output hits max_tokens)
+    let repaired = cleaned;
+
+    // If it ends mid-string, close the string
+    const openQuotes = (repaired.match(/"/g) || []).length;
+    if (openQuotes % 2 !== 0) repaired += '"';
+
+    // Count unclosed brackets and braces, close them
+    let openBraces = 0, openBrackets = 0;
+    let inString = false;
+    for (let i = 0; i < repaired.length; i++) {
+      const ch = repaired[i];
+      if (ch === '"' && (i === 0 || repaired[i-1] !== '\\')) inString = !inString;
+      if (!inString) {
+        if (ch === '{') openBraces++;
+        if (ch === '}') openBraces--;
+        if (ch === '[') openBrackets++;
+        if (ch === ']') openBrackets--;
+      }
+    }
+
+    // Remove trailing comma before closing
+    repaired = repaired.replace(/,\s*$/, '');
+
+    // Close unclosed structures
+    for (let i = 0; i < openBrackets; i++) repaired += ']';
+    for (let i = 0; i < openBraces; i++) repaired += '}';
+
+    try {
+      console.warn(`[${stageName}] JSON repaired — output may have been truncated. Consider increasing max_tokens.`);
+      return JSON.parse(repaired);
+    } catch (secondError) {
+      // Last resort: find the largest valid JSON object or array
+      const objMatch = cleaned.match(/\{[\s\S]*\}/);
+      const arrMatch = cleaned.match(/\[[\s\S]*\]/);
+      const match = objMatch && objMatch[0].length > (arrMatch?.[0]?.length || 0) ? objMatch : arrMatch;
+      if (match) {
+        try { return JSON.parse(match[0]); } catch {}
+      }
+      throw new Error(`Failed to parse JSON from ${stageName} (${cleaned.length} chars). First 200: ${cleaned.substring(0, 200)}`);
+    }
+  }
 }
 
 export async function runExtractionPipeline(
@@ -604,7 +649,7 @@ export async function runExtractionPipeline(
       .replace('{evidence}', JSON.stringify(evidence, null, 2))
       .replace('{episodes}', JSON.stringify(qualifiedEpisodes, null, 2))
       .replace('{vacancy_skills}', vacancyStr);
-    const profile: any = await callClaudeForStage(s5Prompt, 'Stage 5: Proficiency', 4000);
+    const profile: any = await callClaudeForStage(s5Prompt, 'Stage 5: Proficiency', 8000);
 
     // Inject session metadata
     profile.session_metadata = {

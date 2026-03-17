@@ -128,11 +128,37 @@ async function callClaude(prompt, maxTokens = 4000, model = 'claude-sonnet-4-202
 
   try {
     return JSON.parse(cleaned);
-  } catch (e) {
-    // Try to find JSON in the response
-    const match = cleaned.match(/[\[{][\s\S]*[\]}]/);
-    if (match) return JSON.parse(match[0]);
-    throw new Error(`Failed to parse JSON from Stage response: ${cleaned.substring(0, 200)}`);
+  } catch (firstError) {
+    // Repair truncated JSON
+    let repaired = cleaned;
+    const openQuotes = (repaired.match(/"/g) || []).length;
+    if (openQuotes % 2 !== 0) repaired += '"';
+
+    let openBraces = 0, openBrackets = 0, inString = false;
+    for (let i = 0; i < repaired.length; i++) {
+      const ch = repaired[i];
+      if (ch === '"' && (i === 0 || repaired[i-1] !== '\\')) inString = !inString;
+      if (!inString) {
+        if (ch === '{') openBraces++;
+        if (ch === '}') openBraces--;
+        if (ch === '[') openBrackets++;
+        if (ch === ']') openBrackets--;
+      }
+    }
+    repaired = repaired.replace(/,\s*$/, '');
+    for (let i = 0; i < openBrackets; i++) repaired += ']';
+    for (let i = 0; i < openBraces; i++) repaired += '}';
+
+    try {
+      console.warn(`   ⚠️  JSON repaired — output may have been truncated`);
+      return JSON.parse(repaired);
+    } catch (secondError) {
+      const match = cleaned.match(/[\[{][\s\S]*[\]}]/);
+      if (match) {
+        try { return JSON.parse(match[0]); } catch {}
+      }
+      throw new Error(`Failed to parse JSON: ${cleaned.substring(0, 200)}`);
+    }
   }
 }
 
@@ -207,7 +233,7 @@ async function runPipeline(transcript) {
     .replace('{evidence}', JSON.stringify(results.stage2, null, 2))
     .replace('{episodes}', JSON.stringify(qualified, null, 2))
     .replace('{vacancy_skills}', vacancySkills);
-  results.stage5 = await callClaude(s5Prompt, 4000, 'claude-opus-4-5');
+  results.stage5 = await callClaude(s5Prompt, 8000, 'claude-opus-4-5');
   timing.stage5 = Date.now() - t0;
   console.log(`   ✅ Final profile generated (${timing.stage5}ms)`);
 
