@@ -259,7 +259,7 @@ export default function EmployerDashboard() {
                 {/* Inclusion Signals */}
                 {blueprint.inclusion_signals?.length > 0 && (
                   <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                    <h3 className="text-sm font-semibold text-green-700 mb-1">♿ Inclusion Signals</h3>
+                    <h3 className="text-sm font-semibold text-green-700 mb-1">Inclusion Signals</h3>
                     <ul className="text-sm text-green-600">
                       {blueprint.inclusion_signals.map((s, i) => (
                         <li key={i}>• {s}</li>

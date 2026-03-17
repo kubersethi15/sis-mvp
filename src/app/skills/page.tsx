@@ -37,15 +37,32 @@ interface Extraction {
 // CONFIG
 // ============================================================
 
+// All 16 PSF Enabling Skills — clean icons with brand-aligned colors
 const SKILL_CONFIG: Record<string, { icon: string; gradient: string; color: string; bgColor: string }> = {
-  'Emotional Intelligence':    { icon: '💛', gradient: 'from-amber-400 to-orange-400',  color: '#E67E22', bgColor: '#FEF3E2' },
-  'Communication':             { icon: '💬', gradient: 'from-sky-400 to-blue-500',       color: '#2E86C1', bgColor: '#EBF5FB' },
-  'Collaboration':             { icon: '🤝', gradient: 'from-emerald-400 to-teal-500',   color: '#27AE60', bgColor: '#E8F8F5' },
-  'Problem-Solving':           { icon: '🧩', gradient: 'from-violet-400 to-purple-500',  color: '#8E44AD', bgColor: '#F4ECF7' },
-  'Adaptability / Resilience': { icon: '🌊', gradient: 'from-cyan-400 to-teal-400',      color: '#1ABC9C', bgColor: '#E8F6F3' },
-  'Learning Agility':          { icon: '📚', gradient: 'from-rose-400 to-pink-500',      color: '#E74C3C', bgColor: '#FDEDEC' },
-  'Sense Making':              { icon: '🔮', gradient: 'from-indigo-400 to-violet-500',  color: '#34495E', bgColor: '#EBEDEF' },
-  'Building Inclusivity':      { icon: '♿', gradient: 'from-green-400 to-emerald-500',  color: '#16A085', bgColor: '#E8F6F3' },
+  // Interacting with Others
+  'Building Inclusivity':    { icon: 'BI', gradient: 'from-emerald-400 to-green-500',   color: '#16A085', bgColor: '#E8F6F3' },
+  'Collaboration':           { icon: 'CO', gradient: 'from-teal-400 to-emerald-500',    color: '#27AE60', bgColor: '#E8F8F5' },
+  'Communication':           { icon: 'CM', gradient: 'from-sky-400 to-blue-500',        color: '#2E86C1', bgColor: '#EBF5FB' },
+  'Customer Orientation':    { icon: 'CU', gradient: 'from-blue-400 to-indigo-500',     color: '#2471A3', bgColor: '#EBF5FB' },
+  'Developing People':       { icon: 'DP', gradient: 'from-amber-400 to-orange-500',    color: '#E67E22', bgColor: '#FEF3E2' },
+  'Influence':               { icon: 'IN', gradient: 'from-orange-400 to-red-400',      color: '#D35400', bgColor: '#FDEBD0' },
+  // Staying Relevant and Evolving
+  'Adaptability':            { icon: 'AD', gradient: 'from-cyan-400 to-teal-400',       color: '#1ABC9C', bgColor: '#E8F6F3' },
+  'Adaptability / Resilience': { icon: 'AD', gradient: 'from-cyan-400 to-teal-400',     color: '#1ABC9C', bgColor: '#E8F6F3' },
+  'Digital Fluency':         { icon: 'DF', gradient: 'from-indigo-400 to-blue-500',     color: '#5B2C6F', bgColor: '#F4ECF7' },
+  'Global Perspective':      { icon: 'GP', gradient: 'from-blue-400 to-cyan-400',       color: '#2980B9', bgColor: '#EBF5FB' },
+  'Learning Agility':        { icon: 'LA', gradient: 'from-rose-400 to-pink-500',       color: '#E74C3C', bgColor: '#FDEDEC' },
+  'Self-Management':         { icon: 'SM', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Self Management':         { icon: 'SM', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  // Generating Results
+  'Creative Thinking':       { icon: 'CT', gradient: 'from-pink-400 to-rose-500',       color: '#C0392B', bgColor: '#FDEDEC' },
+  'Decision Making':         { icon: 'DM', gradient: 'from-slate-400 to-gray-600',      color: '#34495E', bgColor: '#EBEDEF' },
+  'Problem Solving':         { icon: 'PS', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Problem-Solving':         { icon: 'PS', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Sense Making':            { icon: 'SE', gradient: 'from-indigo-400 to-violet-500',   color: '#34495E', bgColor: '#EBEDEF' },
+  'Transdisciplinary Thinking': { icon: 'TT', gradient: 'from-gray-400 to-slate-500',   color: '#566573', bgColor: '#EBEDEF' },
+  // Legacy aliases
+  'Emotional Intelligence':  { icon: 'EI', gradient: 'from-amber-400 to-orange-400',    color: '#E67E22', bgColor: '#FEF3E2' },
 };
 
 const PROFICIENCY_CONFIG = {
@@ -55,8 +72,11 @@ const PROFICIENCY_CONFIG = {
 };
 
 const ALL_SKILLS = [
-  'Emotional Intelligence', 'Communication', 'Collaboration', 'Problem-Solving',
-  'Adaptability / Resilience', 'Learning Agility', 'Sense Making', 'Building Inclusivity',
+  'Building Inclusivity', 'Collaboration', 'Communication', 'Customer Orientation',
+  'Developing People', 'Influence', 'Adaptability', 'Digital Fluency',
+  'Global Perspective', 'Learning Agility', 'Self-Management',
+  'Creative Thinking', 'Decision Making', 'Problem Solving', 'Sense Making',
+  'Transdisciplinary Thinking',
 ];
 
 // ============================================================
@@ -104,7 +124,7 @@ export default function SkillsDashboard() {
     );
   }
 
-  const skills = extraction.skills_profile || [];
+  const skills = (extraction.skills_profile || []).sort((a: any, b: any) => (b.confidence || 0) - (a.confidence || 0));
   const quality = extraction.session_quality;
   const overallConfidence = quality?.overall_confidence
     ? Math.round(quality.overall_confidence * 100)
@@ -176,14 +196,13 @@ export default function SkillsDashboard() {
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-4 mb-8">
             {[
-              { value: skills.length, label: 'Skills Found', icon: '💎' },
-              { value: `${overallConfidence}%`, label: 'Confidence', icon: '' },
-              { value: quality?.stories_completed || 0, label: 'Stories Shared', icon: '📖' },
+              { value: skills.length, label: 'Skills Found' },
+              { value: `${overallConfidence}%`, label: 'Confidence' },
+              { value: quality?.stories_completed || 0, label: 'Stories Shared' },
             ].map((stat, i) => (
               <div key={i} className="rounded-2xl p-4 text-center" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <div className="text-lg mb-1">{stat.icon}</div>
                 <div className="text-2xl font-bold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>{stat.value}</div>
-                <div className="text-white/40 text-[11px] mt-0.5">{stat.label}</div>
+                <div className="text-white/40 text-[11px] mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -191,10 +210,10 @@ export default function SkillsDashboard() {
           {/* Tab bar */}
           <div className="flex gap-1 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
             {[
-              { id: 'skills', label: '💎 Skills', count: skills.length },
+              { id: 'skills', label: 'Skills', count: skills.length },
               { id: 'evidence', label: 'Evidence', count: null },
-              { id: 'gaps', label: '🌱 Gaps', count: gaps.length },
-              { id: 'passport', label: '🪪 Passport', count: null },
+              { id: 'gaps', label: 'Gaps', count: gaps.length },
+              { id: 'passport', label: 'Passport', count: null },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -228,7 +247,7 @@ export default function SkillsDashboard() {
               </div>
             )}
             {skills.map((skill, i) => {
-              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
               const profKey = (skill.proficiency || 'basic').toLowerCase() as keyof typeof PROFICIENCY_CONFIG;
               const prof = PROFICIENCY_CONFIG[profKey] || PROFICIENCY_CONFIG.basic;
               const isExpanded = expandedSkill === skill.skill_id;
@@ -250,9 +269,9 @@ export default function SkillsDashboard() {
                   >
                     {/* Skill icon */}
                     <div
-                      className={`w-14 h-14 rounded-xl bg-gradient-to-br ${cfg.gradient} flex items-center justify-center text-2xl shadow-md flex-none`}
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cfg.gradient} flex items-center justify-center shadow-md flex-none`}
                     >
-                      {cfg.icon}
+                      <span className="text-white text-sm font-bold tracking-tight">{cfg.icon}</span>
                     </div>
 
                     {/* Name + bar */}
@@ -320,7 +339,7 @@ export default function SkillsDashboard() {
           <div className="space-y-4">
             <p className="text-sm text-stone-500 mb-6">Every skill claim is traceable to a direct quote from your conversation — the audit trail for psychologist review.</p>
             {skills.map(skill => {
-              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
               if (!skill.evidence?.length) return null;
               return (
                 <div key={skill.skill_id} className="bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm">
@@ -384,7 +403,7 @@ export default function SkillsDashboard() {
             ) : (
               <div className="space-y-3">
                 {gaps.map((gap, i) => {
-                  const cfg = SKILL_CONFIG[gap] || { icon: '⭐', gradient: 'from-stone-300 to-stone-400', color: '#94a3b8', bgColor: '#f8fafc' };
+                  const cfg = SKILL_CONFIG[gap] || { icon: '??', gradient: 'from-stone-300 to-stone-400', color: '#94a3b8', bgColor: '#f8fafc' };
                   return (
                     <div key={i} className="bg-white rounded-2xl border border-stone-100 p-4 flex items-center gap-4 shadow-sm opacity-70">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-stone-100 flex-none grayscale">
@@ -454,7 +473,7 @@ export default function SkillsDashboard() {
                   <span className="text-center">Confidence</span>
                 </div>
                 {skills.map(skill => {
-                  const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '⭐', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+                  const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
                   const profKey = (skill.proficiency || 'basic').toLowerCase() as keyof typeof PROFICIENCY_CONFIG;
                   const prof = PROFICIENCY_CONFIG[profKey];
                   return (

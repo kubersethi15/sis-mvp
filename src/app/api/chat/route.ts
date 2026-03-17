@@ -382,7 +382,12 @@ async function handleExtract(sessionId: string) {
           skill_id: `SK${i + 1}`,
           skill_name: s.skill_name,
           proficiency: s.proficiency?.charAt(0) + s.proficiency?.slice(1).toLowerCase(),
-          confidence: s.top_evidence?.adjusted_confidence || 0.5,
+          confidence: s.top_evidence?.adjusted_confidence
+            || s.adjusted_confidence
+            || s.confidence
+            || (s.sufficiency === 'strong' ? 0.85 : s.sufficiency === 'adequate' ? 0.7 : 0.55),
+          evidence_count: s.evidence_count || 1,
+          sufficiency: s.sufficiency || 'adequate',
           evidence: s.top_evidence ? [{
             episode_id: 1,
             transcript_quote: s.top_evidence.transcript_quote,
@@ -394,7 +399,12 @@ async function handleExtract(sessionId: string) {
           skill_id: `SK${10 + i}`,
           skill_name: s.skill_name,
           proficiency: s.proficiency?.charAt(0) + s.proficiency?.slice(1).toLowerCase(),
-          confidence: s.adjusted_confidence || 0.5,
+          confidence: s.top_evidence?.adjusted_confidence
+            || s.adjusted_confidence
+            || s.confidence
+            || (s.sufficiency === 'strong' ? 0.85 : s.sufficiency === 'adequate' ? 0.7 : 0.55),
+          evidence_count: s.evidence_count || 1,
+          sufficiency: s.sufficiency || 'adequate',
           evidence: s.top_evidence ? [{
             episode_id: 1,
             transcript_quote: s.top_evidence?.transcript_quote || '',
@@ -403,7 +413,28 @@ async function handleExtract(sessionId: string) {
           }] : [],
         })),
       ],
-      narrative_summary: profile.hiring_manager_summary || '',
+      narrative_summary: (profile.hiring_manager_summary || '')
+        .replace(/This candidate/g, 'You')
+        .replace(/this candidate/g, 'you')
+        .replace(/The candidate/g, 'You')
+        .replace(/the candidate/g, 'you')
+        .replace(/They demonstrated/g, 'You demonstrated')
+        .replace(/they demonstrated/g, 'you demonstrated')
+        .replace(/Their standout/g, 'Your standout')
+        .replace(/their standout/g, 'your standout')
+        .replace(/They also/g, 'You also')
+        .replace(/they also/g, 'you also')
+        .replace(/They showed/g, 'You showed')
+        .replace(/they showed/g, 'you showed')
+        .replace(/Their /g, 'Your ')
+        .replace(/their /g, 'your ')
+        .replace(/ them /g, ' you ')
+        .replace(/ she /gi, ' you ')
+        .replace(/ he /gi, ' you ')
+        .replace(/ her /gi, ' your ')
+        .replace(/ his /gi, ' your '),
+      // Keep original for employer/psychologist views
+      _hiring_manager_summary_original: profile.hiring_manager_summary || '',
       gaming_flags: [],
       layer2_seeds: [],
       session_quality: {

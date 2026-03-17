@@ -42,6 +42,15 @@ export default function MyDashboard() {
         const d = await res.json();
         profile = d.profile;
         user = profile?.user_profiles ? { name: profile.user_profiles.full_name, email: profile.user_profiles.email } : null;
+      } else if (userId) {
+        // Fallback — find profile by user_id
+        const res = await kayaFetch('/api/profile', { action: 'get_by_user', user_id: userId });
+        const d = await res.json();
+        if (d.profile) {
+          profile = d.profile;
+          localStorage.setItem('kaya_jobseeker_profile_id', d.profile.id);
+          user = profile?.user_profiles ? { name: profile.user_profiles.full_name, email: profile.user_profiles.email } : null;
+        }
       }
 
       // Get LEEE session
@@ -103,8 +112,8 @@ export default function MyDashboard() {
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
         <div className="flex items-center gap-4">
-          <Link href="/profile" className="text-xs font-medium hover:opacity-80" style={{ color: '#BCCCDC' }}>Edit Profile</Link>
-          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>My Dashboard</span>
+          <Link href="/profile" className="text-xs font-medium hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Edit Profile</Link>
+          <span className="text-xs" style={{ color: '#627D98' }}>My Dashboard</span>
         </div>
       </nav>
 
@@ -123,8 +132,8 @@ export default function MyDashboard() {
           <h2 className="text-sm font-semibold text-stone-500 mb-4">YOUR JOURNEY</h2>
           <div className="grid grid-cols-4 gap-3">
             {[
-              { step: 1, label: 'Create Profile', done: hasProfile, icon: '👤', href: '/profile', description: profileCompletion > 0 ? `${profileCompletion}% complete` : 'Tell us about yourself' },
-              { step: 2, label: 'Tell Your Story', done: hasLEEE, icon: '🦋', href: '/chat', description: hasLEEE ? `${skillsCount} skills discovered` : 'Chat with Aya' },
+              { step: 1, label: 'Create Profile', done: hasProfile, icon: '', href: '/profile', description: profileCompletion > 0 ? `${profileCompletion}% complete` : 'Tell us about yourself' },
+              { step: 2, label: 'Tell Your Story', done: hasLEEE, icon: '', href: '/chat', description: hasLEEE ? `${skillsCount} skills discovered` : 'Chat with Aya' },
               { step: 3, label: 'Browse Jobs', done: data.matches.length > 0, icon: '', href: '/vacancy', description: data.matches.length > 0 ? `${data.matches.length} matches` : 'Find matching vacancies' },
               { step: 4, label: 'Apply & Grow', done: data.applications.length > 0, icon: '', href: '/vacancy', description: data.applications.length > 0 ? `${data.applications.length} application(s)` : 'Start your journey' },
             ].map((s) => (
@@ -159,8 +168,8 @@ export default function MyDashboard() {
               <div className="space-y-3">
                 {data.extraction.skills_profile?.slice(0, 4).map((skill: any, i: number) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-sm">
-                      {['💛', '💬', '🤝', '🧩', '🌊', '📚', '🔮', '♿'][i] || '⭐'}
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br from-sky-400 to-blue-500">
+                      {skill.skill_name?.substring(0, 2).toUpperCase() || '??'}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-0.5">

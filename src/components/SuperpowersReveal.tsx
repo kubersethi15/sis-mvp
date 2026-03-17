@@ -33,14 +33,26 @@ interface SuperpowersRevealProps {
 // ============================================================
 
 const SKILL_CONFIG: Record<string, { icon: string; gradient: string; ring: string }> = {
-  'Emotional Intelligence':      { icon: '💛', gradient: 'from-amber-400 to-orange-400',    ring: 'ring-amber-300' },
-  'Communication':               { icon: '💬', gradient: 'from-sky-400 to-blue-500',         ring: 'ring-sky-300' },
-  'Collaboration':               { icon: '🤝', gradient: 'from-emerald-400 to-teal-500',     ring: 'ring-emerald-300' },
-  'Problem-Solving':             { icon: '🧩', gradient: 'from-violet-400 to-purple-500',    ring: 'ring-violet-300' },
-  'Adaptability / Resilience':   { icon: '🌊', gradient: 'from-cyan-400 to-teal-400',        ring: 'ring-cyan-300' },
-  'Learning Agility':            { icon: '📚', gradient: 'from-rose-400 to-pink-500',        ring: 'ring-rose-300' },
-  'Sense Making':                { icon: '🔮', gradient: 'from-indigo-400 to-violet-500',    ring: 'ring-indigo-300' },
-  'Building Inclusivity':        { icon: '♿', gradient: 'from-green-400 to-emerald-500',    ring: 'ring-green-300' },
+  'Building Inclusivity':    { icon: 'BI', gradient: 'from-emerald-400 to-green-500',   ring: 'ring-emerald-300' },
+  'Collaboration':           { icon: 'CO', gradient: 'from-teal-400 to-emerald-500',    ring: 'ring-emerald-300' },
+  'Communication':           { icon: 'CM', gradient: 'from-sky-400 to-blue-500',        ring: 'ring-sky-300' },
+  'Customer Orientation':    { icon: 'CU', gradient: 'from-blue-400 to-indigo-500',     ring: 'ring-blue-300' },
+  'Developing People':       { icon: 'DP', gradient: 'from-amber-400 to-orange-500',    ring: 'ring-amber-300' },
+  'Influence':               { icon: 'IN', gradient: 'from-orange-400 to-red-400',      ring: 'ring-orange-300' },
+  'Adaptability':            { icon: 'AD', gradient: 'from-cyan-400 to-teal-400',       ring: 'ring-cyan-300' },
+  'Adaptability / Resilience': { icon: 'AD', gradient: 'from-cyan-400 to-teal-400',     ring: 'ring-cyan-300' },
+  'Digital Fluency':         { icon: 'DF', gradient: 'from-indigo-400 to-blue-500',     ring: 'ring-indigo-300' },
+  'Global Perspective':      { icon: 'GP', gradient: 'from-blue-400 to-cyan-400',       ring: 'ring-blue-300' },
+  'Learning Agility':        { icon: 'LA', gradient: 'from-rose-400 to-pink-500',       ring: 'ring-rose-300' },
+  'Self-Management':         { icon: 'SM', gradient: 'from-violet-400 to-purple-500',   ring: 'ring-violet-300' },
+  'Self Management':         { icon: 'SM', gradient: 'from-violet-400 to-purple-500',   ring: 'ring-violet-300' },
+  'Creative Thinking':       { icon: 'CT', gradient: 'from-pink-400 to-rose-500',       ring: 'ring-pink-300' },
+  'Decision Making':         { icon: 'DM', gradient: 'from-slate-400 to-gray-600',      ring: 'ring-gray-300' },
+  'Problem Solving':         { icon: 'PS', gradient: 'from-violet-400 to-purple-500',   ring: 'ring-violet-300' },
+  'Problem-Solving':         { icon: 'PS', gradient: 'from-violet-400 to-purple-500',   ring: 'ring-violet-300' },
+  'Sense Making':            { icon: 'SE', gradient: 'from-indigo-400 to-violet-500',   ring: 'ring-indigo-300' },
+  'Transdisciplinary Thinking': { icon: 'TT', gradient: 'from-gray-400 to-slate-500',   ring: 'ring-gray-300' },
+  'Emotional Intelligence':  { icon: 'EI', gradient: 'from-amber-400 to-orange-400',    ring: 'ring-amber-300' },
 };
 
 const PROFICIENCY_BADGE: Record<string, { label: string; bg: string; text: string }> = {
@@ -236,7 +248,7 @@ export default function SuperpowersReveal({ extraction, onDismiss }: Superpowers
           <div className="space-y-3">
             {skills.map((skill, i) => {
               const cfg = SKILL_CONFIG[skill.skill_name] || {
-                icon: '⭐', gradient: 'from-amber-400 to-orange-400', ring: 'ring-amber-300',
+                icon: '??', gradient: 'from-amber-400 to-orange-400', ring: 'ring-amber-300',
               };
               const profLower = skill.proficiency?.toLowerCase() as keyof typeof PROFICIENCY_BADGE;
               const badge = PROFICIENCY_BADGE[profLower] || PROFICIENCY_BADGE.basic;
@@ -261,9 +273,9 @@ export default function SuperpowersReveal({ extraction, onDismiss }: Superpowers
                   }`}>
                     <div className="flex items-center gap-4">
                       {/* Icon */}
-                      <div className={`w-13 h-13 rounded-xl bg-gradient-to-br ${cfg.gradient} flex items-center justify-center text-2xl shadow-lg flex-none`}
+                      <div className={`w-13 h-13 rounded-xl bg-gradient-to-br ${cfg.gradient} flex items-center justify-center shadow-lg flex-none`}
                         style={{ width: 52, height: 52 }}>
-                        {cfg.icon}
+                        <span className="text-white text-sm font-bold tracking-tight">{cfg.icon}</span>
                       </div>
 
                       {/* Details */}
@@ -348,7 +360,7 @@ export default function SuperpowersReveal({ extraction, onDismiss }: Superpowers
         >
           <div className="w-8 h-1 bg-white/20 rounded-full mx-auto mb-4" />
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl">{SKILL_CONFIG[selectedSkill.skill_name]?.icon || '⭐'}</span>
+            <span className="text-xl font-bold text-white">{SKILL_CONFIG[selectedSkill.skill_name]?.icon || '??'}</span>
             <div>
               <h3 className="text-white font-bold">{selectedSkill.skill_name}</h3>
               <p className="text-white/50 text-xs">{selectedSkill.proficiency} level · {Math.round(selectedSkill.confidence * 100)}% confidence</p>
