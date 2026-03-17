@@ -1,8 +1,8 @@
 'use client';
-'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { kayaFetch } from '@/lib/kaya-fetch';
 
 // ============================================================
 // JOBSEEKER DASHBOARD
@@ -38,10 +38,7 @@ export default function MyDashboard() {
 
       // Get profile
       if (profileId) {
-        const res = await fetch('/api/profile', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'get', profile_id: profileId }),
-        });
+        const res = await kayaFetch('/api/profile', { action: 'get', profile_id: profileId });
         const d = await res.json();
         profile = d.profile;
         user = profile?.user_profiles ? { name: profile.user_profiles.full_name, email: profile.user_profiles.email } : null;
@@ -63,10 +60,7 @@ export default function MyDashboard() {
       let matches: any[] = [];
       if (profileId) {
         try {
-          const matchRes = await fetch('/api/match', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'match_for_jobseeker', jobseeker_profile_id: profileId }),
-          });
+          const matchRes = await kayaFetch('/api/match', { action: 'match_for_jobseeker', jobseeker_profile_id: profileId });
           const matchData = await matchRes.json();
           matches = (matchData.matches || []).slice(0, 5);
         } catch (e) {}
@@ -75,10 +69,7 @@ export default function MyDashboard() {
       // Get applications
       let applications: any[] = [];
       try {
-        const appRes = await fetch('/api/demo', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'get_demo_state' }),
-        });
+        const appRes = await kayaFetch('/api/demo', { action: 'get_demo_state' });
         const appData = await appRes.json();
         applications = (appData.applications || []).filter((a: any) => profileId && a.jobseeker_id === profileId);
       } catch (e) {}

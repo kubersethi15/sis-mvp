@@ -1,7 +1,7 @@
 'use client';
-'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { kayaFetch } from '@/lib/kaya-fetch';
 
 // ============================================================
 // VACANCY PAGE — Jobseeker View
@@ -50,10 +50,7 @@ export default function VacancyPage() {
       const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
       if (profileId) {
         // Use matching engine
-        const res = await fetch('/api/match', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'match_for_jobseeker', jobseeker_profile_id: profileId }),
-        });
+        const res = await kayaFetch('/api/match', { action: 'match_for_jobseeker', jobseeker_profile_id: profileId });
         const data = await res.json();
         setMatchData(data);
         const mapped = (data.matches || []).map((m: any) => ({
@@ -69,10 +66,7 @@ export default function VacancyPage() {
         if (mapped.length > 0) setSelected(mapped[0]);
       } else {
         // Fallback: just list vacancies
-        const res = await fetch('/api/vacancy', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'list' }),
-        });
+        const res = await kayaFetch('/api/vacancy', { action: 'list' });
         const data = await res.json();
         setVacancies(data.vacancies || []);
         if (data.vacancies?.length > 0) setSelected(data.vacancies[0]);
@@ -90,10 +84,7 @@ export default function VacancyPage() {
     setQaLoading(true);
 
     try {
-      const res = await fetch('/api/vacancy', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'ask', vacancy_id: selected.id, question, history: qaMessages }),
-      });
+      const res = await kayaFetch('/api/vacancy', { action: 'ask', vacancy_id: selected.id, question, history: qaMessages });
       const data = await res.json();
       setQaMessages(prev => [...prev, { role: 'assistant', content: data.answer || 'Sorry, I couldn\'t find an answer to that.' }]);
     } catch (e) {
@@ -107,10 +98,7 @@ export default function VacancyPage() {
     setAlignmentLoading(true);
     try {
       const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
-      const res = await fetch('/api/vacancy', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'check_alignment', vacancy_id: selected.id, jobseeker_profile_id: profileId }),
-      });
+      const res = await kayaFetch('/api/vacancy', { action: 'check_alignment', vacancy_id: selected.id, jobseeker_profile_id: profileId });
       const data = await res.json();
       setAlignment(data.alignment);
     } catch (e) { console.error(e); }
@@ -124,10 +112,7 @@ export default function VacancyPage() {
     if (!profileId) { alert('Please create your profile first at /profile'); return; }
 
     try {
-      const res = await fetch('/api/demo', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'apply', vacancy_id: selected.id, jobseeker_id: profileId }),
-      });
+      const res = await kayaFetch('/api/demo', { action: 'apply', vacancy_id: selected.id, jobseeker_id: profileId });
       const data = await res.json();
       if (data.application) {
         setApplied(true);

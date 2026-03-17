@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { LEEEOrchestrator } from '@/lib/orchestrator';
 import { LEEESession, LEEEMessage, GapScanResult } from '@/types';
 import { LEEE_GAP_SCAN_PROMPT } from '@/lib/prompts';
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient, getAuthenticatedUserId } from '@/lib/supabase';
 import { buildCalibrationContext } from '@/lib/calibration';
 
 // In-memory orchestrator cache (sessions + messages persisted to Supabase)
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { session_id, message, action } = body;
 
-    if (action === 'start') return handleStart(body);
+    if (action === 'start') return handleStart(req, body);
     if (action === 'extract') return handleExtract(session_id);
     if (action === 'extract_transcript') return handleExtractTranscript(body.transcript);
 
@@ -128,19 +128,11 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function handleStart(body: any) {
+async function handleStart(req: NextRequest, body: any) {
   const supabase = db();
 
-  // Try to use provided user_id — validate it exists (stale localStorage IDs cause FK violations)
-  let userId = body.user_id;
-  if (userId) {
-    const { data: userCheck } = await supabase.from('user_profiles').select('id').eq('id', userId).single();
-    if (!userCheck) userId = null;
-  }
-  if (!userId && body.jobseeker_profile_id) {
-    const { data: prof } = await supabase.from('jobseeker_profiles').select('user_id').eq('id', body.jobseeker_profile_id).single();
-    if (prof) userId = prof.user_id;
-  }
+  // Authenticate user — tries JWT first, then body user_id, then demo fallback
+  let userId = await getAuthenticatedUserId(req, body);
   if (!userId) userId = await ensureDemoUser();
 
   // Fetch profile data for context injection — with calibration derivation (Ryan v2 R1+R3)

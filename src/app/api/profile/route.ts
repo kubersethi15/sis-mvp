@@ -2,7 +2,7 @@
 // Jobseeker profile CRUD operations
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient, getAuthenticatedUserId } from '@/lib/supabase';
 
 function db() {
   return createServerClient();
@@ -12,6 +12,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { action } = body;
+
+    // Try to authenticate — inject user_id from JWT if available
+    const authUserId = await getAuthenticatedUserId(req, body);
+    if (authUserId && !body.user_id) body.user_id = authUserId;
 
     switch (action) {
       case 'create': return createProfile(body);

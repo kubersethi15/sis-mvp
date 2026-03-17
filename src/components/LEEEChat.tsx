@@ -1,8 +1,26 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import SuperpowersReveal from './SuperpowersReveal';
 import ScenarioCard from './ScenarioCard';
+
+// Auth helper — gets Supabase JWT for API calls
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+  } catch {}
+  return headers;
+}
 
 // ============================================================
 // TYPES
@@ -152,9 +170,10 @@ export default function LEEEChat() {
       const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
       const userId = localStorage.getItem('kaya_user_id');
 
+      const headers = await authHeaders();
       const startRes = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           action: 'start', language,
           jobseeker_profile_id: profileId || undefined,
@@ -171,7 +190,7 @@ export default function LEEEChat() {
 
       const chatRes = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ session_id: startData.session_id, message: '[SESSION START: Please greet the user warmly, introduce yourself as Aya, and begin Phase 1 of the conversation.]' }),
       });
       const chatData = await chatRes.json();
@@ -204,7 +223,7 @@ export default function LEEEChat() {
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ session_id: session.sessionId, message: messageText }),
       });
       const data = await res.json();
@@ -221,7 +240,7 @@ export default function LEEEChat() {
           const recentContext = messages.slice(-4).map(m => `${m.role}: ${m.content}`).join('\n');
           const scenRes = await fetch('/api/scenario', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: await authHeaders(),
             body: JSON.stringify({ ...triggerData, recent_context: recentContext }),
           });
           const scenData = await scenRes.json();
@@ -266,7 +285,7 @@ export default function LEEEChat() {
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ action: 'extract', session_id: sessionId }),
       });
       const data = await res.json();
@@ -284,7 +303,7 @@ export default function LEEEChat() {
       } else {
         const res2 = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: await authHeaders(),
           body: JSON.stringify({ action: 'extract', session_id: sessionId }),
         });
         const data2 = await res2.json();
@@ -307,7 +326,7 @@ export default function LEEEChat() {
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ session_id: session.sessionId, message: '[User chose to finish the conversation]' }),
       });
       const data = await res.json();

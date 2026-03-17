@@ -1,7 +1,7 @@
 'use client';
-'use client';
 
 import { useState, useCallback } from 'react';
+import { kayaFetch } from '@/lib/kaya-fetch';
 
 // ============================================================
 // TYPES
@@ -114,11 +114,7 @@ export default function ProfilePage() {
 
       if (profileId) body.profile_id = profileId;
 
-      const res = await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const res = await kayaFetch('/api/profile', body);
       const data = await res.json();
 
       if (data.profile) {
