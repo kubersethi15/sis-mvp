@@ -150,31 +150,105 @@ export default function PsychologistPage() {
       <div className="max-w-6xl mx-auto px-6 pt-6">
         <div className="mb-4">
           <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Psychologist Validation</h1>
-          <p className="text-sm" style={{ color: '#627D98' }}>Review audit trail, verify methodology, endorse skills profile</p>
-        </div>
-        <div className="flex gap-1 border-b border-gray-200">
-          {[
-            { id: 'audit' as const, label: '🔍 Audit Trail' },
-            { id: 'methodology' as const, label: '📚 Methodology & Research' },
-            { id: 'validate' as const, label: '✍️ Validate & Sign' },
-          ].map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                activeTab === tab.id ? 'bg-white text-orange-600 border border-gray-200 border-b-white -mb-px' : 'text-gray-500 hover:text-gray-700'
-              }`}>{tab.label}</button>
-          ))}
+          <p className="text-sm" style={{ color: '#627D98' }}>
+            {selected
+              ? `Reviewing: Session ${selected.session_id?.substring(0, 8)}... — ${selected.skills_profile?.length || 0} skills extracted`
+              : `${extractions.length} candidate${extractions.length !== 1 ? 's' : ''} pending review`
+            }
+          </p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-6">
+        {/* CANDIDATES TABLE — shown when no candidate is selected */}
         {!selected ? (
-          <div className="text-center py-12 text-gray-400">
-            <p className="text-4xl mb-2">🔍</p>
-            <p className="text-sm">No completed extractions found. Complete a conversation with Aya first.</p>
-            <a href="/chat" className="text-sm text-teal-600 underline mt-2 block">Go to Chat →</a>
+          <div>
+            {extractions.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-sm" style={{ color: '#627D98' }}>No completed extractions found.</p>
+                <a href="/chat" className="text-sm mt-2 block" style={{ color: '#48BB78' }}>Complete a conversation with Aya first</a>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
+                <table className="w-full">
+                  <thead>
+                    <tr style={{ background: '#F0F4F8' }}>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Candidate</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Skills Found</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Confidence</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Date</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Status</th>
+                      <th className="px-6 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {extractions.map((ext, i) => {
+                      const skillCount = ext.skills_profile?.length || 0;
+                      const avgConf = skillCount > 0
+                        ? Math.round((ext.skills_profile.reduce((a, s) => a + (s.confidence || 0), 0) / skillCount) * 100)
+                        : 0;
+                      const date = ext.created_at ? new Date(ext.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Unknown';
+                      const topSkills = ext.skills_profile?.slice(0, 3).map(s => s.skill_name).join(', ') || 'None';
+
+                      return (
+                        <tr key={ext.id || i} className="border-t hover:bg-stone-50 transition-colors cursor-pointer" style={{ borderColor: '#F0F4F8' }}
+                          onClick={() => { setSelected(ext); setActiveTab('audit'); setSigned(false); setValidationNotes(''); setLicenseNumber(''); }}>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium" style={{ color: '#102A43' }}>
+                              Session {ext.session_id?.substring(0, 8)}...
+                            </div>
+                            <div className="text-xs mt-0.5" style={{ color: '#829AB1' }}>{topSkills}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-sm font-semibold" style={{ color: '#102A43' }}>{skillCount}</span>
+                            <span className="text-xs ml-1" style={{ color: '#829AB1' }}>skills</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-2 rounded-full" style={{ background: '#E2E8F0' }}>
+                                <div className="h-full rounded-full" style={{ width: `${avgConf}%`, background: avgConf >= 70 ? '#48BB78' : avgConf >= 50 ? '#F6AD55' : '#FC8181' }} />
+                              </div>
+                              <span className="text-xs font-medium" style={{ color: '#486581' }}>{avgConf}%</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-xs" style={{ color: '#627D98' }}>{date}</td>
+                          <td className="px-6 py-4">
+                            <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ background: '#FEF3E2', color: '#E67E22' }}>
+                              Pending Review
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <span className="text-xs" style={{ color: '#48BB78' }}>Review →</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         ) : (
           <>
+            {/* BACK TO LIST */}
+            <button onClick={() => setSelected(null)} className="flex items-center gap-1.5 text-sm mb-4 hover:opacity-80 transition-opacity" style={{ color: '#486581' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Back to candidates
+            </button>
+
+            {/* TABS */}
+            <div className="flex gap-1 border-b border-gray-200 mb-6">
+              {[
+                { id: 'audit' as const, label: 'Audit Trail' },
+                { id: 'methodology' as const, label: 'Methodology' },
+                { id: 'validate' as const, label: 'Validate & Sign' },
+              ].map(tab => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                    activeTab === tab.id ? 'bg-white text-orange-600 border border-gray-200 border-b-white -mb-px' : 'text-gray-500 hover:text-gray-700'
+                  }`}>{tab.label}</button>
+              ))}
+            </div>
             {/* AUDIT TRAIL TAB */}
             {activeTab === 'audit' && (
               <div className="space-y-6">
@@ -261,7 +335,7 @@ export default function PsychologistPage() {
                 {/* Gaming Flags */}
                 {selected.gaming_flags?.length > 0 && (
                   <div className="bg-white rounded-lg border border-orange-200 p-6">
-                    <h2 className="text-sm font-semibold text-orange-600 mb-3">⚠️ AUTHENTICITY FLAGS</h2>
+                    <h2 className="text-sm font-semibold text-orange-600 mb-3">AUTHENTICITY FLAGS</h2>
                     <div className="space-y-2">
                       {selected.gaming_flags.map((flag, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
@@ -340,7 +414,7 @@ export default function PsychologistPage() {
                       ))}
                     </div>
                     {selected.gaming_flags?.length > 0 && (
-                      <p className="text-xs text-orange-600 mt-2">⚠️ {selected.gaming_flags.length} authenticity flag(s) noted — review audit trail before signing.</p>
+                      <p className="text-xs text-orange-600 mt-2">{selected.gaming_flags.length} authenticity flag(s) noted — review audit trail before signing.</p>
                     )}
                   </div>
 
@@ -349,9 +423,9 @@ export default function PsychologistPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Validation Decision</label>
                       <select value={validationStatus} onChange={e => setValidationStatus(e.target.value as any)}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none bg-white">
-                        <option value="validated">✅ Validated — methodology sound, evidence traceable</option>
-                        <option value="revision_needed">🔄 Revision Needed — some claims need additional evidence</option>
-                        <option value="rejected">❌ Rejected — methodology concerns or insufficient evidence</option>
+                        <option value="validated">Validated — methodology sound, evidence traceable</option>
+                        <option value="revision_needed">Revision Needed — some claims need additional evidence</option>
+                        <option value="rejected">Rejected — methodology concerns or insufficient evidence</option>
                       </select>
                     </div>
 
@@ -373,7 +447,7 @@ export default function PsychologistPage() {
                         className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
                           signed ? 'bg-green-500' : 'bg-orange-500 hover:bg-orange-600 shadow-md hover:shadow-lg'
                         } disabled:opacity-50`}>
-                        {signed ? '✅ Signed and Validated' : '✍️ Sign with Professional License'}
+                        {signed ? 'Signed and Validated' : 'Sign with Professional License'}
                       </button>
                       <p className="text-xs text-gray-400 text-center mt-2">
                         By signing, you attest that you have reviewed the audit trail and methodology,
