@@ -180,31 +180,41 @@ Each step has: what to SAY, what to DO on screen, a live URL button, and (in Pre
 
 ## 9. WHAT'S REMAINING (priority order)
 
-### Immediate next:
-1. **SIM1-SIM2 — Joy Anne pipeline validation** — run the Joy Anne transcript through the 5-stage pipeline and compare to Ryan's expected output
-2. **S10 — Vercel deploy** — live URL for demo (next week)
-3. **Dry run** — walk all 3 acts of `/demo-day` end-to-end
+### Testing sprint (next):
+1. **SIM1-SIM2 — Joy Anne pipeline validation** — test script built (`test/sim-joy-anne.js`), first run scored 81% (13/16 checks). Re-run after principled reasoning framework fixes.
+2. **T1 — Ryan's 10 transcripts** — run through extraction, have Ryan review output
+3. **T3 — Test-retest** — same transcript 5x, scores within ±5%
+4. **T9 — User acceptance** — Ryan's team does live sessions with Aya
+5. **S10 — Vercel deploy** — live URL for demo
 
 ### Blocked on Ryan's team:
-- **R4/R5 — Psychometric injection** — needs RIASEC/HIGH5/saboteur JSON per candidate
-- **R2 + R15 — Structured disability fields** — needs Ryan to confirm field spec
+- **R4/R5 — Psychometric injection** — v2 prompt has all 7 saboteur instructions, but needs per-candidate RIASEC/HIGH5/saboteur JSON from Ryan (X7)
+- **X1 — Cebuana JDs** — available on JobStreet, Ryan to provide
+- **X3 — Psychologist onboarding** — Ryan to define review process with psych team
 
-### Ready to build:
-- R10 — Experience snapshot synthesis ("most relevant role + notable achievement")
-- R11 + R16 — Self-reported challenges field in profile schema + form
+### Lower priority (post-testing):
 - R13 — Coverage matrix UI (backend exists via runLightweightExtraction)
-- R14 — Session timer + pace enforcement from calibration
-- U1 — Mobile responsive design (PH users are mobile-first)
 - L12 — Accessibility mode (lower literacy, ND, TS users)
-- T1-T9 — Testing with Ryan's 10 transcripts + 7 real profiles
-- BR8 — Bloom mark SVG (placeholder circles for now)
+- P4 — Evidence repository (file upload for portfolio/certs)
+- P5 — Psychometric data display
+- U4 — Skills revealed animation refinement
 
-### DONE this session (March 17 evening):
-- ✅ R12 — System prompt v2 full replacement (all 7 saboteur patterns, confidence-capability gap, thematic bridge v2, HIGH5-informed selection, disability-as-evidence live)
-- ✅ EX1-EX8 — 5-stage extraction pipeline (from Ryan's "Brain Behind the Brain" doc)
-- ✅ BR1-BR7 — Full Kaya branding across all pages (Navy 900 nav, Stone 50 bg, Green 400 success, Georgia wordmark)
-- ✅ SIS → Kaya rename (all UI text + API prompts)
-- ✅ R6, R7, R8, R9 — extraction overrides (self-deprecation, disability uplift, informal experience, vacancy weighting)
+### DONE this session (March 17 — full day):
+- ✅ R12 — System prompt v2 full replacement (7 saboteur patterns, confidence-capability gap, thematic bridge v2)
+- ✅ EX1-EX8 — 5-stage extraction pipeline with principled reasoning framework
+- ✅ BR1-BR8 — Full Kaya branding (all pages, bloom mark SVG, SIS→Kaya rename, localStorage keys)
+- ✅ R2+R11+R15+R16 — Disability context fields + self-reported challenges in profile + form
+- ✅ R10 — Experience snapshot synthesis in calibration
+- ✅ R14 — Session timer with pace enforcement from calibration
+- ✅ U1+U5+U6 — Mobile responsive, keyboard focus, reduced-motion
+- ✅ V5 — Research anchoring document for psychologists
+- ✅ O2+O3 — Onboarding plan + manager handoff generation
+- ✅ S8 — Supabase auth (JWT on all candidate-facing API calls, backwards-compatible)
+- ✅ Old /api/extract route deleted — single extraction path via 5-stage pipeline
+- ✅ Pipeline model upgrade — Opus for judgment stages (2,3,5), Sonnet for rule stages (1,4)
+- ✅ Pipeline principled reasoning framework (6 meta-principles, scoring reasoning trace)
+- ✅ Pipeline JSON repair for truncated output
+- ✅ SIM1-SIM2 test script built and first validation run completed
 
 ---
 
@@ -212,15 +222,17 @@ Each step has: what to SAY, what to DO on screen, a live URL button, and (in Pre
 
 | Decision | What Was Decided | Why |
 |---|---|---|
-| Voice → Text pivot | MVP is text-based (Taglish chatbot). Voice is Phase 2. | Co-creator accessibility feedback — voice excludes some PWD users |
-| Gate architecture | All 3 gates built end-to-end by Kuber. Jazzel/Chamar plug in later. | Jakarta deadline — can't wait for team dependencies |
+| Voice → Text pivot | MVP is text-based (Taglish chatbot). Voice is Phase 2. | Co-creator accessibility feedback |
+| Gate architecture | All 3 gates built end-to-end by Kuber. Jazzel/Chamar plug in later. | Jakarta deadline |
 | Psychologist validation | Separate post-gate step, not embedded in gates | Keeps automated pipeline clean |
-| Extraction model | claude-sonnet-4-20250514 for all 5 pipeline stages. Sonnet for conversation. | Pipeline stages are focused prompts — Sonnet handles them well. Quality + speed balance. |
+| Extraction models | Opus for Stages 2,3,5 (judgment). Sonnet for Stages 1,4 (rules). Sonnet for conversation. | ~$2/extraction — worth it for hiring decisions a psychologist endorses |
 | Scenario cards | Dynamic (AI-generated per conversation context), not pre-written | Pre-written won't scale; dynamic is harder to game |
-| Option A (Ryan signed off) | Build all 3 gates end-to-end, LEEE as Gate 2 deep build | Ryan explicitly signed off on this scope |
-| Product name: Kaya | External brand is "Kaya" (kaya.work). Internal may still say "SIS". | Filipino for "capable". Brand guidelines v1.0 delivered by Ryan. |
-| 5-stage extraction | Replaced monolithic extraction with 5 separate Claude calls | Better audit trail for psychologist, error isolation, focused prompts per stage. From Ryan's "Brain Behind the Brain" doc. |
-| Bridge logic v2 | Thematic bridging replaces category menu | Menu feels like interview. Thematic bridging feels like conversation. Menu is last resort only. |
+| Option A (Ryan signed off) | Build all 3 gates end-to-end, LEEE as Gate 2 deep build | Ryan explicitly signed off |
+| Product name: Kaya | External brand is "Kaya" (kaya.work). Domain: kaya.work | Filipino for "capable". Brand guidelines v1.0 by Ryan. |
+| 5-stage extraction | Replaced monolithic extraction with 5 separate Claude calls | Better audit trail, error isolation, focused prompts |
+| Bridge logic v2 | Thematic bridging replaces category menu | Menu feels like interview. Thematic feels like conversation. |
+| Principled reasoning | Pipeline uses 6 meta-principles, not scenario rules | Handles future candidates we haven't met, not just test cases |
+| Auth approach | JWT-first, falls back to body user_id, then demo user | Backwards-compatible — no breaking changes for demo mode |
 
 ---
 
@@ -229,9 +241,10 @@ Each step has: what to SAY, what to DO on screen, a live URL button, and (in Pre
 - `SIS_End_to_End_Process_Architecture_v2.docx` — governing document (signed off)
 - `SIS_Unified_Technical_Architecture_v2.docx` — full architecture (signed off)
 - `LEEE_PreSession_Context_and_SystemPrompt_v2.md` — v2 context injection + system prompt (implemented)
-- `Internal Pipeline Prompts and Scoring Logic_LEEE_Extraction_Engine.md` — 5-stage extraction pipeline spec (implemented)
-- `LEEE_Full_Simulation_JoyAnne_Cebuana.md` — complete end-to-end test case (ready for validation)
+- `Internal Pipeline Prompts and Scoring Logic_LEEE_Extraction_Engine.md` — 5-stage pipeline spec (implemented)
+- `LEEE_Full_Simulation_JoyAnne_Cebuana.md` — complete end-to-end test case (first validation run: 81%)
 - `Kaya_Brand_Guidelines_v1.0.docx` — brand guidelines (implemented)
+- `Research_Anchoring_Document_For_Psychologists.md` — standalone reference for psychologist panel (created)
 
 All source docs are in `docs/` in the repo.
 
@@ -242,17 +255,18 @@ All source docs are in `docs/` in the repo.
 1. Open a new Claude chat in this project
 2. Say: **"Continue Kaya build — read PROJECT_CONTEXT.md first"**
 3. Claude will read this file from the project knowledge and have full context
-4. The GitHub repo has all the code — clone it or reference it
+4. The GitHub repo has all the code — `git clone https://github.com/kubersethi15/sis-mvp.git`
 
 **The most important things to know:**
-- Product is now called **Kaya** (kaya.work). All UI text updated.
-- System prompt is v2 — saboteur-aware probing, thematic bridging, cultural intelligence.
-- Extraction is now a 5-stage pipeline (extraction-pipeline.ts) — not the old monolithic prompt.
-- Build is at 104/144 tasks (77%). Next: Joy Anne simulation test, then Vercel deploy.
-- 4 Ryan docs in `docs/` folder — all implemented except Joy Anne simulation test.
-- Key tracking docs: BUILD_TRACKER.md, POST_MVP_IMPROVEMENTS.md, PROJECT_CONTEXT.md.
-- Demo day script at `/demo-day`. Demo data seeder at `/demo`.
+- Build is at **123/148 tasks = 85%**. Build phase is essentially done. Testing phase begins.
+- Product is **Kaya** (kaya.work). All UI text updated. Brand: Navy 900 + Green 400 + Stone 50 + Georgia wordmark.
+- System prompt is **v2** — saboteur-aware probing, thematic bridging, cultural intelligence.
+- Extraction is a **5-stage pipeline** with principled reasoning framework (extraction-pipeline.ts, 661 lines).
+- **Opus** for judgment stages (2,3,5), **Sonnet** for rule stages (1,4) and conversation.
+- Auth uses **Supabase JWT** on all candidate-facing API calls. Falls back to demo mode.
+- Joy Anne simulation test: `ANTHROPIC_API_KEY=sk-... node test/sim-joy-anne.js`
+- Key tracking docs: BUILD_TRACKER.md, POST_MVP_IMPROVEMENTS.md, PROJECT_CONTEXT.md
 
 ---
 
-*Last updated: March 17, 2026 (evening) | Kuber Sethi + Claude*
+*Last updated: March 17, 2026 (late evening) | Kuber Sethi + Claude*
