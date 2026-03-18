@@ -22,12 +22,41 @@ export async function POST(req: NextRequest) {
 
     if (action === 'get_all_extractions') {
       const { data, error } = await db().from('leee_extractions')
-        .select('*')
+        .select('*, leee_sessions(user_id, user_profiles:user_id(full_name))')
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-      return NextResponse.json({ extractions: data });
+      if (error) {
+        // Fallback without join if foreign key doesn't resolve
+        const { data: fallback, error: fallbackErr } = await db().from('leee_extractions')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (fallbackErr) return NextResponse.json({ error: fallbackErr.message }, { status: 500 });
+
+        // Try to enrich with candidate names manually
+        const enriched = [];
+        for (const ext of (fallback || [])) {
+          let candidateName = null;
+          try {
+            const { data: session } = await db().from('leee_sessions').select('user_id').eq('id', ext.session_id).single();
+            if (session?.user_id) {
+              const { data: user } = await db().from('user_profiles').select('full_name').eq('id', session.user_id).single();
+              candidateName = user?.full_name;
+            }
+          } catch {}
+          enriched.push({ ...ext, candidate_name: candidateName });
+        }
+        return NextResponse.json({ extractions: enriched });
+      }
+
+      // Extract candidate name from joined data
+      const enriched = (data || []).map((ext: any) => ({
+        ...ext,
+        candidate_name: ext.leee_sessions?.user_profiles?.full_name || null,
+      }));
+
+      return NextResponse.json({ extractions: enriched });
     }
 
     if (action === 'validate') {

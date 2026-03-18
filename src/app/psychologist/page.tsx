@@ -152,7 +152,7 @@ export default function PsychologistPage() {
           <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Psychologist Validation</h1>
           <p className="text-sm" style={{ color: '#627D98' }}>
             {selected
-              ? `Reviewing: Session ${selected.session_id?.substring(0, 8)}... — ${selected.skills_profile?.length || 0} skills extracted`
+              ? `Reviewing: ${(selected as any).candidate_name || 'Candidate'} — ${selected.skills_profile?.length || 0} skills extracted`
               : `${extractions.length} candidate${extractions.length !== 1 ? 's' : ''} pending review`
             }
           </p>
@@ -195,7 +195,7 @@ export default function PsychologistPage() {
                           onClick={() => { setSelected(ext); setActiveTab('audit'); setSigned(false); setValidationNotes(''); setLicenseNumber(''); }}>
                           <td className="px-6 py-4">
                             <div className="text-sm font-medium" style={{ color: '#102A43' }}>
-                              Session {ext.session_id?.substring(0, 8)}...
+                              {(ext as any).candidate_name || 'Candidate ' + (i + 1)}
                             </div>
                             <div className="text-xs mt-0.5" style={{ color: '#829AB1' }}>{topSkills}</div>
                           </td>
