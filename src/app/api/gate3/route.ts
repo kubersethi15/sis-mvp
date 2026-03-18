@@ -518,5 +518,4 @@ async function generateOnboardingPlan(applicationId: string) {
 }
 
 // Export for use in demo route
-export { generateOnboardingPlan };
 
