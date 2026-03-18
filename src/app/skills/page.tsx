@@ -93,10 +93,45 @@ export default function SkillsDashboard() {
   useEffect(() => {
     const stored = localStorage.getItem('kaya_last_extraction');
     if (stored) {
-      try { setExtraction(JSON.parse(stored)); } catch (e) {}
+      try {
+        const parsed = JSON.parse(stored);
+
+        // Fix confidence: if all skills show 0.5, recalculate from raw pipeline or proficiency
+        if (parsed.skills_profile?.every((s: any) => s.confidence === 0.5)) {
+          // Try raw pipeline data first
+          const rawProfile = parsed._pipeline_stages?.stage5_profile || parsed.raw_extraction_response?.final_profile;
+          const rawSkillMap: Record<string, number> = {};
+
+          if (rawProfile) {
+            for (const s of (rawProfile.vacancy_aligned_skills || [])) {
+              rawSkillMap[s.skill_name] = s.top_evidence?.adjusted_confidence || s.adjusted_confidence || 0.5;
+            }
+            for (const s of (rawProfile.additional_skills_evidenced || [])) {
+              rawSkillMap[s.skill_name] = s.top_evidence?.adjusted_confidence || s.adjusted_confidence || 0.5;
+            }
+          }
+
+          // Also check stage 3 mappings
+          const stage3 = parsed._pipeline_stages?.stage3_mappings;
+          if (stage3 && Array.isArray(stage3)) {
+            for (const m of stage3) {
+              if (m.skill_name && m.confidence && !rawSkillMap[m.skill_name]) {
+                rawSkillMap[m.skill_name] = m.confidence;
+              }
+            }
+          }
+
+          parsed.skills_profile = parsed.skills_profile.map((s: any) => ({
+            ...s,
+            confidence: rawSkillMap[s.skill_name]
+              || (s.proficiency?.toLowerCase() === 'advanced' ? 0.85 : s.proficiency?.toLowerCase() === 'intermediate' ? 0.72 : 0.55),
+          }));
+        }
+
+        setExtraction(parsed);
+      } catch (e) {}
     }
     setLoading(false);
-    // Trigger bar animations after mount
     setTimeout(() => setAnimatedBars(true), 300);
   }, []);
 

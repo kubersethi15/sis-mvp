@@ -50,11 +50,44 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ extractions: enriched });
       }
 
-      // Extract candidate name from joined data
-      const enriched = (data || []).map((ext: any) => ({
-        ...ext,
-        candidate_name: ext.leee_sessions?.user_profiles?.full_name || null,
-      }));
+      // Extract candidate name from joined data + fix confidence from raw pipeline
+      const enriched = (data || []).map((ext: any) => {
+        const result = {
+          ...ext,
+          candidate_name: ext.leee_sessions?.user_profiles?.full_name || null,
+        };
+
+        // Fix confidence: if all skills show 0.5, recalculate from raw pipeline data
+        const allHalf = result.skills_profile?.every((s: any) => s.confidence === 0.5);
+        if (allHalf && result.raw_extraction_response?.final_profile) {
+          const raw = result.raw_extraction_response.final_profile;
+          const rawSkillMap: Record<string, number> = {};
+
+          for (const s of (raw.vacancy_aligned_skills || [])) {
+            rawSkillMap[s.skill_name] = s.top_evidence?.adjusted_confidence || s.adjusted_confidence || s.confidence || 0.5;
+          }
+          for (const s of (raw.additional_skills_evidenced || [])) {
+            rawSkillMap[s.skill_name] = s.top_evidence?.adjusted_confidence || s.adjusted_confidence || s.confidence || 0.5;
+          }
+
+          // Also try Stage 3 mappings for confidence
+          const stage3 = result.raw_extraction_response?.pipeline_stages?.stage3_mappings;
+          if (stage3 && Array.isArray(stage3)) {
+            for (const m of stage3) {
+              if (m.skill_name && m.confidence && !rawSkillMap[m.skill_name]) {
+                rawSkillMap[m.skill_name] = m.confidence;
+              }
+            }
+          }
+
+          result.skills_profile = result.skills_profile?.map((s: any) => ({
+            ...s,
+            confidence: rawSkillMap[s.skill_name] || (s.proficiency?.toLowerCase() === 'advanced' ? 0.85 : s.proficiency?.toLowerCase() === 'intermediate' ? 0.72 : 0.55),
+          }));
+        }
+
+        return result;
+      });
 
       return NextResponse.json({ extractions: enriched });
     }
