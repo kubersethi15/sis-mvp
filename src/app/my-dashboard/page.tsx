@@ -112,8 +112,7 @@ export default function MyDashboard() {
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
         <div className="flex items-center gap-4">
-          <Link href="/profile" className="text-xs font-medium hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Edit Profile</Link>
-          <span className="text-xs" style={{ color: '#627D98' }}>My Dashboard</span>
+          <Link href="/profile" className="text-xs hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Edit Profile</Link>
           <button
             onClick={() => {
               localStorage.clear();

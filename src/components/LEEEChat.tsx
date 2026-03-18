@@ -265,38 +265,40 @@ export default function LEEEChat() {
         skillsEvidenced: data.skills_evidenced || prev.skillsEvidenced,
       }));
 
-      // Client-side scenario card trigger — detect story transitions
-      // If Aya didn't emit [SCENARIO:...] but we detect a story boundary, trigger one ourselves
+      // Client-side scenario card trigger
+      // Fire at message milestones: after ~8 messages (story 1 done) and ~16 messages (story 2 done)
       if (!scenarioMatch && scenarioCount < 2) {
-        const userMsgCount = messages.filter(m => m.role === 'user').length;
-        const transitionPhrases = [
-          'different kind of situation', 'hear about a different', 'different experience',
-          'something else', 'another time', 'switch gears', 'new topic', 'another story',
-          'curious about', 'tell me about a time', 'have you ever',
-        ];
-        const isTransition = transitionPhrases.some(p => messageContent.toLowerCase().includes(p));
+        const userMsgCount = messages.filter(m => m.role === 'user').length + 1; // +1 for the one just sent
+        const shouldTrigger =
+          (scenarioCount === 0 && userMsgCount >= 7 && userMsgCount <= 9) ||
+          (scenarioCount === 1 && userMsgCount >= 14 && userMsgCount <= 16);
 
-        if (isTransition && userMsgCount >= 5) {
-          // Generate scenario card based on conversation so far
+        if (shouldTrigger) {
           try {
             const recentContext = messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n');
+            // Determine skill gap from what hasn't been discussed
+            const topics = messageContent.toLowerCase();
+            const skillGap = topics.includes('work') ? 'COLLAB' :
+              topics.includes('family') ? 'PS' :
+              topics.includes('customer') ? 'ADAPT' : 'COMM';
+
             const scenRes = await fetch('/api/scenario', {
               method: 'POST',
               headers: await authHeaders(),
               body: JSON.stringify({
                 domain: 'work',
-                skill_gap: 'PS',
+                skill_gap: skillGap,
                 emotional_register: 'pressure',
                 recent_context: recentContext,
               }),
             });
             const scenData = await scenRes.json();
             if (scenData.scenario) {
-              setTimeout(() => setPendingScenario(scenData.scenario), 1200);
+              setTimeout(() => setPendingScenario(scenData.scenario), 1500);
               setScenarioCount(c => c + 1);
             }
           } catch (e) {
-            console.error('Client-side scenario trigger error:', e);
+            console.error('Scenario trigger error:', e);
           }
         }
       }
@@ -819,15 +821,24 @@ export default function LEEEChat() {
 
             <div className="flex items-center justify-between mt-2 px-1">
               <p className="text-[11px] text-white/25" style={{ fontFamily: 'system-ui, sans-serif' }}>
-                Story {session.storiesCompleted + 1} of 3 · skip any question
+                Story {session.storiesCompleted + 1} of 3
               </p>
-              {messages.length >= 6 && (
-                <button onClick={handleFinishSession}
-                  className="text-[11px] text-white/25 hover:text-white/50 transition-colors"
-                  style={{ fontFamily: 'system-ui, sans-serif' }}>
-                  Finish →
-                </button>
-              )}
+              <div className="flex items-center gap-3">
+                {messages.length >= 3 && messages.length < 6 && (
+                  <button onClick={() => sendMessage("Can we move on to something else?")}
+                    className="text-[11px] text-white/25 hover:text-white/50 transition-colors"
+                    style={{ fontFamily: 'system-ui, sans-serif' }}>
+                    Skip question
+                  </button>
+                )}
+                {messages.length >= 6 && (
+                  <button onClick={handleFinishSession}
+                    className="text-[11px] text-white/25 hover:text-white/50 transition-colors"
+                    style={{ fontFamily: 'system-ui, sans-serif' }}>
+                    Finish →
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </footer>
