@@ -131,8 +131,10 @@ export default function LEEEChat() {
   const [showReveal, setShowReveal] = useState(false);
   const [pendingScenario, setPendingScenario] = useState<any>(null);
   const [scenarioCount, setScenarioCount] = useState(0);
+  const [scenarioQueued, setScenarioQueued] = useState(false);
   const [pendingSimulation, setPendingSimulation] = useState<any>(null);
   const [simulationDone, setSimulationDone] = useState(false);
+  const [simulationQueued, setSimulationQueued] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -285,83 +287,89 @@ export default function LEEEChat() {
       }));
 
       // Client-side scenario card trigger
-      // Fire at message milestones: after ~8 messages (story 1 done) and ~16 messages (story 2 done)
-      if (!scenarioMatch && scenarioCount < 2) {
-        const userMsgCount = messages.filter(m => m.role === 'user').length + 1; // +1 for the one just sent
-        const shouldTrigger =
+      // Queue at message milestones — but DON'T show immediately.
+      // Instead, set a flag so it shows after the user's NEXT response.
+      // This prevents interrupting Aya's question before the user can answer.
+      if (!scenarioMatch && scenarioCount < 2 && !pendingScenario && !scenarioQueued) {
+        const userMsgCount = messages.filter(m => m.role === 'user').length + 1;
+        const shouldQueue =
           (scenarioCount === 0 && userMsgCount >= 7 && userMsgCount <= 9) ||
           (scenarioCount === 1 && userMsgCount >= 14 && userMsgCount <= 16);
 
-        if (shouldTrigger) {
-          try {
-            const recentContext = messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n');
-
-            // Determine skill gap from actual session data
-            const allPsfSkills = [
-              'Communication', 'Collaboration', 'Problem Solving', 'Adaptability',
-              'Self-Management', 'Learning Agility', 'Decision Making', 'Influence',
-              'Customer Orientation', 'Developing People', 'Digital Fluency', 'Creative Thinking',
-            ];
-            const evidenced = session.skillsEvidenced || {};
-            const evidencedNames = Object.entries(evidenced).filter(([_, v]) => v).map(([k]) => k);
-            const gaps = allPsfSkills.filter(s => !evidencedNames.some(e => s.toLowerCase().includes(e.toLowerCase())));
-            const targetSkill = gaps.length > 0 ? gaps[Math.floor(Math.random() * Math.min(3, gaps.length))] : 'Communication';
-
-            // Detect domain from conversation
-            const fullConvo = messages.map(m => m.content).join(' ').toLowerCase();
-            const domain = fullConvo.includes('work') || fullConvo.includes('job') || fullConvo.includes('office') ? 'work' :
-              fullConvo.includes('family') || fullConvo.includes('mom') || fullConvo.includes('parent') ? 'family' :
-              fullConvo.includes('school') || fullConvo.includes('class') || fullConvo.includes('study') ? 'school' : 'community';
-
-            const scenRes = await fetch('/api/scenario', {
-              method: 'POST',
-              headers: await authHeaders(),
-              body: JSON.stringify({
-                domain,
-                skill_gap: targetSkill,
-                emotional_register: 'pressure',
-                recent_context: recentContext,
-              }),
-            });
-            const scenData = await scenRes.json();
-            if (scenData.scenario) {
-              setTimeout(() => setPendingScenario(scenData.scenario), 1500);
-              setScenarioCount(c => c + 1);
-            }
-          } catch (e) {
-            console.error('Scenario trigger error:', e);
-          }
+        if (shouldQueue) {
+          // Queue the scenario — it will fire on the NEXT user message
+          setScenarioQueued(true);
         }
       }
 
-      // Micro-simulation trigger — fires once at message 12-14 (after story 2)
-      if (!simulationDone && !pendingSimulation && scenarioCount >= 1) {
+      // If a scenario was queued from the previous turn, NOW generate and show it
+      if (scenarioQueued && !pendingScenario && scenarioCount < 2) {
+        setScenarioQueued(false);
+        try {
+          const recentContext = messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n');
+          const allPsfSkills = [
+            'Communication', 'Collaboration', 'Problem Solving', 'Adaptability',
+            'Self-Management', 'Learning Agility', 'Decision Making', 'Influence',
+            'Customer Orientation', 'Developing People', 'Digital Fluency', 'Creative Thinking',
+          ];
+          const evidenced = session.skillsEvidenced || {};
+          const evidencedNames = Object.entries(evidenced).filter(([_, v]) => v).map(([k]) => k);
+          const gaps = allPsfSkills.filter(s => !evidencedNames.some(e => s.toLowerCase().includes(e.toLowerCase())));
+          const targetSkill = gaps.length > 0 ? gaps[Math.floor(Math.random() * Math.min(3, gaps.length))] : 'Communication';
+
+          const fullConvo = messages.map(m => m.content).join(' ').toLowerCase();
+          const domain = fullConvo.includes('work') || fullConvo.includes('job') ? 'work' :
+            fullConvo.includes('family') || fullConvo.includes('mom') ? 'family' :
+            fullConvo.includes('school') || fullConvo.includes('class') ? 'school' : 'community';
+
+          const scenRes = await fetch('/api/scenario', {
+            method: 'POST',
+            headers: await authHeaders(),
+            body: JSON.stringify({ domain, skill_gap: targetSkill, emotional_register: 'pressure', recent_context: recentContext }),
+          });
+          const scenData = await scenRes.json();
+          if (scenData.scenario) {
+            setTimeout(() => setPendingScenario(scenData.scenario), 1500);
+            setScenarioCount(c => c + 1);
+          }
+        } catch (e) {
+          console.error('Scenario trigger error:', e);
+        }
+      }
+
+      // Micro-simulation trigger — queue at message 12-14, show on NEXT turn
+      if (!simulationDone && !pendingSimulation && !simulationQueued && scenarioCount >= 1) {
         const userMsgCount = messages.filter(m => m.role === 'user').length + 1;
         if (userMsgCount >= 12 && userMsgCount <= 14) {
-          try {
-            const recentContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
-            const evidenced = session.skillsEvidenced || {};
-            const evidencedNames = Object.entries(evidenced).filter(([_, v]) => v).map(([k]) => k);
-            const allSkills = ['Communication', 'Problem Solving', 'Customer Orientation', 'Collaboration', 'Self-Management', 'Adaptability', 'Decision Making', 'Influence', 'Developing People', 'Learning Agility', 'Digital Fluency', 'Creative Thinking'];
-            const gaps = allSkills.filter(s => !evidencedNames.some(e => s.toLowerCase().includes(e.toLowerCase())));
+          setSimulationQueued(true);
+        }
+      }
 
-            const simRes = await fetch('/api/simulation', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                action: 'generate',
-                recent_context: recentContext,
-                skills_already_evidenced: evidencedNames,
-                skills_not_yet_evidenced: gaps,
-              }),
-            });
-            const simData = await simRes.json();
-            if (simData.simulation) {
-              setTimeout(() => setPendingSimulation(simData.simulation), 2000);
-            }
-          } catch (e) {
-            console.error('Simulation trigger error:', e);
+      if (simulationQueued && !pendingSimulation && !pendingScenario) {
+        setSimulationQueued(false);
+        try {
+          const recentContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
+          const evidenced = session.skillsEvidenced || {};
+          const evidencedNames = Object.entries(evidenced).filter(([_, v]) => v).map(([k]) => k);
+          const allSkills = ['Communication', 'Problem Solving', 'Customer Orientation', 'Collaboration', 'Self-Management', 'Adaptability', 'Decision Making', 'Influence', 'Developing People', 'Learning Agility', 'Digital Fluency', 'Creative Thinking'];
+          const gaps = allSkills.filter(s => !evidencedNames.some(e => s.toLowerCase().includes(e.toLowerCase())));
+
+          const simRes = await fetch('/api/simulation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'generate',
+              recent_context: recentContext,
+              skills_already_evidenced: evidencedNames,
+              skills_not_yet_evidenced: gaps,
+            }),
+          });
+          const simData = await simRes.json();
+          if (simData.simulation) {
+            setTimeout(() => setPendingSimulation(simData.simulation), 2000);
           }
+        } catch (e) {
+          console.error('Simulation trigger error:', e);
         }
       }
 
