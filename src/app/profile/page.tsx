@@ -216,20 +216,22 @@ export default function ProfilePage() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-row items-center gap-3 flex-nowrap">
           {saved && <span className="text-xs font-medium" style={{ color: '#48BB78' }}>Saved</span>}
           {fullName ? (
             <>
-              <span className="text-xs hidden sm:inline" style={{ color: '#BCCCDC' }}>{fullName}</span>
-              <a href="/my-dashboard" className="text-xs hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Dashboard</a>
+              <span className="text-xs hidden sm:inline whitespace-nowrap" style={{ color: '#BCCCDC' }}>{fullName}</span>
+              <span className="hidden sm:inline" style={{ color: '#334E68' }}>|</span>
+              <a href="/my-dashboard" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Dashboard</a>
+              <span style={{ color: '#334E68' }}>|</span>
               <button
                 onClick={() => { localStorage.clear(); window.location.href = '/auth'; }}
-                className="text-xs hover:opacity-80 transition-opacity"
-                style={{ color: '#829AB1' }}
+                className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity"
+                style={{ color: '#627D98' }}
               >Sign Out</button>
             </>
           ) : (
-            <a href="/auth" className="text-xs font-medium hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Sign In</a>
+            <a href="/auth" className="text-xs font-medium whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Sign In</a>
           )}
         </div>
       </nav>
