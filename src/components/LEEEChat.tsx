@@ -339,12 +339,11 @@ export default function LEEEChat() {
         const userMsgCount = messages.filter(m => m.role === 'user').length + 1;
         if (userMsgCount >= 12 && userMsgCount <= 14) {
           try {
-            const recentContext = messages.slice(-8).map(m => `${m.role}: ${m.content}`).join('\n');
+            const recentContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
             const evidenced = session.skillsEvidenced || {};
             const evidencedNames = Object.entries(evidenced).filter(([_, v]) => v).map(([k]) => k);
-            const allSkills = ['Communication', 'Problem Solving', 'Customer Orientation', 'Collaboration', 'Self-Management', 'Adaptability', 'Decision Making', 'Influence'];
+            const allSkills = ['Communication', 'Problem Solving', 'Customer Orientation', 'Collaboration', 'Self-Management', 'Adaptability', 'Decision Making', 'Influence', 'Developing People', 'Learning Agility', 'Digital Fluency', 'Creative Thinking'];
             const gaps = allSkills.filter(s => !evidencedNames.some(e => s.toLowerCase().includes(e.toLowerCase())));
-            const targetSkill = gaps.length > 0 ? gaps[0] : 'Problem Solving';
 
             const simRes = await fetch('/api/simulation', {
               method: 'POST',
@@ -352,7 +351,8 @@ export default function LEEEChat() {
               body: JSON.stringify({
                 action: 'generate',
                 recent_context: recentContext,
-                skill_gap: targetSkill,
+                skills_already_evidenced: evidencedNames,
+                skills_not_yet_evidenced: gaps,
               }),
             });
             const simData = await simRes.json();

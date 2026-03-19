@@ -3,40 +3,59 @@ import { callLLM } from '@/lib/llm';
 
 export async function POST(req: NextRequest) {
   try {
-    const { action, recent_context, skill_gap, user_response, simulation_state } = await req.json();
+    const { action, recent_context, skills_already_evidenced, skills_not_yet_evidenced, skill_gap, user_response, simulation_state } = await req.json();
 
     if (action === 'generate') {
+      const evidenced = skills_already_evidenced || [];
+      const gaps = skills_not_yet_evidenced || [];
+
       const result = await callLLM({
         system: `You generate micro role-play simulations for the Kaya skills assessment platform (Philippines).
-The simulation must:
+
+YOUR ROLE: You are Aya's strategic brain. You decide what to test and how. You have two goals:
+1. Deepen evidence on skills that have weak evidence (upgrade confidence)
+2. Surface evidence for skills not yet seen (fill gaps)
+
+YOU DECIDE which is more valuable based on the conversation context. If the user just told a rich story about customer service, a simulation that deepens Customer Orientation or Communication evidence may be MORE valuable than testing an unrelated gap. But if the conversation has been narrow (e.g., only family stories), steering toward a work simulation to test Problem Solving or Collaboration might be better.
+
+Think like a skilled assessor: what simulation would produce the richest behavioral evidence for this specific person right now?
+
+RULES:
 1. Be contextual — relate to what the user was just discussing
 2. Test a specific PSF (Philippine Skills Framework) skill
-3. Be set in a Filipino context (Cebuana Lhuillier branch, barangay, community, family business, school)
-4. Be SHORT — the user will only have 2-3 exchanges
-5. Feel natural, warm, realistic — not like a test
+3. Filipino context (Cebuana Lhuillier branch, barangay, community, family business, school, sari-sari store)
+4. SHORT — 2-3 exchanges only
+5. Warm, realistic, not like a test
+6. The character should feel real — give them a personality, a reason for their behavior
+7. The situation should have no obviously right answer — genuine dilemma
 
-RESPOND WITH ONLY THIS JSON, NO OTHER TEXT:
+RESPOND WITH ONLY THIS JSON:
 {
   "simulation_id": "SIM-001",
   "title": "3-5 word title",
   "psf_skill_tested": "exact PSF skill name",
   "pqf_level": "intermediate",
+  "assessment_rationale": "1 sentence: why you chose to test THIS skill in THIS way",
   "setting": "1 sentence describing where this takes place",
-  "opening_line": "What the other person says to start (max 2 sentences, in character)",
+  "opening_line": "What the character says to start (max 2 sentences, in character)",
   "character_name": "A Filipino first name",
   "character_role": "e.g. Upset customer, New team member, Concerned parent",
-  "character_instruction": "Hidden behavior guide: emotional state, what they want, how they respond to empathy vs dismissal",
-  "extraction_focus": "What behavioral evidence to look for in responses",
+  "character_instruction": "Hidden: emotional state, what they want, how they respond to empathy vs dismissal, how they escalate or de-escalate",
+  "extraction_focus": "What behavioral evidence to look for: e.g. de-escalation language, empathy, solution-oriented thinking, leadership signals",
   "max_rounds": 3
 }`,
         messages: [{
           role: 'user',
           content: `Generate a micro role-play simulation.
-Target PSF skill: ${skill_gap || 'Communication'}
-Recent conversation: ${recent_context || 'General conversation'}
-Make it relevant, warm, and Filipino.`,
+
+SKILLS ALREADY EVIDENCED: ${evidenced.length > 0 ? evidenced.join(', ') : 'None yet'}
+SKILLS NOT YET EVIDENCED: ${gaps.length > 0 ? gaps.join(', ') : 'All covered'}
+RECENT CONVERSATION (last 10 messages):
+${recent_context || 'General conversation'}
+
+Decide what to test. Explain your reasoning in assessment_rationale.`,
         }],
-        maxTokens: 800,
+        maxTokens: 900,
       });
 
       const cleaned = result.text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
