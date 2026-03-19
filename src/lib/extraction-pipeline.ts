@@ -33,6 +33,7 @@ SEGMENTATION RULES:
 5. If the jobseeker code-switches between English, Filipino, and Taglish within an episode, keep the episode intact — do not split on language changes.
 6. Preserve the EXACT original text. Do not paraphrase, translate, or clean up language.
 7. SCENARIO EVIDENCE: Messages tagged with [SCENARIO EVIDENCE] are responses to interactive skill assessment scenarios. Treat each as a distinct episode with type "scenario". These contain: the situation presented, the choice made, the PSF skill tested, and the proficiency signal. They are VALID behavioral evidence — the person made a deliberate decision that signals a skill.
+8. SIMULATION EVIDENCE: Messages tagged with [SIMULATION EVIDENCE] are responses from interactive role-play simulations where the user conversed with a character in a realistic scenario. Treat each as a distinct episode with type "simulation". These contain richer evidence than scenario cards — the user's actual WORDS and PHRASING in a simulated situation reveal communication style, problem-solving approach, empathy, and decision-making. They are STRONG behavioral evidence.
 
 OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
 [
@@ -50,7 +51,7 @@ OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
   }
 ]
 
-TYPE: "episode" for story units grounded in a specific situation, "commentary" for general statements/opinions, "scenario" for [SCENARIO EVIDENCE] responses (interactive skill assessment choices).
+TYPE: "episode" for story units grounded in a specific situation, "commentary" for general statements/opinions, "scenario" for [SCENARIO EVIDENCE] responses (interactive skill assessment choices), "simulation" for [SIMULATION EVIDENCE] responses (interactive role-play conversations — richer evidence).
 
 SPECIFICITY SCORING:
 - "vague": No specific time, place, or people. Hypothetical or generic ("I usually..." / "I always...").

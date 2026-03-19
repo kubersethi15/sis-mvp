@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import SuperpowersReveal from './SuperpowersReveal';
 import ScenarioCard from './ScenarioCard';
+import MicroSimulation from './MicroSimulation';
 
 // Auth helper — gets Supabase JWT for API calls
 const supabase = createClient(
@@ -130,6 +131,8 @@ export default function LEEEChat() {
   const [showReveal, setShowReveal] = useState(false);
   const [pendingScenario, setPendingScenario] = useState<any>(null);
   const [scenarioCount, setScenarioCount] = useState(0);
+  const [pendingSimulation, setPendingSimulation] = useState<any>(null);
+  const [simulationDone, setSimulationDone] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -327,6 +330,37 @@ export default function LEEEChat() {
             }
           } catch (e) {
             console.error('Scenario trigger error:', e);
+          }
+        }
+      }
+
+      // Micro-simulation trigger — fires once at message 12-14 (after story 2)
+      if (!simulationDone && !pendingSimulation && scenarioCount >= 1) {
+        const userMsgCount = messages.filter(m => m.role === 'user').length + 1;
+        if (userMsgCount >= 12 && userMsgCount <= 14) {
+          try {
+            const recentContext = messages.slice(-8).map(m => `${m.role}: ${m.content}`).join('\n');
+            const evidenced = session.skillsEvidenced || {};
+            const evidencedNames = Object.entries(evidenced).filter(([_, v]) => v).map(([k]) => k);
+            const allSkills = ['Communication', 'Problem Solving', 'Customer Orientation', 'Collaboration', 'Self-Management', 'Adaptability', 'Decision Making', 'Influence'];
+            const gaps = allSkills.filter(s => !evidencedNames.some(e => s.toLowerCase().includes(e.toLowerCase())));
+            const targetSkill = gaps.length > 0 ? gaps[0] : 'Problem Solving';
+
+            const simRes = await fetch('/api/simulation', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'generate',
+                recent_context: recentContext,
+                skill_gap: targetSkill,
+              }),
+            });
+            const simData = await simRes.json();
+            if (simData.simulation) {
+              setTimeout(() => setPendingSimulation(simData.simulation), 2000);
+            }
+          } catch (e) {
+            console.error('Simulation trigger error:', e);
           }
         }
       }
@@ -711,6 +745,43 @@ export default function LEEEChat() {
                 };
                 setMessages(prev => [...prev, userChoice, ayaMsg]);
                 // Continue conversation naturally
+                setTimeout(() => inputRef.current?.focus(), 300);
+              }}
+            />
+          )}
+
+          {/* MICRO-SIMULATION — Interactive role-play */}
+          {pendingSimulation && !isLoading && !pendingScenario && (
+            <MicroSimulation
+              simulation={pendingSimulation}
+              onComplete={(evidenceStr, exchanges) => {
+                setPendingSimulation(null);
+                setSimulationDone(true);
+
+                if (evidenceStr) {
+                  // Add simulation evidence to transcript
+                  const simMsg: any = {
+                    id: crypto.randomUUID(), role: 'user',
+                    content: evidenceStr,
+                    timestamp: new Date(),
+                    isSimulation: true,
+                    simulationData: {
+                      title: pendingSimulation.title,
+                      psf_skill_tested: pendingSimulation.psf_skill_tested,
+                      exchanges,
+                    },
+                  };
+
+                  // Aya's warm transition back
+                  const ayaMsg: any = {
+                    id: crypto.randomUUID(), role: 'assistant',
+                    content: `That was great — I really liked how you handled that. Let's keep going with our conversation. What else has been going on with you?`,
+                    timestamp: new Date(),
+                  };
+
+                  setMessages(prev => [...prev, simMsg, ayaMsg]);
+                }
+
                 setTimeout(() => inputRef.current?.focus(), 300);
               }}
             />
