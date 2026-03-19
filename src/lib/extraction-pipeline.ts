@@ -32,6 +32,7 @@ SEGMENTATION RULES:
 4. General statements, opinions, and self-assessments that are NOT grounded in a specific situation are tagged as COMMENTARY, not episodes. Commentary is useful context but does not produce behavioral evidence.
 5. If the jobseeker code-switches between English, Filipino, and Taglish within an episode, keep the episode intact — do not split on language changes.
 6. Preserve the EXACT original text. Do not paraphrase, translate, or clean up language.
+7. SCENARIO EVIDENCE: Messages tagged with [SCENARIO EVIDENCE] are responses to interactive skill assessment scenarios. Treat each as a distinct episode with type "scenario". These contain: the situation presented, the choice made, the PSF skill tested, and the proficiency signal. They are VALID behavioral evidence — the person made a deliberate decision that signals a skill.
 
 OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
 [
@@ -49,7 +50,7 @@ OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
   }
 ]
 
-TYPE: "episode" for story units grounded in a specific situation, "commentary" for general statements/opinions.
+TYPE: "episode" for story units grounded in a specific situation, "commentary" for general statements/opinions, "scenario" for [SCENARIO EVIDENCE] responses (interactive skill assessment choices).
 
 SPECIFICITY SCORING:
 - "vague": No specific time, place, or people. Hypothetical or generic ("I usually..." / "I always...").
@@ -133,6 +134,16 @@ ACTION INDEPENDENCE:
 - "guided": Person followed instructions or procedures set by others.
 - "independent": Person decided and acted on their own judgment.
 - "leading": Person directed others, set strategy, or created new approaches.
+
+SCENARIO EVIDENCE:
+Episodes with type "scenario" contain [SCENARIO EVIDENCE] tags. These are responses to interactive hypothetical scenarios. For these:
+- The Situation and Task come from the scenario description
+- The Action is their CHOICE — what they decided to do
+- The Result is implied by their choice (no outcome was shown)
+- Extract as evidence_quality "behavioral" (they made a deliberate decision)
+- The PSF skill and proficiency are embedded in the evidence tag — use these directly
+- Set evidence_source: "scenario" to distinguish from narrative evidence
+- Scenario evidence has slightly lower confidence than narrative evidence (0.6-0.7 range) because it tests intent rather than demonstrated behavior
 
 OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
 [
@@ -241,6 +252,14 @@ MAPPING RULES:
    c) The person EXPLICITLY connects the action to their disability experience in the transcript (e.g., "alam ko yung feeling kasi may disability ako" / "I know what it's like because of my condition"). This means the action was MOTIVATED by lived disability experience, even if the action itself isn't about disability.
    
    When uplift is applied, set disability_uplift_applied: true in confidence_factors and note the reason.
+
+8. SCENARIO EVIDENCE MAPPING:
+   Evidence from [SCENARIO EVIDENCE] episodes (type "scenario") already contains the PSF skill name and proficiency signal directly. For these:
+   - The skill name from the evidence tag IS the primary mapping — map it directly
+   - Confidence for scenario evidence: 0.6-0.7 range (tests decision-making intent, not demonstrated behavior)
+   - Set evidence_source: "scenario" in the output
+   - The transcript_quote should be the scenario situation + their choice
+   - Scenario evidence is SUPPLEMENTARY — it reinforces narrative evidence but cannot be the sole evidence for a skill at Advanced level
 
 OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
 [

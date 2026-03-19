@@ -78,6 +78,14 @@ export default function ScenarioCard({ scenario, onComplete }: ScenarioCardProps
             >
               {scenario.scenario_label}
             </div>
+            {(scenario as any).psf_skill_tested && (
+              <div
+                className="px-3 py-1 rounded-full text-[10px] font-medium"
+                style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui, sans-serif' }}
+              >
+                PSF: {(scenario as any).psf_skill_tested}
+              </div>
+            )}
             {scenario.psf_skill_tested && (
               <div
                 className="px-2 py-0.5 rounded-full text-[9px] font-medium"
