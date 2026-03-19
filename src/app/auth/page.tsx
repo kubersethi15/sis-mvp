@@ -166,12 +166,23 @@ export default function AuthPage() {
             </button>
           </form>
 
-          {/* Demo shortcut */}
-          <div className="mt-4 pt-4 border-t border-stone-100 text-center">
-            <button onClick={() => window.location.href = '/my-dashboard'}
-              className="text-xs text-stone-400 hover:text-stone-600 transition-colors">
-              Skip sign-in (demo mode) →
-            </button>
+          {/* Role-based entry */}
+          <div className="mt-5 pt-5 border-t border-stone-100">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-center mb-3" style={{ color: '#829AB1' }}>Other portals</p>
+            <div className="grid grid-cols-2 gap-2">
+              <a href="/employer-dashboard"
+                className="p-3 rounded-xl border text-center hover:shadow-md transition-all"
+                style={{ borderColor: '#E2E8F0', background: 'white' }}>
+                <div className="text-xs font-semibold" style={{ color: '#102A43' }}>Employer</div>
+                <div className="text-[10px] mt-0.5" style={{ color: '#829AB1' }}>Vacancies & pipeline</div>
+              </a>
+              <a href="/psychologist"
+                className="p-3 rounded-xl border text-center hover:shadow-md transition-all"
+                style={{ borderColor: '#E2E8F0', background: 'white' }}>
+                <div className="text-xs font-semibold" style={{ color: '#102A43' }}>Psychologist</div>
+                <div className="text-[10px] mt-0.5" style={{ color: '#829AB1' }}>Validate & sign-off</div>
+              </a>
+            </div>
           </div>
         </div>
 

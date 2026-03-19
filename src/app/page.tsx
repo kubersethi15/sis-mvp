@@ -88,6 +88,22 @@ export default function Home() {
           <p className="text-[10px] text-center mt-3" style={{ color: '#627D98' }}>AI extracts and recommends. Humans decide at every gate. A psychologist endorses.</p>
         </div>
 
+        {/* Portal links for demo */}
+        <div className="grid grid-cols-3 gap-3 mb-10">
+          <Link href="/employer-dashboard" className="p-4 bg-white rounded-xl border text-center hover:shadow-md transition-all" style={{ borderColor: '#E2E8F0' }}>
+            <div className="text-sm font-semibold" style={{ color: '#102A43' }}>Employer Portal</div>
+            <div className="text-[10px] mt-1" style={{ color: '#829AB1' }}>Vacancies & talent pipeline</div>
+          </Link>
+          <Link href="/reviewer" className="p-4 bg-white rounded-xl border text-center hover:shadow-md transition-all" style={{ borderColor: '#E2E8F0' }}>
+            <div className="text-sm font-semibold" style={{ color: '#102A43' }}>Reviewer Portal</div>
+            <div className="text-[10px] mt-1" style={{ color: '#829AB1' }}>Three-gate approval</div>
+          </Link>
+          <Link href="/psychologist" className="p-4 bg-white rounded-xl border text-center hover:shadow-md transition-all" style={{ borderColor: '#E2E8F0' }}>
+            <div className="text-sm font-semibold" style={{ color: '#102A43' }}>Psychologist Portal</div>
+            <div className="text-[10px] mt-1" style={{ color: '#829AB1' }}>Validate & sign-off</div>
+          </Link>
+        </div>
+
         {/* Footer */}
         <p className="text-xs text-center" style={{ color: '#829AB1' }}>Kaya — Hiring Intelligence by Virtualahan Inc. · Pilot: Cebuana Lhuillier</p>
       </div>
