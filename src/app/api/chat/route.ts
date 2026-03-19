@@ -155,10 +155,19 @@ async function handleStart(req: NextRequest, body: any) {
 
   // Fetch profile data for context injection — with calibration derivation (Ryan v2 R1+R3)
   let profileContext = '';
-  if (body.jobseeker_profile_id) {
+  let profileId = body.jobseeker_profile_id;
+
+  // Fallback: if no profile_id, look up by user_id
+  if (!profileId && userId) {
+    const { data: profileLookup } = await supabase.from('jobseeker_profiles')
+      .select('id').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).single();
+    if (profileLookup) profileId = profileLookup.id;
+  }
+
+  if (profileId) {
     const { data: profile } = await supabase.from('jobseeker_profiles')
       .select('*, user_profiles(full_name)')
-      .eq('id', body.jobseeker_profile_id).single();
+      .eq('id', profileId).single();
 
     if (profile) {
       // Fetch vacancy data if available
