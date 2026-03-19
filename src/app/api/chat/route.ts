@@ -199,6 +199,7 @@ async function handleStart(req: NextRequest, body: any) {
         sessionNumber = prevSessions.length + 1;
 
         for (const ps of prevSessions) {
+          // Get extraction data (skills + episode summaries)
           const { data: ext } = await supabase.from('leee_extractions')
             .select('skills_profile, narrative_summary, episodes')
             .eq('session_id', ps.id).limit(1).single();
@@ -207,11 +208,36 @@ async function handleStart(req: NextRequest, body: any) {
               if (!prevSkills.includes(s.skill_name)) prevSkills.push(s.skill_name);
             }
           }
-          // Gather story summaries from episodes
           if (ext?.episodes?.length) {
             for (const ep of ext.episodes) {
               if (ep.summary) prevStorySummaries.push(ep.summary);
             }
+          }
+
+          // ALSO get actual conversation messages for richer context
+          // This captures what the user actually said, not just extracted episodes
+          const { data: prevMsgs } = await supabase.from('leee_messages')
+            .select('role, content')
+            .eq('session_id', ps.id)
+            .order('turn_number', { ascending: true })
+            .limit(20);
+
+          if (prevMsgs?.length) {
+            const userMsgs = prevMsgs
+              .filter((m: any) => m.role === 'user')
+              .map((m: any) => m.content)
+              .filter((c: string) => c && c.length > 10 && !c.startsWith('[SCENARIO') && !c.startsWith('[SIMULATION'));
+
+            if (userMsgs.length > 0) {
+              // Create a brief summary of what the user talked about
+              const topicSummary = userMsgs.slice(0, 6).join(' | ');
+              prevStorySummaries.push(`User discussed: ${topicSummary}`);
+            }
+          }
+
+          // Add narrative summary if available
+          if (ext?.narrative_summary && !prevStorySummaries.includes(ext.narrative_summary)) {
+            prevStorySummaries.push(`Overall: ${ext.narrative_summary.substring(0, 200)}`);
           }
         }
         for (const sk of allPsfSkills) {
