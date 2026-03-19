@@ -505,81 +505,21 @@ async function callClaudeForStage(
   stageName: string,
   maxTokens: number = 4000
 ): Promise<any> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY not configured');
+  const { callLLMForJSON } = await import('@/lib/llm');
 
   const model = STAGE_MODELS[stageName] || 'claude-sonnet-4-20250514';
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    }),
+  const result = await callLLMForJSON({
+    messages: [{ role: 'user', content: prompt }],
+    maxTokens,
+    model,
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Claude API error in ${stageName}: ${response.status} — ${err}`);
+  if (result.provider === 'gemini') {
+    console.log(`[Extraction ${stageName}] Used Gemini fallback`);
   }
 
-  const data = await response.json();
-  const text = data.content?.[0]?.text || '';
-
-  // Parse JSON from response — handle markdown fences and truncation
-  const cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-
-  try {
-    return JSON.parse(cleaned);
-  } catch (firstError) {
-    // Try to repair truncated JSON (common when output hits max_tokens)
-    let repaired = cleaned;
-
-    // If it ends mid-string, close the string
-    const openQuotes = (repaired.match(/"/g) || []).length;
-    if (openQuotes % 2 !== 0) repaired += '"';
-
-    // Count unclosed brackets and braces, close them
-    let openBraces = 0, openBrackets = 0;
-    let inString = false;
-    for (let i = 0; i < repaired.length; i++) {
-      const ch = repaired[i];
-      if (ch === '"' && (i === 0 || repaired[i-1] !== '\\')) inString = !inString;
-      if (!inString) {
-        if (ch === '{') openBraces++;
-        if (ch === '}') openBraces--;
-        if (ch === '[') openBrackets++;
-        if (ch === ']') openBrackets--;
-      }
-    }
-
-    // Remove trailing comma before closing
-    repaired = repaired.replace(/,\s*$/, '');
-
-    // Close unclosed structures
-    for (let i = 0; i < openBrackets; i++) repaired += ']';
-    for (let i = 0; i < openBraces; i++) repaired += '}';
-
-    try {
-      console.warn(`[${stageName}] JSON repaired — output may have been truncated. Consider increasing max_tokens.`);
-      return JSON.parse(repaired);
-    } catch (secondError) {
-      // Last resort: find the largest valid JSON object or array
-      const objMatch = cleaned.match(/\{[\s\S]*\}/);
-      const arrMatch = cleaned.match(/\[[\s\S]*\]/);
-      const match = objMatch && objMatch[0].length > (arrMatch?.[0]?.length || 0) ? objMatch : arrMatch;
-      if (match) {
-        try { return JSON.parse(match[0]); } catch {}
-      }
-      throw new Error(`Failed to parse JSON from ${stageName} (${cleaned.length} chars). First 200: ${cleaned.substring(0, 200)}`);
-    }
-  }
+  return result.data;
 }
 
 export async function runExtractionPipeline(

@@ -293,9 +293,9 @@ async function saveMessage(msg: LEEEMessage) {
 }
 
 async function callClaude(orchestrator: LEEEOrchestrator): Promise<string> {
+  const { callLLM } = await import('@/lib/llm');
   const msgs = orchestrator.buildLLMMessages();
   const system = msgs[0].content;
-  // Filter out any system messages from the conversation — API only accepts user/assistant roles
   let conversation = msgs.slice(1)
     .filter(m => m.role === 'user' || m.role === 'assistant')
     .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
@@ -304,21 +304,14 @@ async function callClaude(orchestrator: LEEEOrchestrator): Promise<string> {
     conversation = [{ role: 'user', content: '[Session started. Greet the user warmly and begin.]' }];
   }
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 500, system, messages: conversation }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error('Claude API error:', err);
+  try {
+    const result = await callLLM({ system, messages: conversation, maxTokens: 500 });
+    if (result.provider === 'gemini') console.log('[Chat] Used Gemini fallback');
+    return result.text || "Could you tell me a bit more about that?";
+  } catch (error: any) {
+    console.error('LLM error:', error.message);
     return "Kumusta! I'm Aya. I'm here to listen to your story and help you discover the skills you already have. Before we start — is there anything I should know to make this conversation comfortable for you?";
   }
-
-  const data = await res.json();
-  const text = data.content?.find((b: any) => b.type === 'text')?.text;
-  return text || "Could you tell me a bit more about that?";
 }
 
 async function runGapScan(orchestrator: LEEEOrchestrator) {
