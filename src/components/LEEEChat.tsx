@@ -48,14 +48,14 @@ interface SessionState {
 // ============================================================
 
 const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string; progress: number; description: string; bg: string; orb1: string; orb2: string }> = {
-  opening:     { label: 'Getting to Know You',     color: '#94a3b8', icon: '·', progress: 5,  description: 'Just getting started',    bg: 'linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f2027 100%)',     orb1: 'rgba(148,163,184,0.12)', orb2: 'rgba(100,116,139,0.08)' },
-  story_select:{ label: 'Finding Your Story',      color: '#F4A261', icon: '·', progress: 18, description: 'Something real coming up',  bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.15)',  orb2: 'rgba(42,157,143,0.08)' },
-  elicitation: { label: 'Setting the Scene',       color: '#E9C46A', icon: '·', progress: 32, description: 'Tell me what happened',     bg: 'linear-gradient(160deg, #1a1205 0%, #2d2010 50%, #0a1a14 100%)',     orb1: 'rgba(233,196,106,0.18)', orb2: 'rgba(42,157,143,0.12)' },
-  core_probe:  { label: 'The Heart of It',         color: '#2A9D8F', icon: '·', progress: 52, description: 'Going deeper now',          bg: 'linear-gradient(160deg, #051a18 0%, #0a2d28 50%, #051520 100%)',     orb1: 'rgba(42,157,143,0.22)',  orb2: 'rgba(244,162,97,0.12)' },
-  skill_probe: { label: 'What It Revealed',        color: '#f59e0b', icon: '·', progress: 68, description: 'The really good part',      bg: 'linear-gradient(160deg, #1a1005 0%, #2d1f00 50%, #0a1a0a 100%)',     orb1: 'rgba(245,158,11,0.22)',  orb2: 'rgba(42,157,143,0.15)' },
-  verification:{ label: 'Bringing It Together',    color: '#f97316', icon: '·', progress: 82, description: 'Almost there',              bg: 'linear-gradient(160deg, #1a0d05 0%, #2d1508 50%, #0a1510 100%)',     orb1: 'rgba(249,115,22,0.22)',  orb2: 'rgba(244,162,97,0.18)' },
-  micro_story: { label: 'One More Story',          color: '#F4A261', icon: '·', progress: 90, description: 'Quick one more',            bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.20)',  orb2: 'rgba(42,157,143,0.12)' },
-  closing:     { label: 'Journey Complete',        color: '#2A9D8F', icon: '·', progress: 100, description: 'You did it',              bg: 'linear-gradient(160deg, #051a18 0%, #0a2518 50%, #0a1520 100%)',     orb1: 'rgba(42,157,143,0.25)',  orb2: 'rgba(244,162,97,0.15)' },
+  opening:     { label: 'Getting to Know You',     color: '#94a3b8', icon: '🌅', progress: 5,  description: 'Just getting started',    bg: 'linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f2027 100%)',     orb1: 'rgba(148,163,184,0.12)', orb2: 'rgba(100,116,139,0.08)' },
+  story_select:{ label: 'Finding Your Story',      color: '#F4A261', icon: '🌿', progress: 18, description: 'Something real coming up',  bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.15)',  orb2: 'rgba(42,157,143,0.08)' },
+  elicitation: { label: 'Setting the Scene',       color: '#E9C46A', icon: '🦋', progress: 32, description: 'Tell me what happened',     bg: 'linear-gradient(160deg, #1a1205 0%, #2d2010 50%, #0a1a14 100%)',     orb1: 'rgba(233,196,106,0.18)', orb2: 'rgba(42,157,143,0.12)' },
+  core_probe:  { label: 'The Heart of It',         color: '#2A9D8F', icon: '🔮', progress: 52, description: 'Going deeper now',          bg: 'linear-gradient(160deg, #051a18 0%, #0a2d28 50%, #051520 100%)',     orb1: 'rgba(42,157,143,0.22)',  orb2: 'rgba(244,162,97,0.12)' },
+  skill_probe: { label: 'What It Revealed',        color: '#f59e0b', icon: '💎', progress: 68, description: 'The really good part',      bg: 'linear-gradient(160deg, #1a1005 0%, #2d1f00 50%, #0a1a0a 100%)',     orb1: 'rgba(245,158,11,0.22)',  orb2: 'rgba(42,157,143,0.15)' },
+  verification:{ label: 'Bringing It Together',    color: '#f97316', icon: '🌟', progress: 82, description: 'Almost there',              bg: 'linear-gradient(160deg, #1a0d05 0%, #2d1508 50%, #0a1510 100%)',     orb1: 'rgba(249,115,22,0.22)',  orb2: 'rgba(244,162,97,0.18)' },
+  micro_story: { label: 'One More Story',          color: '#F4A261', icon: '⚡', progress: 90, description: 'Quick one more',            bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.20)',  orb2: 'rgba(42,157,143,0.12)' },
+  closing:     { label: 'Journey Complete',        color: '#2A9D8F', icon: '✨', progress: 100, description: 'You did it',              bg: 'linear-gradient(160deg, #051a18 0%, #0a2518 50%, #0a1520 100%)',     orb1: 'rgba(42,157,143,0.25)',  orb2: 'rgba(244,162,97,0.15)' },
 };
 
 // ============================================================
@@ -63,14 +63,14 @@ const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string;
 // ============================================================
 
 const SKILL_LABELS: Record<string, { label: string; icon: string; color: string }> = {
-  EQ: { label: 'Emotional Intelligence', icon: 'EI', color: '#F4A261' },
-  COMM: { label: 'Communication', icon: 'CM', color: '#2A9D8F' },
-  COLLAB: { label: 'Collaboration', icon: 'CO', color: '#264653' },
-  PS: { label: 'Problem Solving', icon: 'PS', color: '#E76F51' },
-  ADAPT: { label: 'Adaptability', icon: 'AD', color: '#E9C46A' },
-  LEARN: { label: 'Learning Agility', icon: 'LA', color: '#F4A261' },
-  EMPATHY: { label: 'Empathy', icon: 'EM', color: '#E76F51' },
-  DIGITAL: { label: 'Digital Fluency', icon: 'DF', color: '#264653' },
+  EQ: { label: 'Emotional Intelligence', icon: '💛', color: '#F4A261' },
+  COMM: { label: 'Communication', icon: '💬', color: '#2A9D8F' },
+  COLLAB: { label: 'Collaboration', icon: '🤝', color: '#264653' },
+  PS: { label: 'Problem Solving', icon: '🧩', color: '#E76F51' },
+  ADAPT: { label: 'Adaptability', icon: '🌊', color: '#E9C46A' },
+  LEARN: { label: 'Learning Agility', icon: '📚', color: '#F4A261' },
+  EMPATHY: { label: 'Empathy', icon: '❤️', color: '#E76F51' },
+  DIGITAL: { label: 'Digital Fluency', icon: '💻', color: '#264653' },
 };
 
 // Quick reply suggestions based on stage
@@ -463,15 +463,14 @@ export default function LEEEChat() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
               </a>
               <div className="relative">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold shadow-lg"
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-lg"
                   style={{
                     background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`,
                     transition: 'background 2s ease',
                     animation: 'breathe 4s ease-in-out infinite',
                     boxShadow: `0 0 20px ${stageConfig.color}44`,
-                    color: 'white',
                   }}>
-                  A
+                  🦋
                 </div>
                 {session.status === 'active' && (
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
@@ -512,11 +511,11 @@ export default function LEEEChat() {
                   style={{ width: `calc(${stageConfig.progress}% - 2rem)`, background: `linear-gradient(90deg, ${stageConfig.color}88, ${stageConfig.color}44)` }} />
 
                 {[
-                  { icon: '1', threshold: 0,  stage: 'opening' },
-                  { icon: '2', threshold: 18, stage: 'story_select' },
-                  { icon: '3', threshold: 45, stage: 'core_probe' },
-                  { icon: '4', threshold: 68, stage: 'skill_probe' },
-                  { icon: '5', threshold: 95, stage: 'closing' },
+                  { icon: '🌅', threshold: 0,  stage: 'opening' },
+                  { icon: '🌿', threshold: 18, stage: 'story_select' },
+                  { icon: '🦋', threshold: 45, stage: 'core_probe' },
+                  { icon: '💎', threshold: 68, stage: 'skill_probe' },
+                  { icon: '✨', threshold: 95, stage: 'closing' },
                 ].map((m, i) => {
                   const reached = stageConfig.progress >= m.threshold;
                   const isCurrent = i === [
@@ -575,7 +574,7 @@ export default function LEEEChat() {
               <div className="relative mb-8">
                 <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl"
                   style={{ background: 'linear-gradient(135deg, rgba(244,162,97,0.8), rgba(42,157,143,0.6))', animation: 'breathe 4s ease-in-out infinite', boxShadow: '0 0 60px rgba(244,162,97,0.25)' }}>
-                  A
+                  🦋
                 </div>
                 <div className="absolute -inset-4 rounded-3xl opacity-20" style={{ background: 'radial-gradient(circle, rgba(244,162,97,0.6) 0%, transparent 70%)', animation: 'breathe 4s ease-in-out infinite' }} />
               </div>
@@ -622,7 +621,7 @@ export default function LEEEChat() {
               style={{ animation: `messageIn 0.4s ease-out ${idx === messages.length - 1 ? '' : 'none'}` }}>
               {msg.role === 'assistant' && (
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-sm mr-2.5 mt-1 flex-none shadow-sm">
-                  A
+                  🦋
                 </div>
               )}
               {/* Scenario choice — special pill styling */}
@@ -879,7 +878,7 @@ export default function LEEEChat() {
           <div className="relative mb-10">
             <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl"
               style={{ background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`, animation: 'extractPulse 1.5s ease-in-out infinite', boxShadow: `0 0 60px ${stageConfig.color}44` }}>
-              A
+              🦋
             </div>
             <div className="absolute -inset-6 rounded-full opacity-20"
               style={{ background: `radial-gradient(circle, ${stageConfig.color} 0%, transparent 70%)`, animation: 'extractPulse 1.5s ease-in-out infinite' }} />
