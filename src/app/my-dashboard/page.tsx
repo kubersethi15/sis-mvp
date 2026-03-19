@@ -137,7 +137,7 @@ export default function MyDashboard() {
           <div className="grid grid-cols-4 gap-3">
             {[
               { step: 1, label: 'Create Profile', done: hasProfile, icon: '', href: '/profile', description: profileCompletion > 0 ? `${profileCompletion}% complete` : 'Tell us about yourself' },
-              { step: 2, label: 'Tell Your Story', done: hasLEEE, icon: '', href: '/chat', description: hasLEEE ? `${skillsCount} skills discovered` : 'Chat with Aya' },
+              { step: 2, label: 'Tell Your Story', done: hasLEEE, icon: '', href: hasLEEE ? '/chat?new=1' : '/chat', description: hasLEEE ? `${skillsCount} skills discovered` : 'Chat with Aya' },
               { step: 3, label: 'Browse Jobs', done: data.matches.length > 0, icon: '', href: '/vacancy', description: data.matches.length > 0 ? `${data.matches.length} matches` : 'Find matching vacancies' },
               { step: 4, label: 'Apply & Grow', done: data.applications.length > 0, icon: '', href: '/vacancy', description: data.applications.length > 0 ? `${data.applications.length} application(s)` : 'Start your journey' },
             ].map((s) => (
@@ -190,6 +190,18 @@ export default function MyDashboard() {
                 {data.extraction.skills_profile?.length > 4 && (
                   <p className="text-[10px] text-stone-400 text-center">+{data.extraction.skills_profile.length - 4} more skills</p>
                 )}
+
+                {/* Continue with Aya — start new session */}
+                <div className="pt-3 mt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
+                  <Link href="/chat?new=1"
+                    className="block text-center px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:shadow-md"
+                    style={{ background: '#102A43', color: '#F0F4F8' }}>
+                    Continue with Aya — discover more skills
+                  </Link>
+                  <p className="text-[10px] text-center mt-1.5" style={{ color: '#829AB1' }}>
+                    {data.extraction.skills_profile?.length || 0} of 16 PSF skills evidenced
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="text-center py-8">

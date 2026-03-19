@@ -181,7 +181,9 @@ export function buildCalibrationContext(
   vacancy: any,
   psychometrics: any,
   previousSkills: string[],
-  previousGaps: string[]
+  previousGaps: string[],
+  previousStorySummaries: string[] = [],
+  sessionNumber: number = 1
 ): string {
   const calibration = deriveCalibration(profile, psychometrics);
 
@@ -218,14 +220,33 @@ TARGET ROLE:
 - Steer stories toward: experiences that demonstrate these competencies (WITHOUT naming them to the user)`;
   }
 
-  // Previous sessions
+  // Previous sessions — returning user context
   let sessionSection = '';
   if (previousSkills.length) {
+    const storyList = previousStorySummaries.length > 0
+      ? previousStorySummaries.slice(0, 5).map(s => `  - ${s}`).join('\n')
+      : '  (no story summaries available)';
+
     sessionSection = `
-PREVIOUS SESSION CONTEXT:
-- Skills already evidenced: ${previousSkills.join(', ')}
-- Skills not yet evidenced: ${previousGaps.join(', ')}
-- Steer this session toward stories that surface the unevidenced skills`;
+
+RETURNING USER — SESSION ${sessionNumber}
+This person has chatted with you before. This is session ${sessionNumber}.
+
+Stories they have already told (DO NOT ask them to retell these):
+${storyList}
+
+Skills already evidenced: ${previousSkills.join(', ')}
+Skills NOT yet evidenced (steer toward these naturally): ${previousGaps.join(', ')}
+
+CRITICAL INSTRUCTIONS FOR RETURNING USERS:
+- Start warm. Ask how they have been. Let them lead the opening.
+- NEVER say "last time we talked about..." or "in our previous session..."
+- NEVER list their previous skills or mention the assessment.
+- If THEY bring up a previous topic, you may say "I remember you mentioned that" and probe deeper.
+- After rapport (2-3 exchanges), gently steer toward experiences you haven't heard yet.
+  Use natural transitions like "What else has been going on?" or "Tell me about something from work/community/school."
+- If they revisit a topic from a previous session, probe deeper to upgrade the evidence.
+- Keep the same warm, unhurried energy as session 1. This should feel like catching up with a friend.`;
   }
 
   return `
@@ -251,6 +272,8 @@ CALIBRATION FOR THIS SESSION:
 COACHING NOTES FOR AYA:
 ${calibration.coaching_notes.map((n, i) => `${i + 1}. ${n}`).join('\n')}
 
-FIRST MESSAGE INSTRUCTION: Greet ${firstName} warmly by name. Match their communication style (${calibration.communication_style}). DO NOT mention any of the above context — just let it shape how you speak and probe.
+FIRST MESSAGE INSTRUCTION: ${sessionNumber > 1 
+    ? `Welcome ${firstName} back warmly by name. Say something like "Hey ${firstName}! Great to see you again. How have you been?" Do NOT reference previous sessions, skills, or assessments. Just be warm and let them lead.`
+    : `Greet ${firstName} warmly by name. Match their communication style (${calibration.communication_style}). DO NOT mention any of the above context — just let it shape how you speak and probe.`}
 ═══════════════════════════════════════`;
 }

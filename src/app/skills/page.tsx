@@ -226,7 +226,7 @@ export default function SkillsDashboard() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-4 mb-4">
             {[
               { value: skills.length, label: 'Skills Found' },
               { value: `${overallConfidence}%`, label: 'Confidence' },
@@ -238,6 +238,12 @@ export default function SkillsDashboard() {
               </div>
             ))}
           </div>
+
+          {/* Continue with Aya */}
+          <a href="/chat?new=1" className="block text-center py-2.5 rounded-xl text-xs font-semibold mb-8 transition-all hover:opacity-90"
+            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)' }}>
+            Continue with Aya — discover more skills ({skills.length} of 16 PSF skills evidenced)
+          </a>
 
           {/* Tab bar */}
           <div className="flex gap-1 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.06)' }}>

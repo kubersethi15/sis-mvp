@@ -178,22 +178,39 @@ async function handleStart(req: NextRequest, body: any) {
         vacancy = v;
       }
 
-      // Fetch previous session skills for continuity
+      // Fetch previous session skills + story summaries for continuity
       const prevSkills: string[] = [];
       const prevGaps: string[] = [];
-      const allPsfSkills = ['Emotional Intelligence', 'Communication', 'Collaboration', 'Problem-Solving', 'Adaptability / Resilience', 'Learning Agility', 'Sense Making', 'Building Inclusivity'];
+      const prevStorySummaries: string[] = [];
+      let sessionNumber = 1;
+      const allPsfSkills = [
+        'Building Inclusivity', 'Collaboration', 'Communication', 'Customer Orientation',
+        'Developing People', 'Influence', 'Adaptability', 'Digital Fluency',
+        'Global Perspective', 'Learning Agility', 'Self-Management',
+        'Creative Thinking', 'Decision Making', 'Problem Solving', 'Sense Making',
+        'Transdisciplinary Thinking',
+      ];
 
       const { data: prevSessions } = await supabase.from('leee_sessions')
-        .select('id').eq('user_id', userId).eq('status', 'completed')
-        .order('created_at', { ascending: false }).limit(3);
+        .select('id, created_at').eq('user_id', userId).eq('status', 'completed')
+        .order('created_at', { ascending: false }).limit(5);
 
       if (prevSessions?.length) {
+        sessionNumber = prevSessions.length + 1;
+
         for (const ps of prevSessions) {
           const { data: ext } = await supabase.from('leee_extractions')
-            .select('skills_profile').eq('session_id', ps.id).limit(1).single();
+            .select('skills_profile, narrative_summary, episodes')
+            .eq('session_id', ps.id).limit(1).single();
           if (ext?.skills_profile) {
             for (const s of ext.skills_profile) {
               if (!prevSkills.includes(s.skill_name)) prevSkills.push(s.skill_name);
+            }
+          }
+          // Gather story summaries from episodes
+          if (ext?.episodes?.length) {
+            for (const ep of ext.episodes) {
+              if (ep.summary) prevStorySummaries.push(ep.summary);
             }
           }
         }
@@ -209,7 +226,7 @@ async function handleStart(req: NextRequest, body: any) {
         saboteur_scores: profile.saboteur_scores,
       } : null;
 
-      profileContext = buildCalibrationContext(profile, vacancy, psychometrics, prevSkills, prevGaps);
+      profileContext = buildCalibrationContext(profile, vacancy, psychometrics, prevSkills, prevGaps, prevStorySummaries, sessionNumber);
     }
   }
 

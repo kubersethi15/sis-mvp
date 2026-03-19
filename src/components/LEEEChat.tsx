@@ -139,6 +139,22 @@ export default function LEEEChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  // Handle ?new=1 — start fresh session for returning users
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === '1') {
+      // Clear old session data so welcome screen shows
+      localStorage.removeItem('kaya_last_session_id');
+      localStorage.removeItem('kaya_last_extraction');
+      setSession({ sessionId: null, status: 'idle', stage: 'opening', storiesCompleted: 0, skillsEvidenced: null });
+      setMessages([]);
+      setExtraction(null);
+      setShowWelcome(true);
+      // Clean URL without reload
+      window.history.replaceState({}, '', '/chat');
+    }
+  }, []);
+
   // Auto-resize textarea
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
