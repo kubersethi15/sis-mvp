@@ -125,9 +125,10 @@ export default function EmployerDashboard() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex items-center gap-4">
-          <span className="text-xs font-medium px-2 py-1 rounded-full" style={{ background: '#243B53', color: '#90CDF4' }}>Recruiter</span>
-          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>Gate 1: Alignment</span>
+        <div className="flex flex-row items-center gap-4 flex-nowrap">
+          <a href="/employer-dashboard" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Employer Dashboard</a>
+          <span style={{ color: '#334E68' }}>|</span>
+          <a href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#627D98' }}>Home</a>
         </div>
       </nav>
 
@@ -138,9 +139,9 @@ export default function EmployerDashboard() {
         </div>
         <div className="flex gap-1 border-b border-gray-200">
           {[
-            { id: 'upload' as const, label: '📄 Upload JD' },
-            { id: 'pipeline' as const, label: '📊 Alignment Results' },
-            { id: 'review' as const, label: '✅ Recruiter Review' },
+            { id: 'upload' as const, label: 'Upload JD' },
+            { id: 'pipeline' as const, label: 'Alignment Results' },
+            { id: 'review' as const, label: 'Recruiter Review' },
           ].map(tab => (
             <button
               key={tab.id}
@@ -179,9 +180,9 @@ export default function EmployerDashboard() {
                 <button
                   onClick={handleParseJD}
                   disabled={!jdText.trim() || isProcessing}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-6 py-2 text-white rounded-lg font-medium hover:opacity-90" style={{ background: "#102A43" }} disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {isProcessing ? '⏳ Analyzing JD...' : '🔍 Analyze & Create Vacancy'}
+                  {isProcessing ? 'Analysing...' : 'Analyse & Create Vacancy'}
                 </button>
                 <span className="text-xs text-gray-400">
                   Pilot employer: Cebuana Lhuillier — JDs from ph.jobstreet.com/cebuana-lhuillier-jobs
@@ -193,7 +194,7 @@ export default function EmployerDashboard() {
             {blueprint && (
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  📋 Competency Blueprint: {blueprint.title}
+                  Competency Blueprint: {blueprint.title}
                 </h2>
                 <p className="text-sm text-gray-600 mb-4">{blueprint.summary}</p>
 
@@ -331,7 +332,7 @@ export default function EmployerDashboard() {
             </div>
 
             <div className="text-center py-12 text-gray-400">
-              <p className="text-4xl mb-2">📊</p>
+              
               <p className="text-sm">No applications yet. Upload a JD and have jobseekers apply to see alignment results.</p>
             </div>
           </div>
@@ -347,7 +348,7 @@ export default function EmployerDashboard() {
             </p>
 
             <div className="text-center py-12 text-gray-400">
-              <p className="text-4xl mb-2">✅</p>
+              
               <p className="text-sm">No candidates pending review.</p>
             </div>
           </div>
@@ -408,12 +409,12 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
     setTimeout(() => win.print(), 500);
   };
 
-  if (!shareData) return <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-600">✅ Vacancy published. Loading share options...</div>;
+  if (!shareData) return <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-600">Vacancy published. Loading share options...</div>;
 
   return (
     <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-blue-600">✅</span>
+        <span className="text-blue-600">Published</span>
         <span className="text-sm text-blue-700 font-semibold">Vacancy Published!</span>
       </div>
 
@@ -427,7 +428,7 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
               className="flex-1 px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg text-gray-600" />
             <button onClick={copyLink}
               className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              {copied ? '✅ Copied!' : '📋 Copy'}
+              {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
         </div>

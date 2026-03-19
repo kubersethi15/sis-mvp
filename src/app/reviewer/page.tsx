@@ -94,9 +94,12 @@ export default function ReviewerDashboard() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex items-center gap-4">
-          <button onClick={fetchData} className="text-xs font-medium hover:opacity-80" style={{ color: '#BCCCDC' }}>🔄 Refresh</button>
-          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>Reviewer</span>
+        <div className="flex flex-row items-center gap-4 flex-nowrap">
+          <button onClick={fetchData} className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Refresh</button>
+          <span style={{ color: '#334E68' }}>|</span>
+          <a href="/employer-dashboard" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Employer Dashboard</a>
+          <span style={{ color: '#334E68' }}>|</span>
+          <a href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#627D98' }}>Home</a>
         </div>
       </nav>
 
@@ -108,9 +111,9 @@ export default function ReviewerDashboard() {
         <div className="flex gap-1 border-b border-gray-200">
           {[
             { id: 'pipeline' as const, label: 'Pipeline Overview' },
-            { id: 'gate1' as const, label: '🔵 Gate 1: Alignment' },
-            { id: 'gate2' as const, label: '🟢 Gate 2: Evidence' },
-            { id: 'gate3' as const, label: '🟣 Gate 3: Predictability' },
+            { id: 'gate1' as const, label: 'Gate 1: Alignment' },
+            { id: 'gate2' as const, label: 'Gate 2: Evidence' },
+            { id: 'gate3' as const, label: 'Gate 3: Predictability' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveView(tab.id)}
               className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
@@ -259,8 +262,9 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className={`w-10 h-10 rounded-full bg-${config.color}-100 flex items-center justify-center text-lg`}>
-          {gate === 1 ? '🔵' : gate === 2 ? '🟢' : '🟣'}
+        <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
+          style={{ background: gate === 1 ? '#2E86C1' : gate === 2 ? '#27AE60' : '#8E44AD' }}>
+          G{gate}
         </div>
         <div>
           <h2 className="text-lg font-semibold text-gray-900">{config.title}</h2>

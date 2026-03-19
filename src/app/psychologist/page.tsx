@@ -142,8 +142,9 @@ export default function PsychologistPage() {
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
         <div className="flex items-center gap-4">
-          <span className="text-xs font-medium px-2 py-1 rounded-full" style={{ background: '#243B53', color: '#F6AD55' }}>Licensed Psychologist</span>
-          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>Validation</span>
+          <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#F6AD55' }}>Psychologist Portal</span>
+          <span style={{ color: '#334E68' }}>|</span>
+          <a href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#627D98' }}>Home</a>
         </div>
       </nav>
 
