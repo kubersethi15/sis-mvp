@@ -111,13 +111,12 @@ export default function MyDashboard() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex flex-row items-center gap-4 flex-nowrap">
-          <Link href="/profile" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Edit Profile</Link>
-          <span style={{ color: '#334E68' }}>|</span>
+        <div className="flex flex-row items-center gap-5 flex-nowrap">
+          <Link href="/profile" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Edit Profile</Link>
           <button
             onClick={() => { localStorage.clear(); window.location.href = '/auth'; }}
             className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity"
-            style={{ color: '#627D98' }}
+            style={{ color: '#9FB3C8' }}
           >Sign Out</button>
         </div>
       </nav>

@@ -141,10 +141,9 @@ export default function PsychologistPage() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex items-center gap-4">
-          <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#F6AD55' }}>Psychologist Portal</span>
-          <span style={{ color: '#334E68' }}>|</span>
-          <a href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#627D98' }}>Home</a>
+        <div className="flex flex-row items-center gap-5 flex-nowrap">
+          <span className="text-xs font-medium whitespace-nowrap" style={{ color: '#F6AD55' }}>Psychologist</span>
+          <a href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Home</a>
         </div>
       </nav>
 

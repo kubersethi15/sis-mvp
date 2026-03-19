@@ -71,10 +71,9 @@ export default function EmployerDashboardPage() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </Link>
-        <div className="flex flex-row items-center gap-4 flex-nowrap">
+        <div className="flex flex-row items-center gap-5 flex-nowrap">
           <Link href="/employer" className="text-xs font-medium px-3 py-1.5 rounded-lg hover:opacity-90 transition-colors whitespace-nowrap" style={{ background: '#48BB78', color: 'white' }}>New Vacancy</Link>
-          <span style={{ color: '#334E68' }}>|</span>
-          <Link href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#627D98' }}>Home</Link>
+          <Link href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Home</Link>
         </div>
       </nav>
 

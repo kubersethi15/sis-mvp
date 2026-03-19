@@ -94,12 +94,10 @@ export default function ReviewerDashboard() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex flex-row items-center gap-4 flex-nowrap">
-          <button onClick={fetchData} className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Refresh</button>
-          <span style={{ color: '#334E68' }}>|</span>
-          <a href="/employer-dashboard" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#BCCCDC' }}>Employer Dashboard</a>
-          <span style={{ color: '#334E68' }}>|</span>
-          <a href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#627D98' }}>Home</a>
+        <div className="flex flex-row items-center gap-5 flex-nowrap">
+          <button onClick={fetchData} className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Refresh</button>
+          <a href="/employer-dashboard" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Employer</a>
+          <a href="/" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Home</a>
         </div>
       </nav>
 
