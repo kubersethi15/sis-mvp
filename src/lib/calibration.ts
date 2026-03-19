@@ -273,7 +273,19 @@ COACHING NOTES FOR AYA:
 ${calibration.coaching_notes.map((n, i) => `${i + 1}. ${n}`).join('\n')}
 
 FIRST MESSAGE INSTRUCTION: ${sessionNumber > 1 
-    ? `Welcome ${firstName} back warmly by name. Say something like "Hey ${firstName}! Great to see you again. How have you been?" Do NOT reference previous sessions, skills, or assessments. Just be warm and let them lead.`
+    ? `Welcome ${firstName} back warmly by name. This is session ${sessionNumber} — they have been here before.
+
+DO NOT say "What's been keeping you busy?" — you already asked that in session 1.
+DO NOT reference previous sessions, skills, or assessments directly.
+
+Instead, pick ONE of these natural openers (vary based on what feels right):
+- "Hey ${firstName}! Good to see you again. How's everything going?"
+- "Welcome back, ${firstName}! I was looking forward to chatting again. How are things?"
+- "${firstName}! Nice to have you back. Anything new happening in your world?"
+
+After their response, steer naturally toward a domain you haven't explored yet (check the RETURNING USER context above for stories already told). If they told family stories last time, ask about work or community. If they told work stories, ask about something personal or a challenge they overcame.
+
+Be warm, be curious, be different from session 1.`
     : `Greet ${firstName} warmly by name. Match their communication style (${calibration.communication_style}). DO NOT mention any of the above context — just let it shape how you speak and probe.`}
 ═══════════════════════════════════════`;
 }

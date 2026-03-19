@@ -426,21 +426,16 @@ export class LEEEOrchestrator {
 
   // Check if session should end — respects calibration pace (R14)
   shouldEndSession(): boolean {
-    const duration = this.getSessionDurationMinutes();
     const totalUserTurns = this.state.messages.filter(m => m.role === 'user').length;
-
-    // R14: Pace-aware time limits from calibration
-    const extraContext = (this as any)._extraContext || '';
-    let maxMinutes = 18; // default standard
-    if (extraContext.includes('session_pace: unhurried')) maxMinutes = 22;
-    else if (extraContext.includes('session_pace: efficient')) maxMinutes = 15;
 
     return (
       this.state.currentStage === 'closing' ||
-      duration >= maxMinutes ||
-      totalUserTurns >= 30 || // Hard limit: 30 user messages max
+      totalUserTurns >= 40 || // Soft limit: 40 user messages max (very long session)
       this.state.userDistressLevel >= 3
     );
+    // NOTE: Timer is displayed to user but does NOT auto-end the session.
+    // The user clicks "Finish" when they're ready. This lets them tell
+    // as many stories as they want in one session.
   }
 
   // Get pace-aware time remaining for UI display
