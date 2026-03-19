@@ -216,20 +216,20 @@ export default function ProfilePage() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div className="flex flex-row items-center gap-5 flex-nowrap">
-          {saved && <span className="text-xs font-medium" style={{ color: '#48BB78' }}>Saved</span>}
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', flexWrap: 'nowrap' }}>
+          {saved && <span className="text-xs font-medium" style={{ color: '#48BB78', whiteSpace: 'nowrap' }}>Saved</span>}
           {fullName ? (
             <>
-              <span className="text-xs hidden sm:inline whitespace-nowrap" style={{ color: '#9FB3C8' }}>{fullName}</span>
-              <a href="/my-dashboard" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Dashboard</a>
+              <span className="text-xs hidden sm:inline" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>{fullName}</span>
+              <a href="/my-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
               <button
                 onClick={() => { localStorage.clear(); window.location.href = '/auth'; }}
-                className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity"
-                style={{ color: '#9FB3C8' }}
+                className="text-xs"
+                style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}
               >Sign Out</button>
             </>
           ) : (
-            <a href="/auth" className="text-xs whitespace-nowrap hover:opacity-80 transition-opacity" style={{ color: '#9FB3C8' }}>Sign In</a>
+            <a href="/auth" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Sign In</a>
           )}
         </div>
       </nav>
