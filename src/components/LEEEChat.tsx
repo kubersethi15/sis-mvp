@@ -292,18 +292,30 @@ export default function LEEEChat() {
         if (shouldTrigger) {
           try {
             const recentContext = messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n');
-            // Determine skill gap from what hasn't been discussed
-            const topics = messageContent.toLowerCase();
-            const skillGap = topics.includes('work') ? 'COLLAB' :
-              topics.includes('family') ? 'PS' :
-              topics.includes('customer') ? 'ADAPT' : 'COMM';
+
+            // Determine skill gap from actual session data
+            const allPsfSkills = [
+              'Communication', 'Collaboration', 'Problem Solving', 'Adaptability',
+              'Self-Management', 'Learning Agility', 'Decision Making', 'Influence',
+              'Customer Orientation', 'Developing People', 'Digital Fluency', 'Creative Thinking',
+            ];
+            const evidenced = session.skillsEvidenced || {};
+            const evidencedNames = Object.entries(evidenced).filter(([_, v]) => v).map(([k]) => k);
+            const gaps = allPsfSkills.filter(s => !evidencedNames.some(e => s.toLowerCase().includes(e.toLowerCase())));
+            const targetSkill = gaps.length > 0 ? gaps[Math.floor(Math.random() * Math.min(3, gaps.length))] : 'Communication';
+
+            // Detect domain from conversation
+            const fullConvo = messages.map(m => m.content).join(' ').toLowerCase();
+            const domain = fullConvo.includes('work') || fullConvo.includes('job') || fullConvo.includes('office') ? 'work' :
+              fullConvo.includes('family') || fullConvo.includes('mom') || fullConvo.includes('parent') ? 'family' :
+              fullConvo.includes('school') || fullConvo.includes('class') || fullConvo.includes('study') ? 'school' : 'community';
 
             const scenRes = await fetch('/api/scenario', {
               method: 'POST',
               headers: await authHeaders(),
               body: JSON.stringify({
-                domain: 'work',
-                skill_gap: skillGap,
+                domain,
+                skill_gap: targetSkill,
                 emotional_register: 'pressure',
                 recent_context: recentContext,
               }),
@@ -674,13 +686,22 @@ export default function LEEEChat() {
               scenario={pendingScenario}
               onComplete={(chosenOption, ayaReaction) => {
                 setPendingScenario(null);
-                // Add user's choice as a message
+                // Add user's choice as structured evidence message
+                const scenarioEvidence = `[SCENARIO EVIDENCE] Situation: "${pendingScenario.scenario}" | Choice: "${chosenOption.text}" | PSF Skill Tested: ${pendingScenario.psf_skill_tested || pendingScenario.target_skill || 'Unknown'} | Skill Signal: ${chosenOption.signal || 'Unknown'} | Proficiency: ${chosenOption.proficiency_signal || 'intermediate'}`;
+
                 const userChoice: any = {
                   id: crypto.randomUUID(), role: 'user',
-                  content: `[Scenario choice: ${chosenOption.text}]`,
+                  content: scenarioEvidence,
                   timestamp: new Date(),
                   isScenarioChoice: true,
                   choiceText: chosenOption.text,
+                  scenarioData: {
+                    scenario: pendingScenario.scenario,
+                    psf_skill_tested: pendingScenario.psf_skill_tested || pendingScenario.target_skill,
+                    chosen_option: chosenOption.text,
+                    skill_signal: chosenOption.signal,
+                    proficiency_signal: chosenOption.proficiency_signal || 'intermediate',
+                  },
                 };
                 // Add Aya's reaction
                 const ayaMsg: any = {

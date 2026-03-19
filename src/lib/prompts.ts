@@ -493,37 +493,48 @@ Do NOT flag as "vague" simply because someone gave short answers about a painful
 `;
 
 // Scenario card generation prompt - generates a contextual micro-simulation
-export const LEEE_SCENARIO_PROMPT = `You are generating a micro-scenario card for a skills assessment conversation. Based on the context below, create ONE realistic scenario that tests the target skill in a novel situation.
+export const LEEE_SCENARIO_PROMPT = `You are generating a micro-scenario card for the Kaya skills assessment platform. This scenario tests a specific skill from the Philippine Skills Framework (PSF) Enabling Skills and Competencies.
 
 Context:
 - Conversation domain: {domain} (work/family/community/school)
-- Target skill to assess: {skill_gap}
+- Target PSF skill to assess: {skill_gap}
 - Emotional register of recent story: {emotional_register}
 - Recent user messages: {recent_context}
 
-Generate a scenario card that:
-1. Connects naturally to the domain the user was just discussing
-2. Tests the target skill WITHOUT naming it
-3. Presents a realistic dilemma with NO obviously wrong answer
-4. Has exactly 4 options — each signalling a different behavioral approach
-5. Feels relevant to a Filipino jobseeker (can reference community, family, work contexts)
-6. Is SHORT — scenario description max 2 sentences
+PSF SKILL REFERENCE (use exact names):
+- Building Inclusivity | Collaboration | Communication | Customer Orientation
+- Developing People | Influence | Adaptability | Digital Fluency
+- Global Perspective | Learning Agility | Self-Management
+- Creative Thinking | Decision Making | Problem Solving | Sense Making
+- Transdisciplinary Thinking
 
-Output ONLY this JSON (no other text):
+PQF PROFICIENCY MAPPING:
+- Basic (PQF 1-2): Simple actions, guided decisions
+- Intermediate (PQF 3-4): Independent actions, moderate complexity
+- Advanced (PQF 5-6): Leading others, complex/strategic decisions
+
+Generate a scenario card that:
+1. Connects naturally to what the user was discussing
+2. Tests the target PSF skill at INTERMEDIATE level (PQF 3-4) — realistic workplace/life dilemma
+3. Presents a realistic situation with NO obviously wrong answer
+4. Has exactly 3 options — each demonstrates a DIFFERENT PSF skill as the primary response
+5. Feels relevant to a Filipino context (community, family, barangay, work)
+6. Is SHORT — scenario max 2 sentences
+
+Output ONLY this JSON:
 {
   "scenario": "2-sentence situation description",
-  "scenario_label": "3-4 word title shown to user e.g. 'A Team Disagreement'",
+  "scenario_label": "3-4 word title e.g. 'A Team Disagreement'",
+  "psf_skill_tested": "exact PSF skill name being tested",
+  "pqf_level_tested": "intermediate",
   "options": [
-    { "text": "Option A text (max 10 words)", "signal": "skill_signal_code" },
-    { "text": "Option B text (max 10 words)", "signal": "skill_signal_code" },
-    { "text": "Option C text (max 10 words)", "signal": "skill_signal_code" },
-    { "text": "Option D text (max 10 words)", "signal": "skill_signal_code" }
+    { "text": "Option A (max 12 words)", "signal": "exact PSF skill name this option demonstrates", "proficiency_signal": "basic|intermediate|advanced" },
+    { "text": "Option B (max 12 words)", "signal": "exact PSF skill name this option demonstrates", "proficiency_signal": "basic|intermediate|advanced" },
+    { "text": "Option C (max 12 words)", "signal": "exact PSF skill name this option demonstrates", "proficiency_signal": "basic|intermediate|advanced" }
   ],
   "target_skill": "{skill_gap}",
-  "aya_reaction_template": "A warm 1-sentence reaction Aya will say after the user picks any option, acknowledging their choice without judging it"
+  "aya_reaction_template": "A warm 1-sentence reaction acknowledging their choice without judging"
 }
-
-Signal codes to use: high_EQ, high_COMM, high_COLLAB, high_PS, high_ADAPT, high_LEARN, high_EMPATHY, high_DIGITAL
 `;
 
 // Mid-session skill gap scan prompt - lightweight, runs in <2 seconds

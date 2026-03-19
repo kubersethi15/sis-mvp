@@ -5,6 +5,7 @@ import { useState } from 'react';
 interface ScenarioOption {
   text: string;
   signal: string;
+  proficiency_signal?: string;
 }
 
 interface Scenario {
@@ -12,6 +13,8 @@ interface Scenario {
   scenario_label: string;
   options: ScenarioOption[];
   target_skill: string;
+  psf_skill_tested?: string;
+  pqf_level_tested?: string;
   aya_reaction_template: string;
 }
 
@@ -62,12 +65,12 @@ export default function ScenarioCard({ scenario, onComplete }: ScenarioCardProps
       >
         {/* Header */}
         <div className="px-5 pt-5 pb-3">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <div
               className="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase"
               style={{ background: 'rgba(244,162,97,0.15)', color: '#F4A261', fontFamily: 'system-ui, sans-serif' }}
             >
-              ⚡ Quick scenario
+              Quick scenario
             </div>
             <div
               className="px-3 py-1 rounded-full text-[10px] font-medium"
@@ -75,6 +78,14 @@ export default function ScenarioCard({ scenario, onComplete }: ScenarioCardProps
             >
               {scenario.scenario_label}
             </div>
+            {scenario.psf_skill_tested && (
+              <div
+                className="px-2 py-0.5 rounded-full text-[9px] font-medium"
+                style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)', fontFamily: 'system-ui, sans-serif' }}
+              >
+                PSF: {scenario.psf_skill_tested}
+              </div>
+            )}
           </div>
 
           <p
