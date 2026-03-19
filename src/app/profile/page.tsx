@@ -69,6 +69,10 @@ export default function ProfilePage() {
   // Step 4: Skills & Goals
   const [skillsInventory, setSkillsInventory] = useState('');
   const [careerGoals, setCareerGoals] = useState('');
+
+  // Resume upload
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeExtracted, setResumeExtracted] = useState(false);
   const [preferredArrangement, setPreferredArrangement] = useState('');
   const [salaryMin, setSalaryMin] = useState('');
   const [salaryMax, setSalaryMax] = useState('');
@@ -252,6 +256,64 @@ export default function ProfilePage() {
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 mb-1">About You</h2>
                 <p className="text-sm text-gray-500 mb-4">Basic information to get started. All fields are optional except your name.</p>
+              </div>
+
+              {/* Resume Upload — AI extraction */}
+              <div className="p-4 rounded-xl" style={{ background: '#F0F7F4', border: '1px solid #D1E7DD' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: '#102A43' }}>Upload your resume</p>
+                    <p className="text-xs" style={{ color: '#627D98' }}>AI will extract your details and pre-fill the form</p>
+                  </div>
+                  {resumeUploading && <span className="text-xs" style={{ color: '#48BB78' }}>Extracting...</span>}
+                </div>
+                <input
+                  type="file"
+                  accept=".pdf,.txt,.docx,.doc"
+                  className="text-xs"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setResumeUploading(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append('resume', file);
+                      const res = await fetch('/api/resume', { method: 'POST', body: formData });
+                      const data = await res.json();
+                      if (data.profile) {
+                        const p = data.profile;
+                        if (p.full_name && !fullName) setFullName(p.full_name);
+                        if (p.email && !email) setEmail(p.email);
+                        if (p.phone && !phone) setPhone(p.phone);
+                        if (p.location) setLocation(p.location);
+                        if (p.work_history?.length) setWorkHistory(p.work_history.map((w: any) => ({
+                          company: w.company || '', role: w.role || '',
+                          start_date: w.start_date || '', end_date: w.end_date || '',
+                          description: w.description || '', is_informal: w.is_informal || false,
+                        })));
+                        if (p.education?.length) setEducation(p.education.map((ed: any) => ({
+                          institution: ed.institution || '', degree: ed.degree || '',
+                          field: ed.field || '', year: ed.year || '',
+                          status: ed.status || 'completed',
+                        })));
+                        if (p.certifications?.length) setCertifications(p.certifications.join(', '));
+                        if (p.skills_inventory) setSkillsInventory(p.skills_inventory);
+                        if (p.career_goals) setCareerGoals(p.career_goals);
+                        setResumeExtracted(true);
+                      } else if (data.error) {
+                        alert('Could not extract: ' + data.error);
+                      }
+                    } catch (err) {
+                      console.error('Upload error:', err);
+                      alert('Upload failed. Try a different file format.');
+                    } finally {
+                      setResumeUploading(false);
+                    }
+                  }}
+                />
+                {resumeExtracted && (
+                  <p className="text-xs mt-2" style={{ color: '#48BB78' }}>Profile pre-filled from resume. Review and edit below.</p>
+                )}
               </div>
 
               <div>
