@@ -48,14 +48,14 @@ interface SessionState {
 // ============================================================
 
 const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string; progress: number; description: string; bg: string; orb1: string; orb2: string }> = {
-  opening:     { label: 'Getting to Know You',     color: '#94a3b8', icon: '🌅', progress: 5,  description: 'Just getting started',    bg: 'linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f2027 100%)',     orb1: 'rgba(148,163,184,0.12)', orb2: 'rgba(100,116,139,0.08)' },
-  story_select:{ label: 'Finding Your Story',      color: '#F4A261', icon: '🌿', progress: 18, description: 'Something real coming up',  bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.15)',  orb2: 'rgba(42,157,143,0.08)' },
-  elicitation: { label: 'Setting the Scene',       color: '#E9C46A', icon: '🦋', progress: 32, description: 'Tell me what happened',     bg: 'linear-gradient(160deg, #1a1205 0%, #2d2010 50%, #0a1a14 100%)',     orb1: 'rgba(233,196,106,0.18)', orb2: 'rgba(42,157,143,0.12)' },
-  core_probe:  { label: 'The Heart of It',         color: '#2A9D8F', icon: '🔮', progress: 52, description: 'Going deeper now',          bg: 'linear-gradient(160deg, #051a18 0%, #0a2d28 50%, #051520 100%)',     orb1: 'rgba(42,157,143,0.22)',  orb2: 'rgba(244,162,97,0.12)' },
-  skill_probe: { label: 'What It Revealed',        color: '#f59e0b', icon: '💎', progress: 68, description: 'The really good part',      bg: 'linear-gradient(160deg, #1a1005 0%, #2d1f00 50%, #0a1a0a 100%)',     orb1: 'rgba(245,158,11,0.22)',  orb2: 'rgba(42,157,143,0.15)' },
-  verification:{ label: 'Bringing It Together',    color: '#f97316', icon: '', progress: 82, description: 'Almost there',              bg: 'linear-gradient(160deg, #1a0d05 0%, #2d1508 50%, #0a1510 100%)',     orb1: 'rgba(249,115,22,0.22)',  orb2: 'rgba(244,162,97,0.18)' },
-  micro_story: { label: 'One More Story',          color: '#F4A261', icon: '', progress: 90, description: 'Quick one more',            bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.20)',  orb2: 'rgba(42,157,143,0.12)' },
-  closing:     { label: 'Journey Complete',        color: '#2A9D8F', icon: '', progress: 100,'description': 'You did it',              bg: 'linear-gradient(160deg, #051a18 0%, #0a2518 50%, #0a1520 100%)',     orb1: 'rgba(42,157,143,0.25)',  orb2: 'rgba(244,162,97,0.15)' },
+  opening:     { label: 'Getting to Know You',     color: '#94a3b8', icon: '·', progress: 5,  description: 'Just getting started',    bg: 'linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f2027 100%)',     orb1: 'rgba(148,163,184,0.12)', orb2: 'rgba(100,116,139,0.08)' },
+  story_select:{ label: 'Finding Your Story',      color: '#F4A261', icon: '·', progress: 18, description: 'Something real coming up',  bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.15)',  orb2: 'rgba(42,157,143,0.08)' },
+  elicitation: { label: 'Setting the Scene',       color: '#E9C46A', icon: '·', progress: 32, description: 'Tell me what happened',     bg: 'linear-gradient(160deg, #1a1205 0%, #2d2010 50%, #0a1a14 100%)',     orb1: 'rgba(233,196,106,0.18)', orb2: 'rgba(42,157,143,0.12)' },
+  core_probe:  { label: 'The Heart of It',         color: '#2A9D8F', icon: '·', progress: 52, description: 'Going deeper now',          bg: 'linear-gradient(160deg, #051a18 0%, #0a2d28 50%, #051520 100%)',     orb1: 'rgba(42,157,143,0.22)',  orb2: 'rgba(244,162,97,0.12)' },
+  skill_probe: { label: 'What It Revealed',        color: '#f59e0b', icon: '·', progress: 68, description: 'The really good part',      bg: 'linear-gradient(160deg, #1a1005 0%, #2d1f00 50%, #0a1a0a 100%)',     orb1: 'rgba(245,158,11,0.22)',  orb2: 'rgba(42,157,143,0.15)' },
+  verification:{ label: 'Bringing It Together',    color: '#f97316', icon: '·', progress: 82, description: 'Almost there',              bg: 'linear-gradient(160deg, #1a0d05 0%, #2d1508 50%, #0a1510 100%)',     orb1: 'rgba(249,115,22,0.22)',  orb2: 'rgba(244,162,97,0.18)' },
+  micro_story: { label: 'One More Story',          color: '#F4A261', icon: '·', progress: 90, description: 'Quick one more',            bg: 'linear-gradient(160deg, #1a0e05 0%, #2d1a0a 50%, #0f1a14 100%)',     orb1: 'rgba(244,162,97,0.20)',  orb2: 'rgba(42,157,143,0.12)' },
+  closing:     { label: 'Journey Complete',        color: '#2A9D8F', icon: '·', progress: 100, description: 'You did it',              bg: 'linear-gradient(160deg, #051a18 0%, #0a2518 50%, #0a1520 100%)',     orb1: 'rgba(42,157,143,0.25)',  orb2: 'rgba(244,162,97,0.15)' },
 };
 
 // ============================================================
@@ -456,17 +456,22 @@ export default function LEEEChat() {
         <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
 
-            {/* Aya avatar + name */}
+            {/* Back button + Aya avatar + name */}
             <div className="flex items-center gap-3">
+              <a href="/my-dashboard" className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors"
+                style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </a>
               <div className="relative">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-lg"
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold shadow-lg"
                   style={{
                     background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`,
                     transition: 'background 2s ease',
                     animation: 'breathe 4s ease-in-out infinite',
                     boxShadow: `0 0 20px ${stageConfig.color}44`,
+                    color: 'white',
                   }}>
-                  🦋
+                  A
                 </div>
                 {session.status === 'active' && (
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
@@ -507,11 +512,11 @@ export default function LEEEChat() {
                   style={{ width: `calc(${stageConfig.progress}% - 2rem)`, background: `linear-gradient(90deg, ${stageConfig.color}88, ${stageConfig.color}44)` }} />
 
                 {[
-                  { icon: '🌅', threshold: 0,  stage: 'opening' },
-                  { icon: '🌿', threshold: 18, stage: 'story_select' },
-                  { icon: '🦋', threshold: 45, stage: 'core_probe' },
-                  { icon: '💎', threshold: 68, stage: 'skill_probe' },
-                  { icon: '', threshold: 95, stage: 'closing' },
+                  { icon: '1', threshold: 0,  stage: 'opening' },
+                  { icon: '2', threshold: 18, stage: 'story_select' },
+                  { icon: '3', threshold: 45, stage: 'core_probe' },
+                  { icon: '4', threshold: 68, stage: 'skill_probe' },
+                  { icon: '5', threshold: 95, stage: 'closing' },
                 ].map((m, i) => {
                   const reached = stageConfig.progress >= m.threshold;
                   const isCurrent = i === [

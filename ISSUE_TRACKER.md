@@ -40,5 +40,19 @@
 | U-23 | Vacancy page — empty without seeded data | /vacancy | Shows nothing unless employer has posted. Need to seed Cebuana vacancy. | ⬜ |
 | U-24 | Demo/demo-day pages — still have emojis | /demo, /demo-day | Internal pages, low priority. | ⬜ |
 
+### FROM RYAN/KUBER FEEDBACK (March 18)
+
+| # | Issue | Page | Description | Priority | Status |
+|---|-------|------|-------------|----------|--------|
+| U-25 | No back-to-dashboard button on chat page | /chat | Once in chat, no way to navigate back to dashboard. Need a button/link. | CRITICAL | ⬜ |
+| U-26 | Scenario pop-up cards need multiple choice answers | /chat | Cards should present 2-3 options. User picks one. Choice feeds into extraction as personality/decision-making evidence. Should be fun and engaging, not just chatting. | CRITICAL | ⬜ |
+| U-27 | Micro-simulations in chat | /chat | Beyond pop-up cards — short interactive scenarios, mini-games, decision trees. Goal: make it engaging, not just a chatbot. Post-MVP but design now. | POST-MVP | ⬜ |
+| U-28 | Resume upload + AI extraction for profile | /profile | Let user upload resume/CV. AI extracts work history, education, skills and pre-fills the profile form. Reduces manual entry. | MEDIUM | ⬜ |
+| U-29 | UI alignment — buttons not aligned properly | Multiple | Edit Profile and Sign Out buttons misaligned in nav. General button alignment issues across pages. Need UI polish pass. | CRITICAL | ⬜ |
+| U-30 | Disability fields must actually affect Aya's behavior | /chat | Profile disability context (severity, communication impact, recently diagnosed) must be confirmed to flow into system prompt calibration and change how Aya speaks. Verify end-to-end. | CRITICAL | ⬜ |
+| U-31 | No back-to-dashboard after profile save | /profile | After saving profile on step 4, user is stuck. No navigation to dashboard. | CRITICAL | ⬜ |
+| U-32 | Chat page — "Save & Talk to Aya" should redirect properly | /profile → /chat | When clicking "Save & Talk to Aya" on step 4, need to ensure profile is saved AND user lands on chat with context loaded. | MEDIUM | ⬜ |
+| U-33 | Gemini fallback when Claude is down | /api/chat, extraction | Add Google Gemini as backup LLM. If Anthropic API returns 5xx or times out, automatically fall back to Gemini. Needs: Gemini API key, adapter for message format, fallback logic in callClaude() and extraction pipeline. | MEDIUM | ⬜ |
+
 ---
-*Last updated: March 2026*
+*Last updated: March 18, 2026*

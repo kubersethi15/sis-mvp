@@ -511,25 +511,30 @@ export default function ProfilePage() {
                   Next →
                 </button>
               ) : (
-                <button
-                  onClick={async () => {
-                    await saveProfile();
-                    window.location.href = '/chat';
-                  }}
-                  disabled={saving || !fullName.trim()}
-                  className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all"
-                >
-                  Save & Talk to Aya →
-                </button>
+                <div className="flex items-center gap-2">
+                  <a href="/my-dashboard" className="px-4 py-2 text-sm rounded-lg hover:bg-gray-100 transition-colors" style={{ color: '#627D98' }}>
+                    Dashboard
+                  </a>
+                  <button
+                    onClick={async () => {
+                      await saveProfile();
+                      window.location.href = '/chat';
+                    }}
+                    disabled={saving || !fullName.trim()}
+                    className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all"
+                  >
+                    Save & Talk to Aya →
+                  </button>
+                </div>
               )}
             </div>
           </div>
         </div>
 
         {/* Completion indicator */}
-        {profileId && (
+        {profileId && saved && (
           <div className="mt-4 text-center">
-            <p className="text-xs text-gray-400">Profile ID: {profileId.substring(0, 8)}... • Saved to database</p>
+            <p className="text-xs" style={{ color: '#48BB78' }}>Profile saved successfully</p>
           </div>
         )}
       </div>
