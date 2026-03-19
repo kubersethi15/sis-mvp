@@ -300,6 +300,11 @@ export default function ProfilePage() {
                         if (p.skills_inventory) setSkillsInventory(p.skills_inventory);
                         if (p.career_goals) setCareerGoals(p.career_goals);
                         setResumeExtracted(true);
+                        // Auto-save after a short delay so React state settles
+                        setTimeout(() => {
+                          const saveBtn = document.getElementById('kaya-save-btn');
+                          if (saveBtn) saveBtn.click();
+                        }, 500);
                       } else if (data.error) {
                         alert('Could not extract: ' + data.error);
                       }
@@ -312,7 +317,7 @@ export default function ProfilePage() {
                   }}
                 />
                 {resumeExtracted && (
-                  <p className="text-xs mt-2" style={{ color: '#48BB78' }}>Profile pre-filled from resume. Review and edit below.</p>
+                  <p className="text-xs mt-2" style={{ color: '#48BB78' }}>Resume extracted and profile saved. Review below and edit if needed.</p>
                 )}
               </div>
 
@@ -558,6 +563,7 @@ export default function ProfilePage() {
 
             <div className="flex items-center gap-3">
               <button
+                id="kaya-save-btn"
                 onClick={saveProfile}
                 disabled={saving || !fullName.trim()}
                 className="px-4 py-2 text-sm text-teal-600 border border-teal-200 rounded-lg hover:bg-teal-50 disabled:opacity-30 transition-colors"
