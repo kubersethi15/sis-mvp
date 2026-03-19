@@ -217,8 +217,27 @@ export default function EmployerDashboardPage() {
                       )}
 
                       <div className="flex gap-3 pt-2" style={{ borderTop: '1px solid #F0F4F8' }}>
-                        <Link href="/reviewer" className="text-xs font-medium" style={{ color: '#2E86C1' }}>View Full Profile →</Link>
-                        <Link href="/psychologist" className="text-xs" style={{ color: '#829AB1' }}>Psychologist Review →</Link>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const vacancyId = vacancies[0]?.id;
+                              if (!vacancyId) { alert('No vacancy found. Create a vacancy first.'); return; }
+                              const res = await fetch('/api/demo', {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ action: 'apply', vacancy_id: vacancyId, session_id: ext.session_id }),
+                              });
+                              if (res.ok) {
+                                alert('Candidate added to pipeline!');
+                                loadData();
+                              }
+                            } catch (e) { console.error(e); }
+                          }}
+                          className="text-xs font-medium px-3 py-1.5 rounded-lg text-white transition-all hover:opacity-90"
+                          style={{ background: '#48BB78' }}
+                        >
+                          Add to Pipeline
+                        </button>
+                        <Link href="/reviewer" className="text-xs font-medium" style={{ color: '#2E86C1' }}>View Pipeline →</Link>
                       </div>
                     </div>
                   );

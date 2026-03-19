@@ -198,7 +198,7 @@ export default function MyDashboard() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-3xl mb-2">🦋</p>
+                <p className="text-sm mb-2" style={{ color: "#829AB1" }}>No skills extracted yet</p>
                 <p className="text-sm text-stone-500 mb-3">Your superpowers haven't been discovered yet</p>
                 <Link href="/chat"
                   className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
@@ -232,27 +232,27 @@ export default function MyDashboard() {
                 </div>
 
                 {/* Quick facts */}
-                <div className="space-y-2 text-xs text-stone-600">
+                <div className="space-y-2 text-xs" style={{ color: '#486581' }}>
                   {data.profile.preferred_location && (
-                    <div className="flex items-center gap-2">📍 {data.profile.preferred_location}</div>
+                    <div className="flex items-center gap-2">Location: {data.profile.preferred_location}</div>
                   )}
                   {data.profile.work_history?.length > 0 && (
-                    <div className="flex items-center gap-2">💼 {data.profile.work_history.length} work experience(s)</div>
+                    <div className="flex items-center gap-2">{data.profile.work_history.length} work experience{data.profile.work_history.length > 1 ? 's' : ''}</div>
                   )}
                   {data.profile.education?.length > 0 && (
-                    <div className="flex items-center gap-2">🎓 {data.profile.education.length} education record(s)</div>
+                    <div className="flex items-center gap-2">{data.profile.education.length} education record{data.profile.education.length > 1 ? 's' : ''}</div>
                   )}
                   {data.profile.certifications?.length > 0 && (
-                    <div className="flex items-center gap-2">📜 {data.profile.certifications.length} certification(s)</div>
+                    <div className="flex items-center gap-2">{data.profile.certifications.length} certification{data.profile.certifications.length > 1 ? 's' : ''}</div>
                   )}
-                  {data.profile.disability_type && (
-                    <div className="flex items-center gap-2">♿ {data.profile.disability_type}</div>
+                  {data.profile.disability_type && data.profile.disability_type !== 'prefer_not_to_say' && (
+                    <div className="flex items-center gap-2">Disability: {data.profile.disability_type}</div>
                   )}
                 </div>
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-3xl mb-2">👤</p>
+                
                 <p className="text-sm text-stone-500 mb-3">Create your profile to get started</p>
                 <Link href="/profile"
                   className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
@@ -280,7 +280,7 @@ export default function MyDashboard() {
                     <div className="text-xs text-stone-400">{match.employer} • {match.location || 'Location not set'}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {match.accessibility_friendly && <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">♿</span>}
+                    {match.accessibility_friendly && <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">Accessible</span>}
                     <div className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
                       match.match_score >= 70 ? 'bg-green-100 text-green-700' :
                       match.match_score >= 40 ? 'bg-amber-100 text-amber-700' :
@@ -324,7 +324,7 @@ export default function MyDashboard() {
         {/* QUICK ACTIONS */}
         <div className="grid grid-cols-3 gap-3">
           <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
-            <span className="text-xl">🦋</span>
+            <span className="text-xl" style={{ fontFamily: "Georgia, serif", color: "#48BB78" }}>kaya</span>
             <p className="text-xs font-medium text-stone-700 mt-1">Talk to Aya</p>
           </Link>
           <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">

@@ -147,7 +147,7 @@ export default function SkillsDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #FFF8F0, #FEF3E2, #F0F7F4)' }}>
         <div className="text-center max-w-sm px-6">
-          <p className="text-6xl mb-5">🦋</p>
+          <p className="text-2xl font-bold mb-5" style={{ fontFamily: "Georgia, serif", color: "#48BB78" }}>kaya</p>
           <h1 className="text-2xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>No Skills Profile Yet</h1>
           <p className="text-stone-500 mb-8 text-[15px] leading-relaxed">Complete a conversation with Aya to discover the skills hidden in your lived experience.</p>
           <a href="/chat" className="inline-block px-8 py-3.5 rounded-2xl font-semibold text-white shadow-lg transition-all hover:scale-[1.02]"
@@ -213,10 +213,7 @@ export default function SkillsDashboard() {
           </div>
 
           {/* Identity block */}
-          <div className="flex items-start gap-5 mb-8">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold shadow-xl flex-none" style={{ background: 'linear-gradient(135deg, #48BB78, #2A9D8F)', color: 'white', fontFamily: 'Georgia, serif' }}>
-              K
-            </div>
+          <div className="flex items-start gap-4 mb-8">
             <div>
               <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Kaya · Virtualahan</p>
               <h1 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: "'Nunito', sans-serif" }}>
@@ -299,14 +296,14 @@ export default function SkillsDashboard() {
                   }}
                 >
                   <button
-                    className="w-full p-5 flex items-center gap-4 text-left"
+                    className="w-full p-4 flex items-center gap-3 text-left"
                     onClick={() => setExpandedSkill(isExpanded ? null : skill.skill_id)}
                   >
                     {/* Skill icon */}
                     <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cfg.gradient} flex items-center justify-center shadow-md flex-none`}
+                      className={`w-10 h-10 rounded-lg bg-gradient-to-br ${cfg.gradient} flex items-center justify-center shadow-sm flex-none`}
                     >
-                      <span className="text-white text-sm font-bold tracking-tight">{cfg.icon}</span>
+                      <span className="text-white text-xs font-bold tracking-tight">{cfg.icon}</span>
                     </div>
 
                     {/* Name + bar */}

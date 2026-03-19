@@ -63,14 +63,14 @@ const STAGE_CONFIG: Record<string, { label: string; color: string; icon: string;
 // ============================================================
 
 const SKILL_LABELS: Record<string, { label: string; icon: string; color: string }> = {
-  EQ: { label: 'Emotional Intelligence', icon: '💛', color: '#F4A261' },
-  COMM: { label: 'Communication', icon: '💬', color: '#2A9D8F' },
-  COLLAB: { label: 'Collaboration', icon: '🤝', color: '#264653' },
-  PS: { label: 'Problem Solving', icon: '🧩', color: '#E76F51' },
-  ADAPT: { label: 'Adaptability', icon: '🌊', color: '#E9C46A' },
-  LEARN: { label: 'Learning Agility', icon: '📚', color: '#F4A261' },
-  EMPATHY: { label: 'Empathy', icon: '❤️', color: '#E76F51' },
-  DIGITAL: { label: 'Digital Fluency', icon: '💻', color: '#264653' },
+  EQ: { label: 'Emotional Intelligence', icon: 'EI', color: '#F4A261' },
+  COMM: { label: 'Communication', icon: 'CM', color: '#2A9D8F' },
+  COLLAB: { label: 'Collaboration', icon: 'CO', color: '#264653' },
+  PS: { label: 'Problem Solving', icon: 'PS', color: '#E76F51' },
+  ADAPT: { label: 'Adaptability', icon: 'AD', color: '#E9C46A' },
+  LEARN: { label: 'Learning Agility', icon: 'LA', color: '#F4A261' },
+  EMPATHY: { label: 'Empathy', icon: 'EM', color: '#E76F51' },
+  DIGITAL: { label: 'Digital Fluency', icon: 'DF', color: '#264653' },
 };
 
 // Quick reply suggestions based on stage
@@ -575,7 +575,7 @@ export default function LEEEChat() {
               <div className="relative mb-8">
                 <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl"
                   style={{ background: 'linear-gradient(135deg, rgba(244,162,97,0.8), rgba(42,157,143,0.6))', animation: 'breathe 4s ease-in-out infinite', boxShadow: '0 0 60px rgba(244,162,97,0.25)' }}>
-                  🦋
+                  A
                 </div>
                 <div className="absolute -inset-4 rounded-3xl opacity-20" style={{ background: 'radial-gradient(circle, rgba(244,162,97,0.6) 0%, transparent 70%)', animation: 'breathe 4s ease-in-out infinite' }} />
               </div>
@@ -622,7 +622,7 @@ export default function LEEEChat() {
               style={{ animation: `messageIn 0.4s ease-out ${idx === messages.length - 1 ? '' : 'none'}` }}>
               {msg.role === 'assistant' && (
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-sm mr-2.5 mt-1 flex-none shadow-sm">
-                  🦋
+                  A
                 </div>
               )}
               {/* Scenario choice — special pill styling */}
@@ -685,7 +685,7 @@ export default function LEEEChat() {
             <div className="flex mb-5 justify-start" style={{ animation: 'messageIn 0.3s ease-out' }}>
               <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-2.5 mt-1 flex-none"
                 style={{ background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`, boxShadow: `0 0 12px ${stageConfig.color}44` }}>
-                🦋
+                A
               </div>
               <div className="px-5 py-3.5 rounded-2xl rounded-bl-md"
                 style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -718,7 +718,7 @@ export default function LEEEChat() {
                         style={{ transitionDelay: `${i * 100}ms` }}>
                         <div className="bg-white/90 rounded-2xl p-4 border border-amber-100 shadow-sm flex items-center gap-4">
                           <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: '#FEF3E2' }}>
-                            {SKILL_LABELS[skill.skill_id]?.icon || '⭐'}
+                            {SKILL_LABELS[skill.skill_id]?.icon || '??'}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -879,7 +879,7 @@ export default function LEEEChat() {
           <div className="relative mb-10">
             <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl"
               style={{ background: `linear-gradient(135deg, ${stageConfig.color}cc, ${stageConfig.color}66)`, animation: 'extractPulse 1.5s ease-in-out infinite', boxShadow: `0 0 60px ${stageConfig.color}44` }}>
-              🦋
+              A
             </div>
             <div className="absolute -inset-6 rounded-full opacity-20"
               style={{ background: `radial-gradient(circle, ${stageConfig.color} 0%, transparent 70%)`, animation: 'extractPulse 1.5s ease-in-out infinite' }} />
