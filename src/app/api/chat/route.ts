@@ -374,6 +374,16 @@ async function runGapScan(orchestrator: LEEEOrchestrator) {
   } catch (e) { console.error('Gap scan error:', e); }
 }
 
+
+function normalizeProficiency(p: string | undefined | null): string {
+  if (!p || p === 'Not_scored' || p === 'not_scored') return 'Basic';
+  const lower = p.toLowerCase();
+  if (lower === 'basic' || lower === 'emerging') return 'Basic';
+  if (lower === 'intermediate' || lower === 'developing') return 'Intermediate';
+  if (lower === 'advanced' || lower === 'proficient') return 'Advanced';
+  return 'Basic';
+}
+
 async function handleExtract(sessionId: string) {
   let orchestrator = orchestrators.get(sessionId);
   if (!orchestrator) {
@@ -403,6 +413,37 @@ async function handleExtract(sessionId: string) {
 
   try {
     const { runExtractionPipeline } = await import('@/lib/extraction-pipeline');
+
+    // Count user messages to check minimum threshold
+    const userMsgCount = orchestrator.getState().messages.filter(m => m.role === 'user').length;
+
+    // If session is too short (fewer than 5 user messages), skip extraction
+    if (userMsgCount < 5) {
+      // Return previous session skills if available
+      const { data: prevExts } = await supabase.from('leee_extractions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (prevExts?.length) {
+        return NextResponse.json({
+          extraction: {
+            ...prevExts[0],
+            narrative_summary: (prevExts[0].narrative_summary || '') + '\n\nNote: Your latest session was too brief to extract new skills. Your profile shows skills from previous conversations. Continue chatting with Aya to discover more.',
+            _short_session: true,
+          },
+          session_id: sessionId,
+          status: 'extracted',
+        });
+      }
+
+      return NextResponse.json({
+        extraction: { skills_profile: [], narrative_summary: 'This session was too brief to extract skills. Try telling Aya a longer story about a specific experience — what happened, what you did, and what the result was.', session_quality: { overall_confidence: 0, stories_completed: 0 } },
+        session_id: sessionId,
+        status: 'extracted',
+      });
+    }
+
     const result = await runExtractionPipeline(transcript, vacancySkills);
 
     if (!result.success) {
@@ -426,7 +467,7 @@ async function handleExtract(sessionId: string) {
         ...(profile.vacancy_aligned_skills || []).map((s: any, i: number) => ({
           skill_id: `SK${i + 1}`,
           skill_name: s.skill_name,
-          proficiency: s.proficiency?.charAt(0) + s.proficiency?.slice(1).toLowerCase(),
+          proficiency: normalizeProficiency(s.proficiency),
           confidence: s.top_evidence?.adjusted_confidence
             || s.adjusted_confidence
             || s.confidence
@@ -443,7 +484,7 @@ async function handleExtract(sessionId: string) {
         ...(profile.additional_skills_evidenced || []).map((s: any, i: number) => ({
           skill_id: `SK${10 + i}`,
           skill_name: s.skill_name,
-          proficiency: s.proficiency?.charAt(0) + s.proficiency?.slice(1).toLowerCase(),
+          proficiency: normalizeProficiency(s.proficiency),
           confidence: s.top_evidence?.adjusted_confidence
             || s.adjusted_confidence
             || s.confidence
@@ -517,17 +558,40 @@ async function handleExtract(sessionId: string) {
           }
         }
 
-        const newSkillsMap: Record<string, any> = {};
-        for (const s of extraction.skills_profile) {
-          newSkillsMap[s.skill_id || s.skill_name] = s;
-        }
+        // Merge: for each skill, keep the HIGHEST confidence version
+        const mergedMap: Record<string, any> = {};
+
+        // Start with previous skills
         for (const [id, prevSkill] of Object.entries(prevSkillsMap)) {
-          if (!newSkillsMap[id]) {
-            newSkillsMap[id] = { ...prevSkill, source: 'previous_session' };
+          mergedMap[id] = { ...prevSkill, source: 'previous_session' };
+        }
+
+        // Overlay new skills — only override if new confidence is HIGHER
+        for (const s of extraction.skills_profile) {
+          const key = s.skill_id || s.skill_name;
+          const existing = mergedMap[key];
+          if (!existing || (s.confidence || 0) >= (existing.confidence || 0)) {
+            mergedMap[key] = { ...s, source: 'current_session' };
+          }
+          // If new confidence is lower, keep previous but note current session also evidenced it
+          else if (existing) {
+            existing._also_evidenced_in_current = true;
           }
         }
-        extraction.skills_profile = Object.values(newSkillsMap);
+
+        extraction.skills_profile = Object.values(mergedMap);
         (extraction as any)._merged = true;
+
+        // Build cumulative narrative — combine previous summaries with current
+        const prevNarratives: string[] = [];
+        for (const ps of prevSessions) {
+          const { data: ext } = await supabase.from('leee_extractions')
+            .select('narrative_summary').eq('session_id', ps.id).limit(1).single();
+          if (ext?.narrative_summary) prevNarratives.push(ext.narrative_summary);
+        }
+        if (prevNarratives.length > 0 && extraction.narrative_summary) {
+          extraction.narrative_summary = extraction.narrative_summary + '\n\nFrom previous sessions: ' + prevNarratives[0].substring(0, 200);
+        }
       }
     }
 

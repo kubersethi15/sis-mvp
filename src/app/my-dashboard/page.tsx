@@ -178,7 +178,9 @@ export default function MyDashboard() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-0.5">
                         <span className="text-xs font-medium text-stone-700">{skill.skill_name}</span>
-                        <span className="text-[10px] text-amber-600 font-medium">{skill.proficiency} • {Math.round(skill.confidence * 100)}%</span>
+                        <span className="text-[10px] text-amber-600 font-medium">
+                          {(skill.proficiency === 'Not_scored' || skill.proficiency === 'not_scored' || !skill.proficiency) ? 'Emerging' : skill.proficiency} • {Math.round((skill.confidence || 0.5) * 100)}%
+                        </span>
                       </div>
                       <div className="w-full bg-stone-100 rounded-full h-1.5">
                         <div className="h-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-400"
