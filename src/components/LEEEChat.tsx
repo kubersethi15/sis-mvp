@@ -287,20 +287,20 @@ export default function LEEEChat() {
       }));
 
       // Client-side scenario card trigger
-      // Uses READINESS check, not hard-coded message counts.
-      // Minimum floor (6 messages) + at least one substantive user message (20+ words)
+      // READINESS-BASED: minimum messages + substantive content + past opening stage
       if (!scenarioMatch && scenarioCount < 2 && !pendingScenario && !scenarioQueued) {
         const userMsgs = messages.filter(m => m.role === 'user');
         const userMsgCount = userMsgs.length + 1;
-        // Readiness: has the user actually told a story? (at least one message with 20+ words)
         const hasSubstantiveMessage = userMsgs.some(m =>
           m.content && m.content.length > 80 && !m.content.startsWith('[SCENARIO') && !m.content.startsWith('[SIMULATION')
         );
+        // Don't fire during opening — conversation needs to have moved past small talk
+        const pastOpening = session.stage && session.stage !== 'opening';
 
         const minReached = (scenarioCount === 0 && userMsgCount >= 6) || (scenarioCount === 1 && userMsgCount >= 13);
-        const maxNotExceeded = (scenarioCount === 0 && userMsgCount <= 15) || (scenarioCount === 1 && userMsgCount <= 22);
+        const maxNotExceeded = (scenarioCount === 0 && userMsgCount <= 20) || (scenarioCount === 1 && userMsgCount <= 28);
 
-        if (minReached && maxNotExceeded && hasSubstantiveMessage) {
+        if (minReached && maxNotExceeded && hasSubstantiveMessage && pastOpening) {
           setScenarioQueued(true);
         }
       }
@@ -341,15 +341,17 @@ export default function LEEEChat() {
       }
 
       // Micro-simulation trigger — needs deeper conversation readiness
-      // Requires: scenario done + minimum 10 messages + at least 2 substantive user messages
+      // Requires: scenario done + substantive stories + conversation at heart/deepening stage
       if (!simulationDone && !pendingSimulation && !simulationQueued && scenarioCount >= 1) {
         const userMsgs = messages.filter(m => m.role === 'user');
         const userMsgCount = userMsgs.length + 1;
         const substantiveMsgs = userMsgs.filter(m =>
           m.content && m.content.length > 80 && !m.content.startsWith('[SCENARIO') && !m.content.startsWith('[SIMULATION')
         );
+        // Simulation needs deeper conversation — at least 'growing' or 'heart' stage
+        const deepEnough = session.stage && !['opening'].includes(session.stage);
 
-        if (userMsgCount >= 10 && userMsgCount <= 22 && substantiveMsgs.length >= 2) {
+        if (userMsgCount >= 10 && userMsgCount <= 28 && substantiveMsgs.length >= 2 && deepEnough) {
           setSimulationQueued(true);
         }
       }
