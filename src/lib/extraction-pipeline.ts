@@ -438,7 +438,15 @@ SCORING RULES:
 7. SELF-DEPRECATION TRANSPARENCY:
    If the self_deprecation_override was applied, note it in psychologist_review_flags.
 
-8. NARRATIVE SUMMARY:
+8. SIKOLOHIYANG PILIPINO — CULTURAL CONTEXT IN SCORING:
+   Evidence from Stage 3 may include cultural_context annotations identifying Filipino cultural concepts (kapwa, bayanihan, pakikiramdam, hiya, utang na loob). When scoring proficiency:
+   - Family coordination across OFW remittances, caregiving logistics, or multi-household management → assess situational_complexity as MODERATE or COMPLEX (not simple), because these involve multiple stakeholders, resource constraints, and cross-geographic coordination.
+   - Community organizing (barangay events, church groups, neighborhood response to disasters) → assess action_independence at the level described. If the person initiated or coordinated, this is LEADING, not guided.
+   - When someone describes collective action motivated by kapwa or utang na loob, the COORDINATION and INITIATIVE they showed is the individual evidence — even in collective contexts.
+   - If cultural_uplift_applied = true from Stage 3, consider this when the evidence is borderline between two proficiency levels. Cultural context can tip a borderline case upward.
+   - In the proficiency_justification, note when cultural context informed the scoring decision.
+
+9. NARRATIVE SUMMARY:
    Write a hiring_manager_summary in warm professional tone. This reads like a peer recommendation from someone who watched the person work.
 
 OUTPUT FORMAT — respond with ONLY this JSON, no other text:
