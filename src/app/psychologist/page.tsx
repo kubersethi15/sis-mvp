@@ -34,6 +34,8 @@ const METHODOLOGY_REFS = [
   { id: 'PSF', title: 'Philippine Skills Framework for Human Capital Development (PSF-HCD) v1.0', source: 'TESDA/CHED', relevance: 'National taxonomy of enabling skills and competencies' },
   { id: 'PQF', title: 'Philippine Qualifications Framework (PQF)', source: 'Government of the Philippines', relevance: 'Proficiency levels (Basic/Intermediate/Advanced mapped to PQF 1-6)' },
   { id: 'RA12313', title: 'RA 12313 — Lifelong Learning and Development for Filipinos Act', source: 'Philippine Congress', relevance: 'Legal basis for Recognition of Prior Learning (RPL)' },
+  { id: 'SP', title: 'Sikolohiyang Pilipino (Filipino Psychology)', source: 'Enriquez (1992), Pe-Pua & Protacio-Marcelino (2000), Cervantes (2025)', relevance: 'Indigenous Filipino psychology framework — kapwa (shared identity), pakikiramdam (shared perception), bayanihan (community cooperation). Ensures skills assessment recognises Filipino cultural expressions of capability.' },
+  { id: 'KAPWA', title: 'Kapwa-Oriented Evidence Interpretation', source: 'Sikolohiyang Pilipino — Cultural Context Lens', relevance: 'Family/community evidence is assessed at parity with formal workplace evidence. Collective action, OFW coordination, family mediation, and barangay organising are valid demonstrations of PSF skills.' },
   { id: 'WEF', title: 'New Economy Skills: Unlocking the Human Advantage (2025)', source: 'World Economic Forum', relevance: 'Global alignment of human-centric skills taxonomy' },
   { id: 'MOTH', title: 'The Moth Storytelling Methodology', source: 'The Moth (25+ years)', relevance: 'Proven framework for surfacing meaningful personal narratives' },
   { id: 'STAR', title: 'STAR+E+R Behavioral Evidence Framework', source: 'Behavioral interview research', relevance: 'Extended STAR model with Emotion and Reflection components' },
@@ -326,6 +328,29 @@ export default function PsychologistPage() {
 
                         {(!skill.evidence || skill.evidence.length === 0) && (
                           <div className="p-4 border-t border-gray-100 text-xs text-gray-400">No evidence citations available for this skill.</div>
+                        )}
+
+                        {/* Cultural Context Annotation (Sikolohiyang Pilipino) */}
+                        {(skill as any).cultural_context?.cultural_annotation && (
+                          <div className="p-4 border-t border-gray-100" style={{ background: '#FFF8F0' }}>
+                            <div className="flex items-start gap-2">
+                              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#FEF3C7', color: '#92400E' }}>SP</span>
+                              <div className="flex-1">
+                                <p className="text-xs font-medium" style={{ color: '#92400E' }}>Cultural Context — Sikolohiyang Pilipino</p>
+                                <p className="text-xs text-gray-600 mt-1">{(skill as any).cultural_context.cultural_annotation}</p>
+                                {(skill as any).cultural_context.sp_concepts_detected?.length > 0 && (
+                                  <div className="flex gap-1.5 mt-2 flex-wrap">
+                                    {(skill as any).cultural_context.sp_concepts_detected.map((c: string, k: number) => (
+                                      <span key={k} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FEF3C7', color: '#92400E' }}>{c}</span>
+                                    ))}
+                                  </div>
+                                )}
+                                {(skill as any).cultural_context.cultural_uplift_applied && (
+                                  <p className="text-[10px] mt-1.5" style={{ color: '#B45309' }}>Cultural uplift applied: {(skill as any).cultural_context.cultural_uplift_reason}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
                     ))}

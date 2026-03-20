@@ -130,6 +130,19 @@ export function deriveCalibration(profile: any, psychometrics?: any): Calibratio
     coaching_notes.push('Match professional register. Can use slightly more complex phrasing. Structured probing is appropriate.');
   }
 
+  // Sikolohiyang Pilipino — always relevant for Filipino context
+  coaching_notes.push('KAPWA ORIENTATION: When the person tells family or community stories, probe them with the same depth as workplace stories. Coordinating family finances across OFW remittances is project management. Mediating sibling conflicts is conflict resolution. Organising barangay events is leadership. Ask: "How did you organize that?" "What was your role in making it work?"');
+
+  // Check for cultural indicators in profile
+  const profileText = JSON.stringify(profile).toLowerCase();
+  const hasFamilyIndicators = profileText.includes('family') || profileText.includes('caregiv') || profileText.includes('parent') || profileText.includes('sibling');
+  const hasCommunityIndicators = profileText.includes('community') || profileText.includes('barangay') || profileText.includes('church') || profileText.includes('volunteer');
+  const hasOFWIndicators = profileText.includes('ofw') || profileText.includes('abroad') || profileText.includes('overseas') || profileText.includes('remittance');
+
+  if (hasFamilyIndicators || hasCommunityIndicators || hasOFWIndicators) {
+    coaching_notes.push('RICH CULTURAL EVIDENCE TERRITORY: Profile indicates family/community/OFW context. These domains often contain the strongest evidence of capability under constraint. Probe deeply: "Walk me through how you managed that." Filipino cultural values (utang na loob, bayanihan) often drive actions that demonstrate advanced skills.');
+  }
+
   return { experience_level, communication_style, probe_depth, session_pace, coaching_notes };
 }
 

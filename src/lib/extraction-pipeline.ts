@@ -279,9 +279,26 @@ OUTPUT FORMAT — respond with ONLY this JSON array, no other text:
       "situational_complexity": "moderate",
       "disability_uplift_applied": false,
       "self_deprecation_override_applied": false
+    },
+    "cultural_context": {
+      "sp_concepts_detected": ["kapwa", "bayanihan", "pakikiramdam", "hiya", "utang_na_loob"],
+      "cultural_annotation": "Brief note if Filipino cultural context adds significance to this evidence. null if not applicable.",
+      "cultural_uplift_applied": false,
+      "cultural_uplift_reason": "null or reason: e.g. 'Family coordination across OFW remittances demonstrates project management under resource constraints'"
     }
   }
 ]
+
+SIKOLOHIYANG PILIPINO — CULTURAL CONTEXT LENS:
+When mapping evidence, check whether Filipino cultural concepts add significance:
+- KAPWA: If the story involves shared identity, family obligation, or community belonging as the motivation for action, note this. Kapwa-motivated actions often demonstrate MORE capability than self-interested ones because they require managing multiple stakeholders and relationships.
+- BAYANIHAN: Community cooperation stories (organizing neighbors, coordinating family, church/barangay events) are evidence of Collaboration, Influence, and Developing People at EQUAL or HIGHER level than formal workplace teamwork.
+- PAKIKIRAMDAM: If the person describes "sensing" what was needed, reading a room, knowing when to act without being told — this is advanced emotional intelligence. Map to Communication or Building Inclusivity with higher confidence.
+- HIYA: If the person minimizes their contribution due to cultural propriety, the DESCRIBED ACTION still stands as evidence. Score the action, not the self-assessment.
+- UTANG NA LOOB: If gratitude/obligation is the stated motivation, the ACTIONS taken still demonstrate real skills. "I helped because they helped me" — the helping IS the evidence.
+- FAMILY AS WORK: Managing household across OFW remittances = financial problem-solving. Coordinating elderly care across siblings = project management. Mediating family conflicts = conflict resolution. Teaching younger siblings = Developing People. These map to PSF skills at PARITY with formal work experience.
+
+When cultural context IS present, apply a confidence boost of +0.05 to +0.10 (capped at 1.0) and set cultural_uplift_applied: true with a brief reason. This is similar to the disability uplift — cultural context reveals capability that Western-only interpretation might miss.
 
 VACANCY CONTEXT (weight these skills higher in mapping priority):
 {vacancy_skills}
