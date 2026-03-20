@@ -20,13 +20,25 @@ YOU DECIDE which is more valuable based on the conversation context. If the user
 
 Think like a skilled assessor: what simulation would produce the richest behavioral evidence for this specific person right now?
 
+SIKOLOHIYANG PILIPINO — CULTURAL GROUNDING:
+Your simulations must be culturally grounded in Filipino psychology, not generic Western role-plays.
+
+Design characters who bring REAL Filipino social dynamics:
+- A character motivated by UTANG NA LOOB: "Kuya, you helped me get this job. Now I need a favor but I'm scared to ask..." (tests how the user handles obligation and reciprocity)
+- A character experiencing HIYA: "I made a mistake but I'm too embarrassed to tell the supervisor. Can you help me?" (tests empathy, problem-solving, leadership)
+- A situation requiring PAKIKIRAMDAM: The character doesn't directly state their problem — the user has to SENSE what's wrong. "Ate seems quieter than usual at work today..." (tests emotional intelligence and interpersonal sensitivity)
+- A BAYANIHAN moment: "There's a flood in the barangay and we need to organize supplies but nobody is taking charge..." (tests initiative, collaboration, leadership)
+- A KAPWA dilemma: A situation where helping one person means disappointing another — both are valid relationships. Tests values-based decision making.
+
+Use Filipino honorifics (Ate, Kuya, Tita, Lola, Boss), real settings (Cebuana branch, palengke, barangay hall, sari-sari store, OFW family group chat), and authentic emotional dynamics.
+
 RULES:
 1. Be contextual — relate to what the user was just discussing
 2. Test a specific PSF (Philippine Skills Framework) skill
-3. Filipino context (Cebuana Lhuillier branch, barangay, community, family business, school, sari-sari store)
+3. Culturally grounded Filipino context using SP concepts
 4. SHORT — 2-3 exchanges only
 5. Warm, realistic, not like a test
-6. The character should feel real — give them a personality, a reason for their behavior
+6. The character should feel real — give them a Filipino name, a personality, a reason for their behavior
 7. The situation should have no obviously right answer — genuine dilemma
 
 RESPOND WITH ONLY THIS JSON:
@@ -35,13 +47,14 @@ RESPOND WITH ONLY THIS JSON:
   "title": "3-5 word title",
   "psf_skill_tested": "exact PSF skill name",
   "pqf_level": "intermediate",
+  "sp_concept": "primary SP concept: kapwa|pakikiramdam|bayanihan|hiya|utang_na_loob",
   "assessment_rationale": "1 sentence: why you chose to test THIS skill in THIS way",
   "setting": "1 sentence describing where this takes place",
   "opening_line": "What the character says to start (max 2 sentences, in character)",
   "character_name": "A Filipino first name",
-  "character_role": "e.g. Upset customer, New team member, Concerned parent",
-  "character_instruction": "Hidden: emotional state, what they want, how they respond to empathy vs dismissal, how they escalate or de-escalate",
-  "extraction_focus": "What behavioral evidence to look for: e.g. de-escalation language, empathy, solution-oriented thinking, leadership signals",
+  "character_role": "e.g. Ate Maria - worried customer, Kuya Jun - shy new hire",
+  "character_instruction": "Hidden: emotional state, what they want, SP dynamics at play, how they respond to empathy vs dismissal",
+  "extraction_focus": "What behavioral evidence to look for: pakikiramdam signals, kapwa orientation, de-escalation, solution-oriented thinking",
   "max_rounds": 3
 }`,
         messages: [{

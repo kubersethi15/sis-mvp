@@ -287,17 +287,20 @@ export default function LEEEChat() {
       }));
 
       // Client-side scenario card trigger
-      // Queue at message milestones — but DON'T show immediately.
-      // Instead, set a flag so it shows after the user's NEXT response.
-      // This prevents interrupting Aya's question before the user can answer.
+      // Uses READINESS check, not hard-coded message counts.
+      // Minimum floor (6 messages) + at least one substantive user message (20+ words)
       if (!scenarioMatch && scenarioCount < 2 && !pendingScenario && !scenarioQueued) {
-        const userMsgCount = messages.filter(m => m.role === 'user').length + 1;
-        const shouldQueue =
-          (scenarioCount === 0 && userMsgCount >= 7 && userMsgCount <= 9) ||
-          (scenarioCount === 1 && userMsgCount >= 14 && userMsgCount <= 16);
+        const userMsgs = messages.filter(m => m.role === 'user');
+        const userMsgCount = userMsgs.length + 1;
+        // Readiness: has the user actually told a story? (at least one message with 20+ words)
+        const hasSubstantiveMessage = userMsgs.some(m =>
+          m.content && m.content.length > 80 && !m.content.startsWith('[SCENARIO') && !m.content.startsWith('[SIMULATION')
+        );
 
-        if (shouldQueue) {
-          // Queue the scenario — it will fire on the NEXT user message
+        const minReached = (scenarioCount === 0 && userMsgCount >= 6) || (scenarioCount === 1 && userMsgCount >= 13);
+        const maxNotExceeded = (scenarioCount === 0 && userMsgCount <= 15) || (scenarioCount === 1 && userMsgCount <= 22);
+
+        if (minReached && maxNotExceeded && hasSubstantiveMessage) {
           setScenarioQueued(true);
         }
       }
@@ -337,10 +340,16 @@ export default function LEEEChat() {
         }
       }
 
-      // Micro-simulation trigger — queue at message 12-14, show on NEXT turn
+      // Micro-simulation trigger — needs deeper conversation readiness
+      // Requires: scenario done + minimum 10 messages + at least 2 substantive user messages
       if (!simulationDone && !pendingSimulation && !simulationQueued && scenarioCount >= 1) {
-        const userMsgCount = messages.filter(m => m.role === 'user').length + 1;
-        if (userMsgCount >= 12 && userMsgCount <= 14) {
+        const userMsgs = messages.filter(m => m.role === 'user');
+        const userMsgCount = userMsgs.length + 1;
+        const substantiveMsgs = userMsgs.filter(m =>
+          m.content && m.content.length > 80 && !m.content.startsWith('[SCENARIO') && !m.content.startsWith('[SIMULATION')
+        );
+
+        if (userMsgCount >= 10 && userMsgCount <= 22 && substantiveMsgs.length >= 2) {
           setSimulationQueued(true);
         }
       }

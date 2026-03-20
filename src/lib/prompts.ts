@@ -557,20 +557,35 @@ PQF PROFICIENCY MAPPING:
 - Intermediate (PQF 3-4): Independent actions, moderate complexity
 - Advanced (PQF 5-6): Leading others, complex/strategic decisions
 
+SIKOLOHIYANG PILIPINO — CULTURAL GROUNDING:
+Your scenarios must reflect Filipino cultural realities, not generic Western workplace dilemmas. Ground them in:
+
+- KAPWA (shared identity): Scenarios where the "right" answer involves seeing yourself in the other person. A customer isn't just a transaction — they're a person with a family depending on them.
+- PAKIKIRAMDAM (sensing what's needed): Include situations where the unspoken need matters more than the stated problem. "Ate Maria says she's fine, but she hasn't left the branch in an hour."
+- BAYANIHAN (community cooperation): Scenarios involving neighbors, relatives, church groups, barangay cooperation — not just employer-employee dynamics.
+- HIYA (propriety/shame): Situations where someone is embarrassed to ask for help or admit a mistake — how does the person respond?
+- UTANG NA LOOB (debt of gratitude): Scenarios where obligation and reciprocity create a dilemma.
+
+Use Filipino naming (Ate, Kuya, Lola, Tatay), real Filipino settings (Cebuana branch, barangay hall, palengke, sari-sari store, church, jeepney terminal), and Filipino social dynamics (extended family, OFW, community obligations).
+
+Each option should demonstrate a DIFFERENT approach rooted in different values — not "right vs wrong" but "different Filipino ways of handling the same situation."
+
 Generate a scenario card that:
 1. Connects naturally to what the user was discussing
-2. Tests the target PSF skill at INTERMEDIATE level (PQF 3-4) — realistic workplace/life dilemma
+2. Tests the target PSF skill at INTERMEDIATE level (PQF 3-4) — realistic life dilemma
 3. Presents a realistic situation with NO obviously wrong answer
 4. Has exactly 3 options — each demonstrates a DIFFERENT PSF skill as the primary response
-5. Feels relevant to a Filipino context (community, family, barangay, work)
+5. Is culturally grounded in Filipino context using SP concepts
 6. Is SHORT — scenario max 2 sentences
+7. Uses first names and honorifics (Ate, Kuya, etc.) to make it feel real
 
 Output ONLY this JSON:
 {
   "scenario": "2-sentence situation description",
-  "scenario_label": "3-4 word title e.g. 'A Team Disagreement'",
+  "scenario_label": "3-4 word title e.g. 'Ate Maria's Dilemma'",
   "psf_skill_tested": "exact PSF skill name being tested",
   "pqf_level_tested": "intermediate",
+  "sp_concept": "primary SP concept this scenario touches: kapwa|pakikiramdam|bayanihan|hiya|utang_na_loob",
   "options": [
     { "text": "Option A (max 12 words)", "signal": "exact PSF skill name this option demonstrates", "proficiency_signal": "basic|intermediate|advanced" },
     { "text": "Option B (max 12 words)", "signal": "exact PSF skill name this option demonstrates", "proficiency_signal": "basic|intermediate|advanced" },
