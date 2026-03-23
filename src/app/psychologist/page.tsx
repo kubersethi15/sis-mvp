@@ -374,6 +374,53 @@ export default function PsychologistPage() {
                     </div>
                   </div>
                 )}
+
+                {/* System Flags Checklist — what the algorithm did */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-sm font-semibold text-gray-900 mb-3">SYSTEM FLAGS — Algorithm Decisions</h2>
+                  <p className="text-xs text-gray-500 mb-4">Review each flag to understand what the AI extraction did and why. These inform your professional judgment.</p>
+                  <div className="space-y-3">
+                    {(() => {
+                      const skills = selected.skills_profile || [];
+                      const selfDepOverrides = skills.filter((s: any) => s.self_deprecation_override || s.top_evidence?.self_deprecation_detected);
+                      const disabilityUplifts = skills.filter((s: any) => s.disability_uplift_applied || s.top_evidence?.disability_uplift_applied || s.confidence_factors?.disability_uplift_applied);
+                      const culturalUplifts = skills.filter((s: any) => s.cultural_context?.cultural_uplift_applied);
+                      const singleSource = skills.filter((s: any) => s.evidence_count === 1 && (s.confidence || 0) >= 0.7);
+                      return (
+                        <>
+                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: selfDepOverrides.length > 0 ? '#FEF3C7' : '#F9FAFB' }}>
+                            <span className="text-lg mt-0.5">{selfDepOverrides.length > 0 ? '⚠' : '○'}</span>
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">Self-Deprecation Override</p>
+                              <p className="text-xs text-gray-500">{selfDepOverrides.length > 0 ? `Applied on ${selfDepOverrides.length} skill(s): ${selfDepOverrides.map((s: any) => s.skill_name).join(', ')}. The candidate minimised their contribution but described competent action.` : 'Not applied — no self-deprecation patterns detected.'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: disabilityUplifts.length > 0 ? '#DBEAFE' : '#F9FAFB' }}>
+                            <span className="text-lg mt-0.5">{disabilityUplifts.length > 0 ? '⚠' : '○'}</span>
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">Disability Experience Uplift</p>
+                              <p className="text-xs text-gray-500">{disabilityUplifts.length > 0 ? `Applied on ${disabilityUplifts.length} skill(s): ${disabilityUplifts.map((s: any) => s.skill_name).join(', ')}. Action performed under disability-related constraint demonstrates greater capability.` : 'Not applied — no disability-related constraint in evidence.'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: culturalUplifts.length > 0 ? '#FFF7ED' : '#F9FAFB' }}>
+                            <span className="text-lg mt-0.5">{culturalUplifts.length > 0 ? '⚠' : '○'}</span>
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">Cultural Context Uplift (Sikolohiyang Pilipino)</p>
+                              <p className="text-xs text-gray-500">{culturalUplifts.length > 0 ? `Applied on ${culturalUplifts.length} skill(s): ${culturalUplifts.map((s: any) => s.skill_name).join(', ')}. Filipino cultural context (kapwa, bayanihan, pakikiramdam) adds significance to evidence.` : 'Not applied — no cultural context uplift triggered.'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: singleSource.length > 0 ? '#FEF2F2' : '#F9FAFB' }}>
+                            <span className="text-lg mt-0.5">{singleSource.length > 0 ? '⚠' : '○'}</span>
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">Single-Source Evidence</p>
+                              <p className="text-xs text-gray-500">{singleSource.length > 0 ? `${singleSource.length} skill(s) with high confidence but only 1 evidence item: ${singleSource.map((s: any) => s.skill_name).join(', ')}. Consider requesting additional evidence.` : 'No single-source high-confidence claims.'}</p>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
               </div>
             )}
 

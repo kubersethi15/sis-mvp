@@ -105,11 +105,29 @@ export default function VacancyPage() {
     finally { setAlignmentLoading(false); }
   }, [selected]);
 
-  // Apply
+  // Apply with eligibility check
   const handleApply = useCallback(async () => {
     if (!selected) return;
     const profileId = localStorage.getItem('kaya_jobseeker_profile_id');
     if (!profileId) { alert('Please create your profile first at /profile'); return; }
+
+    // Basic eligibility check
+    const req = selected.competency_blueprint?.requirements || {};
+    const eligibilityIssues: string[] = [];
+
+    if (req.work_authorization && req.work_authorization !== 'any') {
+      eligibilityIssues.push(`Work authorization: ${req.work_authorization} required`);
+    }
+    if (req.license_required) {
+      eligibilityIssues.push(`License required: ${req.license_required}`);
+    }
+
+    if (eligibilityIssues.length > 0) {
+      const proceed = confirm(
+        `Eligibility check:\n\n${eligibilityIssues.join('\n')}\n\nPlease confirm you meet these requirements to proceed.`
+      );
+      if (!proceed) return;
+    }
 
     try {
       const res = await kayaFetch('/api/demo', { action: 'apply', vacancy_id: selected.id, jobseeker_id: profileId });

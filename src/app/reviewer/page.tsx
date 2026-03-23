@@ -344,8 +344,42 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
                   </div>
                 )}
                 {gate === 3 && app.gate3 && (
-                  <div className="flex items-center gap-4 mb-3 text-sm">
-                    <span style={{ color: '#486581' }}>Readiness Index: <strong style={{ color: '#102A43' }}>{app.gate3.readiness_index}/100</strong></span>
+                  <div className="mb-3 space-y-3">
+                    <div className="flex items-center gap-4 text-sm">
+                      <span style={{ color: '#486581' }}>Readiness Index: <strong style={{ color: '#102A43' }}>{app.gate3.readiness_index}/100</strong></span>
+                    </div>
+                    {/* Success conditions */}
+                    {app.gate3.success_conditions?.length > 0 && (
+                      <div className="p-3 rounded-lg" style={{ background: '#F0FFF4' }}>
+                        <p className="text-xs font-semibold mb-2" style={{ color: '#276749' }}>Success Conditions</p>
+                        <div className="space-y-1">
+                          {app.gate3.success_conditions.map((c: any, j: number) => (
+                            <p key={j} className="text-xs" style={{ color: '#486581' }}>{typeof c === 'string' ? c : c.condition || JSON.stringify(c)}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Support needs */}
+                    {app.gate3.support_needs?.length > 0 && (
+                      <div className="p-3 rounded-lg" style={{ background: '#FFF7ED' }}>
+                        <p className="text-xs font-semibold mb-2" style={{ color: '#92400E' }}>Support Needs for Success</p>
+                        <div className="space-y-1">
+                          {app.gate3.support_needs.map((n: any, j: number) => (
+                            <p key={j} className="text-xs" style={{ color: '#486581' }}>{typeof n === 'string' ? n : n.need || JSON.stringify(n)}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Structured interview prompts */}
+                    <div className="p-3 rounded-lg" style={{ background: '#F5F3FF' }}>
+                      <p className="text-xs font-semibold mb-2" style={{ color: '#5B21B6' }}>Suggested Interview Questions</p>
+                      <p className="text-[10px] mb-2" style={{ color: '#7C3AED' }}>Based on skill gaps identified in Gate 2</p>
+                      <div className="space-y-1.5 text-xs" style={{ color: '#486581' }}>
+                        <p>1. Tell me about a time you had to learn something completely new under time pressure. What did you do?</p>
+                        <p>2. Describe a situation where you disagreed with a colleague or supervisor. How did you handle it?</p>
+                        <p>3. What does a typical day look like for you when things get stressful? How do you manage?</p>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -357,7 +391,7 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
                       className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
                       style={{ background: '#48BB78' }}
                     >
-                      Approve — Pass to {gate < 3 ? `Gate ${gate + 1}` : 'Selection'}
+                      {gate < 3 ? `Approve — Pass to Gate ${gate + 1}` : 'Select for Hiring → Onboarding'}
                     </button>
                     <button
                       onClick={() => handleDecision('held')}
@@ -371,7 +405,7 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
                       className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
                       style={{ background: '#FDEDEC', color: '#E74C3C' }}
                     >
-                      Stop
+                      {gate < 3 ? 'Stop' : 'Decline — Send Feedback'}
                     </button>
                   </div>
                 )}

@@ -482,7 +482,52 @@ async function handleGateDecision(body: any) {
   } else if (decision === 'held') {
     newStatus = `gate${gate}_held`;
   } else if (decision === 'stopped') {
-    newStatus = `gate${gate}_stopped`;
+    newStatus = 'not_selected';
+
+    // Generate structured feedback for the candidate
+    const { data: app } = await supabase.from('applications')
+      .select('user_id, vacancy_id').eq('id', application_id).single();
+
+    if (app?.user_id) {
+      // Get their extraction for feedback
+      const { data: sessions } = await supabase.from('leee_sessions')
+        .select('id').eq('user_id', app.user_id).eq('status', 'completed')
+        .order('created_at', { ascending: false }).limit(1);
+
+      let feedbackData: any = {
+        gate_stopped: gate,
+        decision_date: new Date().toISOString(),
+        message: gate === 1
+          ? 'Your profile showed promise, but the alignment with this specific role was not strong enough. We encourage you to explore other vacancies that match your demonstrated skills.'
+          : gate === 2
+          ? 'Thank you for sharing your stories. The evidence gathered showed real capabilities, but for this particular role, additional evidence in key areas would strengthen your candidacy. Continue building your skills profile with Aya.'
+          : 'You progressed through two gates of review. The final assessment indicated this role may not be the best fit right now, but your skills profile is valuable. We encourage you to apply for other roles.',
+      };
+
+      if (sessions?.length) {
+        const { data: ext } = await supabase.from('leee_extractions')
+          .select('skills_profile').eq('session_id', sessions[0].id).limit(1).single();
+        if (ext?.skills_profile) {
+          feedbackData.strengths = ext.skills_profile
+            .filter((s: any) => (s.confidence || 0) >= 0.6)
+            .map((s: any) => s.skill_name);
+          feedbackData.developing = ext.skills_profile
+            .filter((s: any) => (s.confidence || 0) >= 0.4 && (s.confidence || 0) < 0.6)
+            .map((s: any) => s.skill_name);
+        }
+      }
+
+      // Store feedback
+      try {
+        await supabase.from('feedback_reports').insert({
+          application_id,
+          user_id: app.user_id,
+          vacancy_id: app.vacancy_id,
+          feedback_data: feedbackData,
+          created_at: new Date().toISOString(),
+        });
+      } catch (e) { /* Don't fail if table doesn't exist yet */ }
+    }
   }
 
   if (newStatus) {

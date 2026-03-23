@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function EmployerDashboardPage() {
   const [employer, setEmployer] = useState<any>(null);
@@ -298,34 +304,167 @@ export default function EmployerDashboardPage() {
 
         {/* SETTINGS TAB */}
         {activeTab === 'settings' && (
-          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-            <h2 className="text-base font-semibold mb-4" style={{ color: '#102A43' }}>Company Settings</h2>
-            {employer ? (
-              <div className="space-y-4">
-                <div className="text-sm" style={{ color: '#486581' }}>
-                  <span className="font-medium" style={{ color: '#334E68' }}>Organization:</span> {employer.organization_name}
-                </div>
-                <div className="pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
-                  <h3 className="text-sm font-medium mb-3" style={{ color: '#334E68' }}>Hiring Pipeline — Human Validators</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-4 rounded-xl text-center" style={{ background: '#EBF5FB' }}>
-                      <div className="text-xs font-semibold" style={{ color: '#2E86C1' }}>Gate 1 — Alignment</div>
-                      <div className="text-xs mt-1" style={{ color: '#5DADE2' }}>Recruiter</div>
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+              <h2 className="text-base font-semibold mb-4" style={{ color: '#102A43' }}>Company Settings</h2>
+              {employer ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="text-sm"><span className="font-medium" style={{ color: '#334E68' }}>Organization:</span> <span style={{ color: '#486581' }}>{employer.organization_name}</span></div>
+                    <div className="text-sm"><span className="font-medium" style={{ color: '#334E68' }}>Industry:</span> <span style={{ color: '#486581' }}>{employer.industry || 'Not set'}</span></div>
+                    <div className="text-sm"><span className="font-medium" style={{ color: '#334E68' }}>Location:</span> <span style={{ color: '#486581' }}>{employer.location || 'Not set'}</span></div>
+                    <div className="text-sm"><span className="font-medium" style={{ color: '#334E68' }}>Size:</span> <span style={{ color: '#486581' }}>{employer.company_size || 'Not set'}</span></div>
+                  </div>
+                  {employer.accessibility_features && (
+                    <div className="text-sm pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
+                      <span className="font-medium" style={{ color: '#334E68' }}>Accessibility:</span>
+                      <span style={{ color: '#486581' }}> {employer.accessibility_features}</span>
                     </div>
-                    <div className="p-4 rounded-xl text-center" style={{ background: '#E8F8F5' }}>
-                      <div className="text-xs font-semibold" style={{ color: '#27AE60' }}>Gate 2 — Evidence</div>
-                      <div className="text-xs mt-1" style={{ color: '#48BB78' }}>Hiring Manager</div>
-                    </div>
-                    <div className="p-4 rounded-xl text-center" style={{ background: '#F4ECF7' }}>
-                      <div className="text-xs font-semibold" style={{ color: '#8E44AD' }}>Gate 3 — Predictability</div>
-                      <div className="text-xs mt-1" style={{ color: '#AF7AC5' }}>Final Approver</div>
+                  )}
+                  {employer.benefits && (
+                    <div className="text-sm"><span className="font-medium" style={{ color: '#334E68' }}>Benefits:</span> <span style={{ color: '#486581' }}>{employer.benefits}</span></div>
+                  )}
+
+                  <div className="pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
+                    <h3 className="text-sm font-medium mb-3" style={{ color: '#334E68' }}>Three-Gate Hiring Pipeline</h3>
+                    <p className="text-xs mb-3" style={{ color: '#829AB1' }}>No single actor has unilateral power. The AI recommends. Humans decide at every gate.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {[
+                        { gate: 1, label: 'Gate 1 — Alignment', role: 'Recruiter', desc: 'Screening + fit', bg: '#EBF5FB', color: '#2E86C1', sub: '#5DADE2' },
+                        { gate: 2, label: 'Gate 2 — Evidence', role: 'Hiring Manager', desc: 'Skills profile + psychologist', bg: '#E8F8F5', color: '#27AE60', sub: '#48BB78' },
+                        { gate: 3, label: 'Gate 3 — Predictability', role: 'Final Approver', desc: 'Simulation + interview', bg: '#F4ECF7', color: '#8E44AD', sub: '#AF7AC5' },
+                      ].map(g => (
+                        <div key={g.gate} className="p-4 rounded-xl" style={{ background: g.bg }}>
+                          <div className="text-xs font-semibold text-center" style={{ color: g.color }}>{g.label}</div>
+                          <div className="text-xs mt-1 text-center" style={{ color: g.sub }}>{g.role}</div>
+                          <div className="text-[10px] mt-1 text-center" style={{ color: '#9FB3C8' }}>{g.desc}</div>
+                          <input
+                            type="text"
+                            placeholder={`Assign ${g.role.toLowerCase()}...`}
+                            defaultValue={employer?.[`gate${g.gate}_reviewer`] || ''}
+                            className="w-full mt-2 px-2 py-1.5 text-xs rounded-lg border outline-none"
+                            style={{ background: 'white', borderColor: '#D9E2EC', color: '#334E68' }}
+                            onBlur={async (e) => {
+                              if (e.target.value && employer?.id) {
+                                await supabase.from('employer_profiles').update({
+                                  [`gate${g.gate}_reviewer`]: e.target.value,
+                                }).eq('id', employer.id);
+                              }
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm mb-2" style={{ color: '#829AB1' }}>Set up your organisation to start posting vacancies and reviewing candidates.</p>
+                  <form onSubmit={async (e) => {
+                    e.preventDefault();
+                    const form = e.target as HTMLFormElement;
+                    const formData = new FormData(form);
+                    try {
+                      const res = await fetch('/api/gate1', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          action: 'create_employer',
+                          organization_name: formData.get('org_name'),
+                          industry: formData.get('industry'),
+                          locations: [{ city: formData.get('location'), country: 'Philippines' }],
+                          company_size: formData.get('company_size'),
+                          benefits: formData.get('benefits'),
+                          accessibility_features: formData.get('accessibility'),
+                          reviewer_assignments: {
+                            gate1_recruiter: formData.get('gate1_reviewer') || 'Recruiter',
+                            gate2_hiring_manager: formData.get('gate2_reviewer') || 'Hiring Manager',
+                            gate3_final_approver: formData.get('gate3_reviewer') || 'Final Approver',
+                          },
+                          work_arrangements: { remote: true, onsite: true, hybrid: true },
+                        }),
+                      });
+                      if (res.ok) window.location.reload();
+                    } catch (err) { console.error(err); }
+                  }} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Organisation Name *</label>
+                        <input name="org_name" required placeholder="e.g. Cebuana Lhuillier" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Industry</label>
+                        <input name="industry" placeholder="e.g. Financial Services" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Location</label>
+                        <input name="location" placeholder="e.g. Manila" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Company Size</label>
+                        <select name="company_size" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }}>
+                          <option value="">Select</option>
+                          <option value="1-50">1-50</option>
+                          <option value="51-200">51-200</option>
+                          <option value="201-1000">201-1000</option>
+                          <option value="1000+">1000+</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Accessibility Features</label>
+                      <input name="accessibility" placeholder="e.g. Wheelchair ramp, screen reader compatible systems" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Employee Benefits</label>
+                      <input name="benefits" placeholder="e.g. HMO, flexible hours, WFH options" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                    </div>
+
+                    <div className="pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
+                      <p className="text-xs font-semibold mb-3" style={{ color: '#334E68' }}>Three-Gate Reviewer Assignments</p>
+                      <p className="text-xs mb-3" style={{ color: '#829AB1' }}>Assign who reviews at each gate. No single person has unilateral power.</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-medium mb-1" style={{ color: '#2E86C1' }}>Gate 1 — Alignment (Recruiter)</label>
+                          <input name="gate1_reviewer" placeholder="Name / Role" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium mb-1" style={{ color: '#27AE60' }}>Gate 2 — Evidence (Hiring Manager)</label>
+                          <input name="gate2_reviewer" placeholder="Name / Role" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium mb-1" style={{ color: '#8E44AD' }}>Gate 3 — Predictability (Final Approver)</label>
+                          <input name="gate3_reviewer" placeholder="Name / Role" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <button type="submit" className="w-full py-3 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90" style={{ background: '#102A43' }}>
+                      Create Employer Profile
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {/* Quick links */}
+            <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Quick Links</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Link href="/reviewer" className="p-4 rounded-xl text-center hover:shadow-md transition-all" style={{ background: '#F0F4F8', border: '1px solid #D9E2EC' }}>
+                  <div className="text-sm font-medium" style={{ color: '#334E68' }}>Hiring Pipeline</div>
+                  <div className="text-xs" style={{ color: '#829AB1' }}>Review candidates at each gate</div>
+                </Link>
+                <Link href="/onboarding" className="p-4 rounded-xl text-center hover:shadow-md transition-all" style={{ background: '#F0F4F8', border: '1px solid #D9E2EC' }}>
+                  <div className="text-sm font-medium" style={{ color: '#334E68' }}>Onboarding</div>
+                  <div className="text-xs" style={{ color: '#829AB1' }}>Skills-informed placement</div>
+                </Link>
+                <Link href="/psychologist" className="p-4 rounded-xl text-center hover:shadow-md transition-all" style={{ background: '#F0F4F8', border: '1px solid #D9E2EC' }}>
+                  <div className="text-sm font-medium" style={{ color: '#334E68' }}>Psychologist Portal</div>
+                  <div className="text-xs" style={{ color: '#829AB1' }}>Professional validation</div>
+                </Link>
               </div>
-            ) : (
-              <p style={{ color: '#829AB1' }}>No employer profile yet. <Link href="/employer" className="font-medium" style={{ color: '#2E86C1' }}>Create one</Link></p>
-            )}
+            </div>
           </div>
         )}
       </div>

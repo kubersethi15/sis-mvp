@@ -313,19 +313,41 @@ export default function MyDashboard() {
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-stone-500 mb-4">YOUR APPLICATIONS</h2>
             <div className="space-y-2">
-              {data.applications.map((app: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-stone-100">
-                  <span className="text-sm text-stone-700">Application {app.id?.substring(0, 8)}...</span>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    app.status === 'selected' ? 'bg-green-100 text-green-700' :
-                    app.status?.includes('passed') ? 'bg-blue-100 text-blue-700' :
-                    app.status?.includes('pending') ? 'bg-amber-100 text-amber-700' :
-                    'bg-stone-100 text-stone-500'
-                  }`}>
-                    {app.status?.replace(/_/g, ' ')}
-                  </span>
-                </div>
-              ))}
+              {data.applications.map((app: any, i: number) => {
+                const isDeclined = app.status === 'not_selected' || app.status?.includes('stopped');
+                const isSelected = app.status === 'selected' || app.status === 'onboarding';
+                const isPending = app.status?.includes('pending');
+                return (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-stone-100">
+                    <div>
+                      <span className="text-sm text-stone-700">{app.vacancies?.title || `Application ${app.id?.substring(0, 8)}`}</span>
+                      {app.vacancies?.employer_name && (
+                        <span className="text-xs text-stone-400 ml-2">at {app.vacancies.employer_name}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        isSelected ? 'bg-green-100 text-green-700' :
+                        isPending ? 'bg-amber-100 text-amber-700' :
+                        isDeclined ? 'bg-red-50 text-red-600' :
+                        'bg-stone-100 text-stone-500'
+                      }`}>
+                        {isSelected ? 'Selected' : isDeclined ? 'Not Selected' : app.status?.replace(/_/g, ' ')}
+                      </span>
+                      {isDeclined && (
+                        <Link href="/feedback" className="text-xs font-medium px-2 py-1 rounded-lg" style={{ background: '#F0F4F8', color: '#2E86C1' }}>
+                          View Feedback
+                        </Link>
+                      )}
+                      {isSelected && (
+                        <Link href="/onboarding" className="text-xs font-medium px-2 py-1 rounded-lg" style={{ background: '#E8F8F5', color: '#27AE60' }}>
+                          Onboarding
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
