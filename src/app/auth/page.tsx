@@ -187,7 +187,7 @@ export default function AuthPage() {
         </div>
 
         <p className="text-center text-[11px] text-stone-400 mt-6">
-          Pilot: Cebuana Lhuillier • Jakarta Conference 2026
+          Kaya — Hiring Intelligence by Virtualahan Inc.
         </p>
       </div>
     </div>

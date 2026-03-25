@@ -105,7 +105,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <p className="text-xs text-center" style={{ color: '#829AB1' }}>Kaya — Hiring Intelligence by Virtualahan Inc. · Pilot: Cebuana Lhuillier</p>
+        <p className="text-xs text-center" style={{ color: '#829AB1' }}>Kaya — Hiring Intelligence by Virtualahan Inc.</p>
       </div>
     </div>
   );
