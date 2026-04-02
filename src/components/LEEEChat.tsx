@@ -689,6 +689,8 @@ export default function LEEEChat() {
               <div className="flex items-center gap-4 mt-8 text-[11px]" style={{ color: 'rgba(255,255,255,0.2)', fontFamily: 'system-ui, sans-serif' }}>
                 <span>🕐 12–18 minutes</span>
                 <span>·</span>
+                <a href="/chat-voice" style={{ color: 'rgba(139,92,246,0.6)' }}>🎙 Try Voice Mode</a>
+                <span>·</span>
                 <span>⏭ Skip any question</span>
                 <span>·</span>
                 <span>🔒 Private</span>
