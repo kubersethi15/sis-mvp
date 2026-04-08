@@ -29,7 +29,10 @@ export default function AuthPage() {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName } },
+          options: {
+            data: { full_name: fullName },
+            emailRedirectTo: `${window.location.origin}/auth`,
+          },
         });
 
         if (signUpError) { setError(signUpError.message); return; }
@@ -150,10 +153,37 @@ export default function AuthPage() {
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
                 placeholder="At least 6 characters"
                 className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
+              {mode === 'signin' && (
+                <button type="button" onClick={async () => {
+                  if (!email) { setError('Enter your email first'); return; }
+                  setLoading(true);
+                  const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/auth`,
+                  });
+                  setLoading(false);
+                  if (resetErr) setError(resetErr.message);
+                  else setSuccess('Password reset email sent. Check your inbox.');
+                }} className="text-xs mt-1.5 hover:underline" style={{ color: '#627D98' }}>
+                  Forgot password?
+                </button>
+              )}
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                {error}
+                {(error.includes('not confirmed') || error.includes('Invalid') || error.includes('invalid')) && email && (
+                  <button type="button" onClick={async () => {
+                    setLoading(true);
+                    const { error: resendErr } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${window.location.origin}/auth` } });
+                    setLoading(false);
+                    if (resendErr) setError(resendErr.message);
+                    else { setError(''); setSuccess('Confirmation email resent. Check your inbox.'); }
+                  }} className="block mt-2 text-xs font-medium underline text-red-700">
+                    Resend confirmation email
+                  </button>
+                )}
+              </div>
             )}
             {success && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-600">{success}</div>

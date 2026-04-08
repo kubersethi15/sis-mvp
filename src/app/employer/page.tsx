@@ -45,23 +45,26 @@ export default function EmployerDashboard() {
   const [vacancy, setVacancy] = useState<any>(null);
   const [alignment, setAlignment] = useState<AlignmentResult | null>(null);
 
+  const [companyName, setCompanyName] = useState('');
+
   // Create employer profile (one-time)
-  const setupEmployer = useCallback(async () => {
+  const setupEmployer = useCallback(async (name?: string) => {
+    const orgName = name || companyName || prompt('Enter your company name:') || 'My Company';
     const res = await fetch('/api/gate1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'create_employer',
-        organization_name: 'Cebuana Lhuillier',
-        industry: 'Financial Services',
-        locations: [{ city: 'Manila', country: 'Philippines' }],
+        organization_name: orgName,
+        industry: '',
+        locations: [],
         work_arrangements: { remote: true, onsite: true, hybrid: true },
       }),
     });
     const data = await res.json();
     setEmployer(data.employer);
     return data.employer;
-  }, []);
+  }, [companyName]);
 
   const [recommendations, setRecommendations] = useState<any[]>([]);
 
@@ -175,6 +178,20 @@ export default function EmployerDashboard() {
                 Paste a job description below. The AI will parse it into a structured competency blueprint,
                 distinguishing essential vs. trainable requirements and identifying human-centric skills.
               </p>
+
+              {/* Company name */}
+              {!employer && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                  <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)}
+                    placeholder="e.g. Cebuana Lhuillier, Jollibee, your company..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 outline-none" />
+                </div>
+              )}
+              {employer && (
+                <p className="text-xs mb-3" style={{ color: '#48BB78' }}>Employer: {employer.organization_name}</p>
+              )}
+
               <textarea
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
@@ -190,9 +207,6 @@ export default function EmployerDashboard() {
                 >
                   {isProcessing ? 'Analysing...' : 'Analyse & Create Vacancy'}
                 </button>
-                <span className="text-xs text-gray-400">
-                  Pilot employer: Cebuana Lhuillier — JDs from ph.jobstreet.com/cebuana-lhuillier-jobs
-                </span>
               </div>
             </div>
 

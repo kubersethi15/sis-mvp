@@ -210,7 +210,7 @@ export default function ProfilePage() {
     <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
       {/* Kaya Nav */}
       <nav className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
-        <a href="/" className="flex items-center gap-3">
+        <a href="/my-dashboard" className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
           </div>
@@ -333,7 +333,14 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+63..." className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
+                  <input type="tel" value={phone} onChange={e => {
+                    const val = e.target.value.replace(/[^0-9+\-\s]/g, '');
+                    setPhone(val);
+                  }} placeholder="+63..." maxLength={15}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
+                  {phone && phone.length > 0 && phone.length < 10 && (
+                    <p className="text-xs mt-1" style={{ color: '#E53E3E' }}>Phone number seems too short</p>
+                  )}
                 </div>
               </div>
 
@@ -349,6 +356,11 @@ export default function ProfilePage() {
                   <option value="chronic">Chronic illness</option>
                   <option value="other">Other</option>
                 </select>
+                {disabilityType === 'other' && (
+                  <input type="text" placeholder="Please specify your disability type"
+                    onChange={e => setDisabilityType('other:' + e.target.value)}
+                    className="w-full mt-2 px-4 py-2 border rounded-lg text-sm focus:ring-2 outline-none bg-white" style={{ borderColor: '#D9E2EC' }} />
+                )}
               </div>
 
               {/* R2: Disability context — only shown if disability type selected */}
