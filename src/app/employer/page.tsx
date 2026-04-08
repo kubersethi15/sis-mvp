@@ -93,6 +93,7 @@ export default function EmployerDashboard() {
         body: JSON.stringify({
           action: 'create_vacancy',
           employer_id: emp.id,
+          employer_name: emp.organization_name || 'Employer',
           title: parseData.blueprint.title || 'Untitled Position',
           description: parseData.blueprint.summary,
           jd_raw: jdText,
@@ -106,7 +107,12 @@ export default function EmployerDashboard() {
         }),
       });
       const vacData = await vacRes.json();
-      setVacancy(vacData.vacancy);
+      if (vacData.error) {
+        console.error('Vacancy save error:', vacData.error);
+        alert('Failed to save vacancy: ' + vacData.error);
+      } else {
+        setVacancy(vacData.vacancy);
+      }
 
     } catch (error) {
       console.error('JD parse error:', error);

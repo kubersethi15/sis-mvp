@@ -56,8 +56,17 @@ async function createEmployer(body: any) {
 // ============================================================
 
 async function createVacancy(body: any) {
+  // Look up employer name for display
+  let employerName = '';
+  if (body.employer_id) {
+    const { data: emp } = await db().from('employer_profiles')
+      .select('organization_name').eq('id', body.employer_id).single();
+    if (emp) employerName = emp.organization_name;
+  }
+
   const { data, error } = await db().from('vacancies').insert({
     employer_id: body.employer_id,
+    employer_name: employerName || body.employer_name || 'Employer',
     title: body.title,
     description: body.description || null,
     jd_raw: body.jd_raw || null,
@@ -69,10 +78,13 @@ async function createVacancy(body: any) {
     work_arrangement: body.work_arrangement || null,
     schedule_requirements: body.schedule_requirements || {},
     location: body.location || null,
-    status: 'draft',
+    status: body.status || 'published',
   }).select().single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('Vacancy creation error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ vacancy: data });
 }
 
