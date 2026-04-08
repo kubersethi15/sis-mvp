@@ -88,7 +88,7 @@ export default function ReviewerDashboard() {
   return (
     <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
       <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
-        <a href="/" className="flex items-center gap-3">
+        <a href="/employer-dashboard" className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
           </div>
@@ -96,8 +96,7 @@ export default function ReviewerDashboard() {
         </a>
         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', flexWrap: 'nowrap' }}>
           <button onClick={fetchData} className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Refresh</button>
-          <a href="/employer-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Employer</a>
-          <a href="/" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Home</a>
+          <a href="/employer-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
         </div>
       </nav>
 

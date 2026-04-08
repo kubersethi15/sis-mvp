@@ -36,7 +36,7 @@ interface KayaNavProps {
 export default function KayaNav({ currentPage, userName }: KayaNavProps) {
   return (
     <nav className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ background: KAYA.navy900 }}>
-      <Link href="/" className="flex items-center gap-3">
+      <Link href="/my-dashboard" className="flex items-center gap-3">
         <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: KAYA.navy600 }}>
           <div className="w-2.5 h-2.5 rounded-full" style={{ background: KAYA.green400 }} />
         </div>

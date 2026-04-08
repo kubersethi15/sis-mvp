@@ -32,7 +32,7 @@ async function getShareData(body: any) {
   if (!vacancy) return NextResponse.json({ error: 'Vacancy not found' }, { status: 404 });
 
   // Build the share URL — leads directly to vacancy page (which has Apply button → Gate flow)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
   const shareUrl = `${baseUrl}/vacancy?id=${vacancy_id}`;
 
   // QR code URL using free API (no package needed)
