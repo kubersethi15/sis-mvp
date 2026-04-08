@@ -29,8 +29,10 @@ async function callAnthropic(req: LLMRequest): Promise<LLMResponse> {
   };
   if (req.system) body.system = req.system;
 
+  // Shorter timeout for conversational turns (≤500 tokens), longer for extraction
+  const timeoutMs = req.maxTokens <= 500 ? 15000 : 60000;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {

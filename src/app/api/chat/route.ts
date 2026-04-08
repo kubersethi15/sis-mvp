@@ -348,7 +348,7 @@ async function callClaude(orchestrator: LEEEOrchestrator): Promise<string> {
   }
 
   try {
-    const result = await callLLM({ system, messages: conversation, maxTokens: 500 });
+    const result = await callLLM({ system, messages: conversation, maxTokens: 300 });
     if (result.provider === 'gemini') console.log('[Chat] Used Gemini fallback');
     return result.text || "Could you tell me a bit more about that?";
   } catch (error: any) {
@@ -360,13 +360,12 @@ async function callClaude(orchestrator: LEEEOrchestrator): Promise<string> {
 async function runGapScan(orchestrator: LEEEOrchestrator) {
   const prompt = LEEE_GAP_SCAN_PROMPT.replace('{story_transcript}', orchestrator.getTranscript());
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 200, messages: [{ role: 'user', content: prompt }] }),
+    const { callLLM } = await import('@/lib/llm');
+    const result = await callLLM({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 200,
     });
-    const data = await res.json();
-    const text = data.content?.find((b: any) => b.type === 'text')?.text;
+    const text = result.text;
     if (text) {
       const match = text.match(/\{[\s\S]*\}/);
       if (match) orchestrator.updateGapScan(JSON.parse(match[0]) as GapScanResult);

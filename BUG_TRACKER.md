@@ -20,7 +20,7 @@
 | BUG-008 | Kaya logo click signs user out | Jinalie | ✅ Fixed | Logo now links to /my-dashboard not / |
 | BUG-009 | Disability "Other" has no text input | Cynthia | ✅ Fixed | Text input appears when Other selected |
 | BUG-010 | No phone/email validation | Jinalie, Cynthia | ✅ Fixed | Phone: strips non-numeric, warns if <10 digits |
-| BUG-011 | Aya response time slow | Angel | ⬜ Monitor | Likely API latency. Gemini fallback helps. |
+| BUG-011 | Aya response time slow | Angel | ✅ Improved | Reduced chat timeout from 60s→15s for faster Gemini fallback. Reduced max_tokens 500→300 for shorter responses. Routed gap scan through callLLM for proper fallback. Full streaming is post-Jakarta. |
 | BUG-012 | No option to upload certs as files | Angel | ⬜ Post-Jakarta | Text input for now |
 
 ### MEDIUM — Nice to have
@@ -30,10 +30,10 @@
 | BUG-013 | Separate Analyze vs Create Vacancy buttons | Sweet Angel | ⬜ Post-Jakarta | UX improvement |
 | BUG-014 | No chat history / previous conversations | Angela | ✅ Already built | Multi-session with "Continue with Aya" |
 | BUG-015 | No read-only profile view | Angel | ⬜ Post-Jakarta | Only edit mode exists |
-| BUG-016 | Aya can't answer platform questions | Cynthia | ⬜ By design | Aya is for stories, not support. Add FAQ page? |
+| BUG-016 | Aya can't answer platform questions | Cynthia | ✅ Fixed | Created /faq page with 18 FAQs across 5 categories. Added "Help" link to dashboard nav. Aya stays focused on stories. |
 | BUG-017 | Add profile picture option | Ramir | ⬜ Post-Jakarta | |
-| BUG-018 | Resume upload should specify format needed | Angel | ⬜ Post-Jakarta | Add helper text about supported formats |
-| BUG-019 | Changing uploaded resume doesn't update name | Cynthia | 🔍 Investigating | May need to clear form before re-extraction |
+| BUG-018 | Resume upload should specify format needed | Angel | ✅ Fixed | Added helper text: "Supported: PDF, Word (.docx), or plain text (.txt)" |
+| BUG-019 | Changing uploaded resume doesn't update name | Cynthia | ✅ Fixed | Root cause: `!fullName` guard prevented overwrite on re-upload. Fix: removed guards so re-upload always overwrites all fields. Also resets resumeExtracted state. |
 
 ### FROM RYAN CALL (April 8)
 

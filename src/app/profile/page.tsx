@@ -268,6 +268,7 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm font-medium" style={{ color: '#102A43' }}>Upload your resume</p>
                     <p className="text-xs" style={{ color: '#627D98' }}>AI will extract your details and pre-fill the form</p>
+                  <p className="text-xs" style={{ color: '#9FB3C8' }}>Supported: PDF, Word (.docx), or plain text (.txt)</p>
                   </div>
                   {resumeUploading && <span className="text-xs" style={{ color: '#48BB78' }}>Extracting...</span>}
                 </div>
@@ -279,6 +280,7 @@ export default function ProfilePage() {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     setResumeUploading(true);
+                    setResumeExtracted(false);
                     try {
                       const formData = new FormData();
                       formData.append('resume', file);
@@ -286,9 +288,10 @@ export default function ProfilePage() {
                       const data = await res.json();
                       if (data.profile) {
                         const p = data.profile;
-                        if (p.full_name && !fullName) setFullName(p.full_name);
-                        if (p.email && !email) setEmail(p.email);
-                        if (p.phone && !phone) setPhone(p.phone);
+                        // Always overwrite fields from new resume (BUG-019 fix)
+                        if (p.full_name) setFullName(p.full_name);
+                        if (p.email) setEmail(p.email);
+                        if (p.phone) setPhone(p.phone);
                         if (p.location) setLocation(p.location);
                         if (p.work_history?.length) setWorkHistory(p.work_history.map((w: any) => ({
                           company: w.company || '', role: w.role || '',

@@ -113,6 +113,7 @@ export default function MyDashboard() {
         </a>
         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', flexWrap: 'nowrap' }}>
           <Link href="/profile" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Edit Profile</Link>
+          <Link href="/faq" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Help</Link>
           <button
             onClick={() => { localStorage.clear(); window.location.href = '/auth'; }}
             className="text-xs"
