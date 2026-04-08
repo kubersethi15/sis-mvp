@@ -1,5 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Dynamic import for pdf-parse (CommonJS module)
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  try {
+    const pdfParse = (await import('pdf-parse')).default;
+    const data = await pdfParse(buffer);
+    return data.text || '';
+  } catch (e: any) {
+    console.error('pdf-parse failed:', e.message);
+    // Fallback: extract readable ASCII from the buffer
+    return buffer.toString('utf-8').replace(/[^\x20-\x7E\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+}
+
+// Extract text from .docx (ZIP containing XML)
+async function extractDocxText(buffer: Buffer): Promise<string> {
+  try {
+    const JSZip = (await import('jszip')).default;
+    const zip = await JSZip.loadAsync(buffer);
+    const docXml = await zip.file('word/document.xml')?.async('text');
+    if (!docXml) return '';
+    // Strip XML tags, decode entities, clean whitespace
+    return docXml
+      .replace(/<\/w:p>/g, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+  } catch (e: any) {
+    console.error('docx extraction failed:', e.message);
+    return buffer.toString('utf-8').replace(/[^\x20-\x7E\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -16,20 +50,13 @@ export async function POST(req: NextRequest) {
     if (type === 'text/plain' || file.name.endsWith('.txt')) {
       text = await file.text();
     } else if (type === 'application/pdf' || file.name.endsWith('.pdf')) {
-      // For PDF, read as text (basic extraction — works for text-based PDFs)
       const buffer = Buffer.from(await file.arrayBuffer());
-      // Simple PDF text extraction — look for text between stream markers
-      const str = buffer.toString('latin1');
-      const textMatches = str.match(/\(([^)]+)\)/g);
-      if (textMatches) {
-        text = textMatches.map(m => m.slice(1, -1)).join(' ');
-      }
-      // If that didn't work well, just send the raw text
-      if (text.length < 50) {
-        text = buffer.toString('utf-8').replace(/[^\x20-\x7E\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
-      }
+      text = await extractPdfText(buffer);
+    } else if (file.name.endsWith('.docx') || type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      text = await extractDocxText(buffer);
     } else {
-      // .docx or other — read as text best-effort
+      // Last resort — read as text best-effort
       const buffer = Buffer.from(await file.arrayBuffer());
       text = buffer.toString('utf-8').replace(/[^\x20-\x7E\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
     }

@@ -81,17 +81,49 @@ async function createProfile(body: any) {
 }
 
 async function updateProfile(body: any) {
-  const { profile_id, ...updates } = body;
+  const { profile_id } = body;
   if (!profile_id) return NextResponse.json({ error: 'profile_id required' }, { status: 400 });
 
-  // Remove action from updates
-  delete updates.action;
+  const supabase = db();
 
-  updates.completion_percentage = calculateCompletion(updates);
-  updates.updated_at = new Date().toISOString();
+  // Separate user_profiles fields from jobseeker_profiles fields
+  const userFields: Record<string, any> = {};
+  if (body.full_name !== undefined) userFields.full_name = body.full_name;
+  if (body.email !== undefined) userFields.email = body.email;
+  if (body.phone !== undefined) userFields.phone = body.phone;
 
-  const { data, error } = await db().from('jobseeker_profiles')
-    .update(updates)
+  // Build jobseeker_profiles update with only valid columns
+  const jobseekerUpdate: Record<string, any> = {};
+  const validJobseekerFields = [
+    'disability_type', 'disability_context', 'self_reported_challenges',
+    'education', 'certifications', 'training', 'work_history',
+    'skills_inventory', 'career_goals', 'preferred_work_arrangement',
+    'preferred_schedule', 'preferred_location', 'salary_expectations',
+    'portfolio_items', 'reference_contacts', 'riasec_scores',
+    'high5_strengths', 'saboteur_scores',
+  ];
+  for (const field of validJobseekerFields) {
+    if (body[field] !== undefined) jobseekerUpdate[field] = body[field];
+  }
+  jobseekerUpdate.completion_percentage = calculateCompletion(body);
+  jobseekerUpdate.updated_at = new Date().toISOString();
+
+  // Update user_profiles if we have user-level fields
+  if (Object.keys(userFields).length > 0) {
+    // Get user_id from jobseeker profile
+    const { data: profile } = await supabase.from('jobseeker_profiles')
+      .select('user_id').eq('id', profile_id).single();
+    if (profile?.user_id) {
+      const { error: userErr } = await supabase.from('user_profiles')
+        .update({ ...userFields, updated_at: new Date().toISOString() })
+        .eq('id', profile.user_id);
+      if (userErr) console.error('user_profiles update error:', userErr.message);
+    }
+  }
+
+  // Update jobseeker_profiles
+  const { data, error } = await supabase.from('jobseeker_profiles')
+    .update(jobseekerUpdate)
     .eq('id', profile_id)
     .select()
     .single();

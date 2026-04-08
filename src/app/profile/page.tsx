@@ -195,9 +195,13 @@ export default function ProfilePage() {
         if (data.user_id) localStorage.setItem('kaya_user_id', data.user_id);
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
+      } else if (data.error) {
+        console.error('Profile save API error:', data.error);
+        alert('Could not save profile: ' + data.error);
       }
     } catch (error) {
       console.error('Save error:', error);
+      alert('Save failed — please check your connection and try again.');
     } finally {
       setSaving(false);
     }

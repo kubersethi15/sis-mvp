@@ -6,9 +6,9 @@
 | # | Issue | Reported by | Status | Notes |
 |---|-------|------------|--------|-------|
 | BUG-001 | Email confirmation redirects to localhost | Jinalie, Cynthia, Angel (5+ reports) | ✅ Code fixed | NEEDS: Set Site URL in Supabase dashboard to `https://sis-mvp.vercel.app` at `supabase.com/dashboard/project/ftdnpsrbnjkvazspmenv/auth/url-configuration` and add `https://sis-mvp.vercel.app/**` to Redirect URLs |
-| BUG-002 | Profile data not saving after "Save Progress" | Mayleen, Angel, Cynthia | 🔍 Investigating | Auto-save after resume works. Manual save may fail silently. Need to check saveProfile function and DB write. |
+| BUG-002 | Profile data not saving after "Save Progress" | Mayleen, Angel, Cynthia | ✅ Fixed | Root cause: `updateProfile` passed user-level fields (full_name, email, phone) to `jobseeker_profiles` table which rejected unknown columns. Fix: separated user_profiles vs jobseeker_profiles fields, updates both tables, whitelists valid columns. Also surfaced errors to UI instead of silent failure. |
 | BUG-003 | Employer flow hardcoded to Cebuana Lhuillier | Sweet Angel | ✅ Fixed | Company name input added. No more hardcoded employer. |
-| BUG-004 | Resume auto-fill only captures name/email | Angel, Cynthia, Jinalie | 🔍 Investigating | AI extraction should map all fields. May be parsing issue or field mapping mismatch. |
+| BUG-004 | Resume auto-fill only captures name/email | Angel, Cynthia, Jinalie | ✅ Fixed | Root cause: PDF text extraction used crude regex on raw bytes — only captured parenthesized fragments, producing garbage for real resumes. Fix: replaced with `pdf-parse` library for proper PDF text extraction, added `jszip` for .docx support. AI prompt was fine — it just wasn't receiving readable text. NEEDS: `npm install pdf-parse jszip` before deploy. |
 | BUG-005 | Vacancy not saving to database | Ryan | ✅ Fixed | Status was always 'draft'. Now saves as 'published'. Error logging added. |
 
 ### HIGH — Should fix before Jakarta
@@ -75,4 +75,4 @@ src/lib/calibration.ts            — Session calibration + returning user conte
 src/lib/prompts.ts                — Aya system prompt + SP grounding
 ```
 
-*Last updated: April 8, 2026*
+*Last updated: April 9, 2026*
