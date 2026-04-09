@@ -46,6 +46,50 @@
 | RYAN-005 | Multi-psychologist review (3 reviewers) | ⬜ Post-Jakarta | Psychologist feedback from certification session |
 | RYAN-006 | Screen recording for demo | ⬜ Ryan doing | Loom videos of each portal |
 
+### USER TESTING FEEDBACK — April 9, 2026
+
+| # | Issue | Category | Priority | Status | Notes |
+|---|-------|----------|----------|--------|-------|
+| FB-001 | Profile/chat data lost on re-login | Session persistence | 🔴 Critical | ✅ Fixed | Root cause: localStorage.clear() on sign-out + no session resume on chat load. Fix: added session resume from Supabase, chat reloads messages on return. |
+| FB-002 | LEEE chatbot times out after 90s, loses evidence | Session timeout | 🔴 Critical | ⬜ Post-Jakarta | Need session warning before timeout + auto-save draft. Serverless cold start also loses in-memory state. |
+| FB-003 | Alignment score blank on mobile (Android Chrome) | Mobile rendering | 🟠 High | ⬜ Post-Jakarta | Need to test alignment display on Android. May be CSS overflow or score component issue. |
+| FB-004 | AI competency blueprint includes non-existent codes | Extraction accuracy | 🟡 Medium | ⬜ Post-Jakarta | Validate AI output against PQF/TESDA framework. Add validation step in parse_jd. |
+| FB-005 | Weak passwords accepted (e.g. 123456789) | Auth security | 🟡 Medium | ⬜ Post-Jakarta | Configure Supabase auth password policy. |
+| FB-006 | Repetitive/generic chat questions, weak context memory | Conversation design | 🟠 High | ⬜ Post-Jakarta | Prompt engineering + calibration iteration with Ryan. |
+| FB-007 | Summary screen: generic text, no traceability, "1 Stories" | Extraction display | 🟡 Medium | ⬜ Post-Jakarta | Grammar fix + connect summary to specific user stories. |
+| FB-008 | Skills profile too long, mixed tone, unclear labels | Profile UX | 🟠 High | ⬜ Post-Jakarta | Redesign skills display: first-person, story-linked, actionable. |
+| FB-009 | Landing page: unclear value prop, passive CTA | Marketing | 🟡 Medium | ⬜ Post-Jakarta | Proper landing page redesign with Kaya story. |
+| FB-010 | No resume-ready output from skills profile | Feature request | 🟡 Medium | ⬜ Post-Jakarta | Depends on Randy's Skills Passport schema (X6). |
+
+### POST-JAKARTA SPRINT BACKLOG
+
+**Sprint 1: Session Stability + Chat Quality**
+- FB-002: Session timeout warning + auto-save
+- FB-006: Chat quality iteration with Ryan (prompt engineering)
+- FB-008: Skills profile redesign (first-person, story-linked)
+- BUG-011: Full streaming for Aya responses
+- RYAN-005: Multi-psychologist review (3 reviewers)
+
+**Sprint 2: Mobile + Polish**
+- FB-003: Android alignment score fix
+- FB-007: Summary screen grammar + traceability
+- FB-009: Landing page redesign
+- BUG-012: Cert file upload (Supabase storage)
+- BUG-013: Separate Analyze vs Create Vacancy buttons
+- BUG-015: Read-only profile view
+
+**Sprint 3: Accuracy + Security**
+- FB-004: Competency code validation against PQF
+- FB-005: Password policy enforcement
+- T1-T5: Testing with real transcripts and profiles
+- R4/R5: Psychometric data injection (blocked on Ryan)
+
+**Sprint 4: Integrations**
+- R5/R6: Jazzel simulation + Chamar assessment (Gate 3)
+- X6: Skills Passport JSON export (Randy)
+- FB-010: Resume-ready output
+- L12: Accessibility mode (low literacy)
+
 ### SUPABASE DASHBOARD CHANGES — All Done ✅
 
 1. ~~**Site URL**: Set to `https://sis-mvp.vercel.app`~~ ✅

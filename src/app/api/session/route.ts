@@ -13,6 +13,12 @@ const anthropic = new Anthropic({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const { action } = body;
+
+    // Route to get_messages for session resume
+    if (action === 'get_messages') return getSessionMessages(body);
+
+    // Original session creation logic
     const { user_id, language = 'en', accessibility_mode = {} } = body;
 
     if (!user_id) {
@@ -97,4 +103,23 @@ This is the very first message of the session. Welcome the user warmly. Use the 
       { status: 500 }
     );
   }
+}
+
+// Get messages for an existing session (for resume)
+async function getSessionMessages(body: any) {
+  const { session_id } = body;
+  if (!session_id) return NextResponse.json({ error: 'session_id required' }, { status: 400 });
+
+  const supabase = createServerClient();
+
+  const { data: session } = await supabase.from('leee_sessions')
+    .select('*').eq('id', session_id).single();
+
+  if (!session) return NextResponse.json({ messages: [], session: null });
+
+  const { data: messages } = await supabase.from('leee_messages')
+    .select('*').eq('session_id', session_id)
+    .order('turn_number', { ascending: true });
+
+  return NextResponse.json({ session, messages: messages || [] });
 }

@@ -160,6 +160,52 @@ export default function LEEEChat() {
     }
   }, []);
 
+  // Auto-resume previous session if session_id exists in localStorage
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === '1') return; // Skip resume for explicit new sessions
+
+    const storedSessionId = localStorage.getItem('kaya_last_session_id');
+    if (!storedSessionId) return;
+
+    const resumeSession = async () => {
+      try {
+        const headers = await authHeaders();
+        // Try to load messages for this session
+        const res = await fetch('/api/session', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ action: 'get_messages', session_id: storedSessionId }),
+        });
+        const data = await res.json();
+
+        if (data.messages?.length > 0) {
+          // Session exists with messages — resume it
+          setShowWelcome(false);
+          setMessages(data.messages.map((m: any) => ({
+            id: m.id, role: m.role, content: m.content,
+            stage: m.moth_stage, timestamp: new Date(m.created_at),
+          })));
+          setSession({
+            sessionId: storedSessionId, status: data.session?.status || 'active',
+            stage: data.session?.current_stage || 'opening',
+            storiesCompleted: data.session?.stories_completed || 0,
+            skillsEvidenced: data.session?.skills_evidenced || null,
+          });
+
+          // Check if extraction already exists
+          const storedExtraction = localStorage.getItem('kaya_last_extraction');
+          if (storedExtraction) {
+            try { setExtraction(JSON.parse(storedExtraction)); } catch {}
+          }
+        }
+      } catch (e) {
+        console.error('Session resume failed:', e);
+      }
+    };
+    resumeSession();
+  }, []);
+
   // Auto-resize textarea
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);

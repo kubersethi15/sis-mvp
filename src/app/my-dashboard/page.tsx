@@ -115,7 +115,15 @@ export default function MyDashboard() {
           <Link href="/profile" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Edit Profile</Link>
           <Link href="/faq" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Help</Link>
           <button
-            onClick={() => { localStorage.clear(); window.location.href = '/auth'; }}
+            onClick={async () => {
+              try {
+                const { createClient } = await import('@supabase/supabase-js');
+                const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '');
+                await sb.auth.signOut();
+              } catch {}
+              localStorage.clear();
+              window.location.href = '/auth';
+            }}
             className="text-xs"
             style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}
           >Sign Out</button>
