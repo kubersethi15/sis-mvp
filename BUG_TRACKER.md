@@ -5,7 +5,7 @@
 
 | # | Issue | Reported by | Status | Notes |
 |---|-------|------------|--------|-------|
-| BUG-001 | Email confirmation redirects to localhost | Jinalie, Cynthia, Angel (5+ reports) | ✅ Code fixed | NEEDS: Set Site URL in Supabase dashboard to `https://sis-mvp.vercel.app` at `supabase.com/dashboard/project/ftdnpsrbnjkvazspmenv/auth/url-configuration` and add `https://sis-mvp.vercel.app/**` to Redirect URLs |
+| BUG-001 | Email confirmation redirects to localhost | Jinalie, Cynthia, Angel (5+ reports) | ✅ Fixed | Code fixed + Supabase dashboard Site URL and Redirect URLs configured by Kuber. |
 | BUG-002 | Profile data not saving after "Save Progress" | Mayleen, Angel, Cynthia | ✅ Fixed | Root cause: `updateProfile` passed user-level fields (full_name, email, phone) to `jobseeker_profiles` table which rejected unknown columns. Fix: separated user_profiles vs jobseeker_profiles fields, updates both tables, whitelists valid columns. Also surfaced errors to UI instead of silent failure. |
 | BUG-003 | Employer flow hardcoded to Cebuana Lhuillier | Sweet Angel | ✅ Fixed | Company name input added. No more hardcoded employer. |
 | BUG-004 | Resume auto-fill only captures name/email | Angel, Cynthia, Jinalie | ✅ Fixed | Root cause: PDF text extraction used crude regex on raw bytes — only captured parenthesized fragments, producing garbage for real resumes. Fix: replaced with `pdf-parse` library for proper PDF text extraction, added `jszip` for .docx support. AI prompt was fine — it just wasn't receiving readable text. NEEDS: `npm install pdf-parse jszip` before deploy. |
@@ -46,11 +46,11 @@
 | RYAN-005 | Multi-psychologist review (3 reviewers) | ⬜ Post-Jakarta | Psychologist feedback from certification session |
 | RYAN-006 | Screen recording for demo | ⬜ Ryan doing | Loom videos of each portal |
 
-### SUPABASE DASHBOARD CHANGES NEEDED (not code)
+### SUPABASE DASHBOARD CHANGES — All Done ✅
 
-1. **Site URL**: Set to `https://sis-mvp.vercel.app` at Authentication → URL Configuration
-2. **Redirect URLs**: Add `https://sis-mvp.vercel.app/**`
-3. **Email templates**: Branded Kaya templates (Confirm signup already done)
+1. ~~**Site URL**: Set to `https://sis-mvp.vercel.app`~~ ✅
+2. ~~**Redirect URLs**: Added `https://sis-mvp.vercel.app/**`~~ ✅
+3. **Email templates**: Branded Kaya templates (Confirm signup done)
 
 ---
 
@@ -64,15 +64,30 @@
 ```
 src/app/auth/page.tsx              — Sign in/up, forgot password, resend confirmation
 src/app/profile/page.tsx           — Profile form, resume upload, disability, validation
+src/app/chat/page.tsx              — Aya conversation (LEEE chatbot)
+src/app/skills/page.tsx            — Skills profile dashboard (superpowers reveal)
+src/app/vacancy/page.tsx           — Browse vacancies, AI Q&A, check alignment, apply
 src/app/employer/page.tsx          — Vacancy creation, JD parse, company name
-src/app/employer-dashboard/page.tsx — Vacancies, talent matches, applicants, settings
+src/app/employer-dashboard/page.tsx — Overview, vacancies, talent matches, settings
+src/app/reviewer/page.tsx          — Three-gate pipeline review (approve/hold/stop)
+src/app/psychologist/page.tsx      — Audit trail, methodology, validate & sign
+src/app/my-dashboard/page.tsx      — Jobseeker hub (profile, Aya, skills, vacancies)
+src/app/faq/page.tsx               — FAQ page (18 questions across 5 categories)
+src/app/feedback/page.tsx          — Candidate feedback (not-selected)
+src/app/onboarding/page.tsx        — Skills-informed onboarding (selected)
 src/app/api/chat/route.ts         — Aya chat + extraction + merge logic
-src/app/api/gate1/route.ts        — Employer profile + vacancy + JD parsing
-src/app/api/resume/route.ts       — Resume upload + AI extraction
-src/components/LEEEChat.tsx        — Main chat UI
+src/app/api/gate1/route.ts        — Employer profile + vacancy + alignment engine
+src/app/api/gate3/route.ts        — Simulation + interview + readiness
+src/app/api/demo/route.ts         — Apply + gate decisions + state management
+src/app/api/resume/route.ts       — Resume upload + AI extraction (pdf-parse + jszip)
+src/app/api/profile/route.ts      — Jobseeker profile CRUD
+src/app/api/match/route.ts        — Vacancy ↔ jobseeker matching engine
+src/app/api/psychologist/route.ts — Extraction retrieval + candidate names
+src/components/LEEEChat.tsx        — Main chat UI (Moth stages, living landscape)
 src/lib/extraction-pipeline.ts    — 5-stage extraction with SP cultural lens
 src/lib/calibration.ts            — Session calibration + returning user context
 src/lib/prompts.ts                — Aya system prompt + SP grounding
+src/lib/llm.ts                    — Claude primary + Gemini fallback (15s timeout)
 ```
 
-*Last updated: April 9, 2026*
+*Last updated: April 9, 2026 — All bugs fixed, full E2E pipeline verified, mobile polish done*
