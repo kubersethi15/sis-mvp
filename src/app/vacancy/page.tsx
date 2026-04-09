@@ -247,9 +247,12 @@ export default function VacancyPage() {
                         Apply Now
                       </button>
                     ) : (
-                      <span className="px-4 py-2 text-sm bg-green-50 text-green-600 rounded-lg border border-green-200 font-medium">
-                        Applied
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="px-4 py-2 text-sm bg-green-50 text-green-600 rounded-lg border border-green-200 font-medium">
+                          Applied ✓
+                        </span>
+                        <span className="text-xs" style={{ color: '#829AB1' }}>Gate 1 alignment assessment running...</span>
+                      </div>
                     )}
                   </div>
                 </div>

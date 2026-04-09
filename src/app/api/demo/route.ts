@@ -36,10 +36,23 @@ export async function POST(req: NextRequest) {
 // ============================================================
 
 async function handleApply(body: any) {
-  const { vacancy_id, jobseeker_id } = body;
+  let { vacancy_id, jobseeker_id, session_id } = body;
 
-  if (!vacancy_id || !jobseeker_id) {
-    return NextResponse.json({ error: 'vacancy_id and jobseeker_id required' }, { status: 400 });
+  if (!vacancy_id) {
+    return NextResponse.json({ error: 'vacancy_id required' }, { status: 400 });
+  }
+
+  // Resolve jobseeker_id from session_id if needed (employer "Add to Pipeline" sends session_id)
+  if (!jobseeker_id && session_id) {
+    const { data: session } = await db().from('leee_sessions').select('user_id').eq('id', session_id).single();
+    if (session?.user_id) {
+      const { data: profile } = await db().from('jobseeker_profiles').select('id').eq('user_id', session.user_id).limit(1).single();
+      jobseeker_id = profile?.id || session.user_id;
+    }
+  }
+
+  if (!jobseeker_id) {
+    return NextResponse.json({ error: 'Could not resolve jobseeker' }, { status: 400 });
   }
 
   // Create application
@@ -52,6 +65,23 @@ async function handleApply(body: any) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Auto-trigger Gate 1 alignment assessment (don't block — fire and forget)
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    fetch(`${baseUrl}/api/gate1`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'run_alignment',
+        application_id: app.id,
+        vacancy_id,
+        jobseeker_id,
+      }),
+    }).catch(e => console.error('Gate 1 auto-trigger failed:', e));
+  } catch (e) {
+    console.error('Gate 1 auto-trigger error:', e);
+  }
 
   return NextResponse.json({ application: app });
 }
@@ -478,9 +508,49 @@ async function handleGateDecision(body: any) {
   // Update application status based on decision
   let newStatus = '';
   if (decision === 'passed') {
-    if (gate === 1) newStatus = 'gate2_pending';
-    else if (gate === 2) newStatus = 'gate3_pending';
-    else if (gate === 3) newStatus = 'selected';
+    if (gate === 1) {
+      newStatus = 'gate2_pending';
+      // Auto-populate Gate 2 with LEEE extraction data
+      const { data: app } = await supabase.from('applications')
+        .select('jobseeker_id, user_id, vacancy_id').eq('id', application_id).single();
+      if (app) {
+        const userId = app.user_id || app.jobseeker_id;
+        // Find their LEEE extraction
+        const { data: sessions } = await supabase.from('leee_sessions')
+          .select('id').eq('user_id', userId).eq('status', 'completed')
+          .order('created_at', { ascending: false }).limit(1);
+        if (sessions?.length) {
+          const { data: ext } = await supabase.from('leee_extractions')
+            .select('skills_profile, narrative_summary, confidence_metrics')
+            .eq('session_id', sessions[0].id).limit(1).single();
+          if (ext) {
+            try {
+              await supabase.from('gate2_results').insert({
+                application_id,
+                leee_session_id: sessions[0].id,
+                leee_skills_profile: ext.skills_profile,
+                evidence_rating: ext.confidence_metrics?.overall_confidence > 0.7 ? 'Strong' : ext.confidence_metrics?.overall_confidence > 0.5 ? 'Moderate' : 'Developing',
+                ai_recommendation: `Based on LEEE extraction: ${ext.narrative_summary?.substring(0, 200) || 'Skills profile generated from lived experience conversation.'}`,
+              });
+            } catch (e) { console.error('Gate 2 auto-populate:', e); }
+          }
+        }
+      }
+    } else if (gate === 2) {
+      newStatus = 'gate3_pending';
+      // Auto-populate Gate 3 with readiness assessment
+      try {
+        await supabase.from('gate3_results').insert({
+          application_id,
+          readiness_index: 72, // Placeholder — Jazzel/Chamar plug in here
+          success_conditions: ['Structured onboarding', 'Mentorship pairing', 'Regular check-ins'],
+          support_needs: ['May need additional role-specific training', 'Benefits from collaborative environment'],
+          ai_recommendation: 'Candidate shows strong foundational skills from lived experience. Recommend proceeding with structured onboarding. Simulation and interview stages will be enhanced when Gate 3 modules are integrated.',
+        });
+      } catch (e) { console.error('Gate 3 auto-populate:', e); }
+    } else if (gate === 3) {
+      newStatus = 'selected';
+    }
   } else if (decision === 'held') {
     newStatus = `gate${gate}_held`;
   } else if (decision === 'stopped') {
