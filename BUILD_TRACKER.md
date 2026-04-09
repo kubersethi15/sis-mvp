@@ -3,7 +3,7 @@
 ## Deadline: Jakarta Conference, April 13–16, 2026
 ## Pilot Employer: Cebuana Lhuillier
 
-Last updated: March 17, 2026
+Last updated: April 9, 2026
 
 ---
 
@@ -20,7 +20,7 @@ Last updated: March 17, 2026
 | S7 | PSF skills taxonomy loaded into DB | ✅ Done | 8 skills seeded via schema-supabase.sql |
 | S8 | Supabase auth configured | ✅ Done | Email/password via Supabase Auth, auto-creates profiles |
 | S9 | Environment variables configured | ✅ Done | All 4 keys set (Anthropic + Supabase URL/anon/service) |
-| S10 | Deployment setup (Vercel) | ⬜ Todo | For Jakarta demo |
+| S10 | Deployment setup (Vercel) | ✅ Done | Live at sis-mvp.vercel.app, auto-deploys from main |
 
 ---
 
@@ -175,7 +175,7 @@ Last updated: March 17, 2026
 | U1 | Mobile-responsive design | ✅ Done | Mobile-first for PH users |
 | U2 | Chat UX polish (animations, typing indicator) | ✅ Done | Typing dots, timer, progress bar, gradient bubbles |
 | U3 | Progress visualization during conversation | 🔶 Partial | Stage indicator exists; needs story arc visual |
-| U4 | Skills revealed animation (post-extraction) | ⬜ Todo | "Superpowers discovered" moment |
+| U4 | Skills revealed animation (post-extraction) | ✅ Done | SuperpowersReveal.tsx — cinematic fullscreen reveal |
 | U5 | Accessibility (keyboard focus visible) | ✅ Done | WCAG compliance |
 | U6 | Low-bandwidth optimization | ✅ Done | Minimal assets, progressive loading |
 | U7 | Loading states and error handling | ✅ Done | Error messages, extraction retry, loading spinners |
