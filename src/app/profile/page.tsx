@@ -220,7 +220,7 @@ export default function ProfilePage() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', flexWrap: 'nowrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           {saved && <span className="text-xs font-medium" style={{ color: '#48BB78', whiteSpace: 'nowrap' }}>Saved</span>}
           {fullName ? (
             <>

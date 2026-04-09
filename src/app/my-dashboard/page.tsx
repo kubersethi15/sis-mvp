@@ -111,7 +111,7 @@ export default function MyDashboard() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', flexWrap: 'nowrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <Link href="/profile" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Edit Profile</Link>
           <Link href="/faq" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Help</Link>
           <button
@@ -135,7 +135,7 @@ export default function MyDashboard() {
         {/* JOURNEY PROGRESS */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-stone-500 mb-4">YOUR JOURNEY</h2>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { step: 1, label: 'Create Profile', done: hasProfile, icon: '', href: '/profile', description: profileCompletion > 0 ? `${profileCompletion}% complete` : 'Tell us about yourself' },
               { step: 2, label: 'Tell Your Story', done: hasLEEE, icon: '', href: hasLEEE ? '/chat?new=1' : '/chat', description: hasLEEE ? `${skillsCount} skills discovered` : 'Chat with Aya' },
@@ -354,7 +354,7 @@ export default function MyDashboard() {
         )}
 
         {/* QUICK ACTIONS */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
             <span className="text-xl" style={{ fontFamily: "Georgia, serif", color: "#48BB78" }}>kaya</span>
             <p className="text-xs font-medium text-stone-700 mt-1">Talk to Aya</p>

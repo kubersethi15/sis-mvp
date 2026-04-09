@@ -94,7 +94,7 @@ export default function ReviewerDashboard() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', flexWrap: 'nowrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <button onClick={fetchData} className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Refresh</button>
           <a href="/employer-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
         </div>
@@ -131,7 +131,7 @@ export default function ReviewerDashboard() {
                 {/* Funnel */}
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Hiring Pipeline</h2>
-                  <div className="flex items-stretch gap-3 mb-6">
+                  <div className="flex flex-wrap sm:flex-nowrap items-stretch gap-2 sm:gap-3 mb-6">
                     {[
                       { label: 'Applied', count: counts.applied, color: 'bg-gray-100 text-gray-700' },
                       { label: 'Gate 1', count: counts.gate1, color: 'bg-blue-100 text-blue-700' },
@@ -139,12 +139,12 @@ export default function ReviewerDashboard() {
                       { label: 'Gate 3', count: counts.gate3, color: 'bg-purple-100 text-purple-700' },
                       { label: 'Selected', count: counts.selected, color: 'bg-yellow-100 text-yellow-700' },
                     ].map((s, i) => (
-                      <div key={i} className="flex items-center gap-3 flex-1">
-                        <div className={`${s.color} rounded-lg p-4 flex-1 text-center`}>
-                          <div className="text-2xl font-bold">{s.count}</div>
-                          <div className="text-xs font-medium mt-1">{s.label}</div>
+                      <div key={i} className="flex items-center gap-2 flex-1 min-w-[60px]">
+                        <div className={`${s.color} rounded-lg p-2 sm:p-4 flex-1 text-center`}>
+                          <div className="text-lg sm:text-2xl font-bold">{s.count}</div>
+                          <div className="text-[10px] sm:text-xs font-medium mt-1">{s.label}</div>
                         </div>
-                        {i < 4 && <span className="text-gray-300 text-lg">→</span>}
+                        {i < 4 && <span className="hidden sm:inline text-gray-300 text-lg">→</span>}
                       </div>
                     ))}
                   </div>

@@ -226,7 +226,7 @@ export default function SkillsDashboard() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
             {[
               { value: skills.length, label: 'Skills Found' },
               { value: `${overallConfidence}%`, label: 'Confidence' },

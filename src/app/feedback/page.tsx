@@ -58,7 +58,7 @@ export default function FeedbackPage() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', flexWrap: 'nowrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <a href="/my-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
           <a href="/vacancy" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Browse Jobs</a>
         </div>

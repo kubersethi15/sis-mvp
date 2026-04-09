@@ -72,7 +72,7 @@ export default function EmployerDashboardPage() {
           </div>
           <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Link href="/employer" className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: '#48BB78', color: 'white' }}>New Vacancy</Link>
           <Link href="/reviewer" className="text-xs" style={{ color: '#9FB3C8' }}>Pipeline</Link>
           <Link href="/psychologist" className="text-xs" style={{ color: '#9FB3C8' }}>Validation</Link>
@@ -106,26 +106,26 @@ export default function EmployerDashboardPage() {
 
         {/* OVERVIEW */}
         {activeTab === 'overview' && (<div className="space-y-6">
-          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+          <div className="bg-white rounded-xl border p-4 sm:p-6" style={{ borderColor: '#E2E8F0' }}>
             <h2 className="text-sm font-semibold mb-4" style={{ color: '#102A43' }}>Hiring Pipeline</h2>
-            <div className="flex items-stretch gap-2">
+            <div className="flex flex-wrap sm:flex-nowrap items-stretch gap-2">
               {[
                 { label: 'Applied', count: counts.applied, color: '#486581', bg: '#F0F4F8' },
-                { label: 'Gate 1: Alignment', count: counts.gate1, color: '#2E86C1', bg: '#EBF5FB' },
-                { label: 'Gate 2: Evidence', count: counts.gate2, color: '#27AE60', bg: '#E8F8F5' },
-                { label: 'Gate 3: Predictability', count: counts.gate3, color: '#8E44AD', bg: '#F4ECF7' },
+                { label: 'G1: Alignment', count: counts.gate1, color: '#2E86C1', bg: '#EBF5FB' },
+                { label: 'G2: Evidence', count: counts.gate2, color: '#27AE60', bg: '#E8F8F5' },
+                { label: 'G3: Predict', count: counts.gate3, color: '#8E44AD', bg: '#F4ECF7' },
                 { label: 'Selected', count: counts.selected, color: '#48BB78', bg: '#F0FFF4' },
               ].map((s, i) => (
-                <div key={i} className="flex items-center gap-2 flex-1">
-                  <div className="flex-1 rounded-xl p-4 text-center" style={{ background: s.bg }}>
-                    <div className="text-2xl font-bold" style={{ color: s.color }}>{s.count}</div>
-                    <div className="text-[10px] font-medium mt-1" style={{ color: s.color, opacity: 0.8 }}>{s.label}</div>
+                <div key={i} className="flex items-center gap-1 sm:gap-2 flex-1 min-w-[60px]">
+                  <div className="flex-1 rounded-xl p-2 sm:p-4 text-center" style={{ background: s.bg }}>
+                    <div className="text-lg sm:text-2xl font-bold" style={{ color: s.color }}>{s.count}</div>
+                    <div className="text-[9px] sm:text-[10px] font-medium mt-1" style={{ color: s.color, opacity: 0.8 }}>{s.label}</div>
                   </div>
-                  {i < 4 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D9E2EC" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>}
+                  {i < 4 && <svg className="hidden sm:block" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D9E2EC" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>}
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 flex gap-4" style={{ borderTop: '1px solid #F0F4F8' }}>
+            <div className="mt-4 pt-3 flex flex-wrap gap-3 sm:gap-4" style={{ borderTop: '1px solid #F0F4F8' }}>
               {GATES.map(g => (
                 <div key={g.num} className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ background: g.color }} />
@@ -135,7 +135,7 @@ export default function EmployerDashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { n: vacancies.length, l: 'Active Vacancies' },
               { n: talentMatches.length, l: 'Talent Matches' },
@@ -177,7 +177,7 @@ export default function EmployerDashboardPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Link href="/employer" className="p-4 bg-white rounded-xl border text-center hover:shadow-md transition-all" style={{ borderColor: '#E2E8F0' }}>
               <div className="text-sm font-medium" style={{ color: '#334E68' }}>Create Vacancy</div>
               <div className="text-xs mt-1" style={{ color: '#829AB1' }}>AI-assisted JD builder</div>
@@ -340,7 +340,7 @@ export default function EmployerDashboardPage() {
               {employer.accessibility_features && <div className="text-sm pt-3" style={{ borderTop: '1px solid #E2E8F0' }}><span className="font-medium" style={{ color: '#334E68' }}>Accessibility: </span><span style={{ color: '#486581' }}>{employer.accessibility_features}</span></div>}
               <div className="pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
                 <p className="text-xs font-semibold mb-3" style={{ color: '#334E68' }}>Three-Gate Reviewer Assignments</p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {GATES.map(g => (
                     <div key={g.num} className="p-3 rounded-xl" style={{ background: g.bg }}>
                       <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: g.color }}>Gate {g.num} — {g.label}</div>
@@ -363,7 +363,7 @@ export default function EmployerDashboardPage() {
               <div><label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Benefits</label><input name="benefits" placeholder="e.g. HMO, flexible hours" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>
               <div className="pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
                 <p className="text-xs font-semibold mb-3" style={{ color: '#334E68' }}>Gate Reviewers</p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {GATES.map(g => (<div key={g.num}><label className="block text-[10px] font-medium mb-1" style={{ color: g.color }}>Gate {g.num} — {g.label}</label><input name={`g${g.num}`} placeholder={g.reviewer} className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>))}
                 </div>
               </div>
