@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // Dynamic import for pdf-parse (CommonJS module)
 async function extractPdfText(buffer: Buffer): Promise<string> {
   try {
-    const pdfParse = (await import('pdf-parse')).default;
+    // pdf-parse has inconsistent ESM/CJS exports — use require-style import
+    const pdfParse = require('pdf-parse');
     const data = await pdfParse(buffer);
     return data.text || '';
   } catch (e: any) {
@@ -16,7 +17,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
 // Extract text from .docx (ZIP containing XML)
 async function extractDocxText(buffer: Buffer): Promise<string> {
   try {
-    const JSZip = (await import('jszip')).default;
+    const JSZip = require('jszip');
     const zip = await JSZip.loadAsync(buffer);
     const docXml = await zip.file('word/document.xml')?.async('text');
     if (!docXml) return '';
