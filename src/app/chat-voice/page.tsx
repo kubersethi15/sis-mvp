@@ -34,6 +34,9 @@ export default function VoiceChatPage() {
   const [ayaThinking, setAyaThinking] = useState('');
   const [currentStage, setCurrentStage] = useState('opening');
   const [storiesCompleted, setStoriesCompleted] = useState(0);
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [connectionOk, setConnectionOk] = useState(true);
+  const [sessionCost, setSessionCost] = useState({ stt: 0, tts: 0, llm: 0 });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -62,6 +65,26 @@ export default function VoiceChatPage() {
     const t = setInterval(() => { idx = (idx + 1) % thinkingMessages.length; setAyaThinking(thinkingMessages[idx]); }, 2500);
     return () => clearInterval(t);
   }, [status]);
+
+  // V6.4: Connection monitoring
+  useEffect(() => {
+    const handleOnline = () => setConnectionOk(true);
+    const handleOffline = () => setConnectionOk(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    setConnectionOk(navigator.onLine);
+    return () => { window.removeEventListener('online', handleOnline); window.removeEventListener('offline', handleOffline); };
+  }, []);
+
+  // V6.7: Cost tracking helper
+  const trackCost = useCallback((type: 'stt' | 'tts' | 'llm', seconds?: number) => {
+    setSessionCost(prev => {
+      if (type === 'stt') return { ...prev, stt: prev.stt + (seconds || 5) * 0.0001 }; // $0.006/min
+      if (type === 'tts') return { ...prev, tts: prev.tts + 0.002 }; // ~$0.002 per response
+      if (type === 'llm') return { ...prev, llm: prev.llm + 0.03 }; // ~$0.03 per Claude call
+      return prev;
+    });
+  }, []);
 
   // ============================================================
   // TTS — Aya speaks with OpenAI nova voice
@@ -280,6 +303,7 @@ export default function VoiceChatPage() {
       });
       const data = await res.json();
       setAyaThinking('');
+      trackCost('llm'); // Track Claude API call cost
 
       // Handle distress escalation (V3 Wellbeing Protocol)
       if (data.distress_level >= 3) {
@@ -373,6 +397,55 @@ export default function VoiceChatPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(160deg, #0a1628 0%, #0f2035 40%, #1a0e2e 100%)' }}>
+
+      {/* V6.1: Consent Screen */}
+      {!consentGiven && !isStarted && (
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="max-w-sm text-center">
+            <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ background: 'rgba(246,173,85,0.15)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F6AD55" strokeWidth="2">
+                <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/>
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold mb-3" style={{ color: '#F0F4F8' }}>Voice Conversation with Aya</h2>
+            <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              This session uses your microphone to have a voice conversation. Your audio is sent to a secure server for transcription only — it is not stored or shared.
+            </p>
+            <div className="space-y-2 text-left mb-6 px-4">
+              {[
+                'Your microphone will be used to hear what you say',
+                'Audio is transcribed to text, then discarded',
+                'The text conversation is saved (same as text chat)',
+                'You can switch to text-only mode at any time',
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-none" style={{ background: '#48BB78' }} />
+                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setConsentGiven(true)}
+              className="w-full py-3.5 rounded-xl font-semibold text-white text-sm transition-all active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #48BB78, #38A169)', boxShadow: '0 4px 20px rgba(72,187,120,0.3)' }}>
+              I Understand — Continue
+            </button>
+            <a href="/chat" className="block text-xs mt-4" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              Use text chat instead →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* V6.4: Connection warning banner */}
+      {!connectionOk && (
+        <div className="px-4 py-2 text-center text-xs" style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5' }}>
+          Connection lost — voice may not work. Check your internet.
+        </div>
+      )}
+
+      {/* Main UI — only show after consent */}
+      {consentGiven && (
+      <>
       {/* Header */}
       <div className="flex-none px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
@@ -560,6 +633,10 @@ export default function VoiceChatPage() {
         @keyframes speakDot { 0%,100% { transform:scale(0.8); opacity:0.4; } 50% { transform:scale(1.2); opacity:1; } }
         @keyframes bounce { 0%,80%,100% { transform:scale(0); } 40% { transform:scale(1); } }
       `}</style>
+
+      {/* Close consent wrapper */}
+      </>
+      )}
     </div>
   );
 }

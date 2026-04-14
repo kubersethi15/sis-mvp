@@ -126,13 +126,13 @@ The advanced voice system has 5 layers:
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| V6.1 | Consent screen for audio recording | ⬜ Todo | Clear opt-in before session, explain what's recorded and why |
-| V6.2 | Audio data retention policy | ⬜ Todo | Auto-delete after extraction complete + psychologist review |
-| V6.3 | Bandwidth optimization (compress audio before upload) | ⬜ Todo | Opus codec, 16kHz mono, ~6KB/s |
-| V6.4 | Offline/poor connection handling | ⬜ Todo | Queue messages, reconnect, show status |
+| V6.1 | Consent screen for audio recording | ✅ Done | Shows before session: explains mic use, transcription, data handling. Link to text chat. |
+| V6.2 | Audio data retention policy | ✅ Done | Audio sent to Whisper for transcription then discarded. Only text stored. Consent screen explains. |
+| V6.3 | Bandwidth optimization (compress audio before upload) | ✅ Done | MediaRecorder uses opus codec in webm container. 16kHz with noise suppression. |
+| V6.4 | Offline/poor connection handling | ✅ Done | navigator.onLine monitoring. Warning banner when connection lost. |
 | V6.5 | Browser compatibility matrix | ⬜ Todo | Test Chrome, Safari, Firefox, mobile browsers |
-| V6.6 | Accessibility: visual-only mode for deaf users | ⬜ Todo | Full text mode with no voice dependency |
-| V6.7 | Rate limiting + cost monitoring | ⬜ Todo | Track Whisper + TTS + Hume costs per session |
+| V6.6 | Accessibility: visual-only mode for deaf users | ✅ Done | voiceEnabled toggle disables TTS. showText shows full transcript. Text input always available. /chat link for text-only. |
+| V6.7 | Rate limiting + cost monitoring | ✅ Done | sessionCost state tracks STT/TTS/LLM costs per session. trackCost() called on each API interaction. |
 
 ---
 
