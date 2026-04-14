@@ -32,10 +32,10 @@
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| L3.11 | Reviewer Gate 3: Layer 3 evidence section | ⬜ Todo | Show peer ratings alongside L1+L2 convergence |
-| L3.12 | Psychologist: Layer 3 audit trail tab | ⬜ Todo | Full reference responses, convergence analysis, independence verification |
-| L3.13 | Candidate dashboard: reference status | ⬜ Todo | "2 of 3 references have responded" progress indicator |
-| L3.14 | Email/SMS notifications to references | ⬜ Todo | Reminder if not submitted after 48 hours. Polite, explains importance. |
+| L3.11 | Reviewer Gate 3: Layer 3 evidence section | ✅ Done | Three-column L1/L2/L3 comparison with convergence type + independence flags |
+| L3.12 | Psychologist: Layer 3 audit trail tab | ✅ Done | Full convergence table, notes, independence verification, methodology |
+| L3.13 | Candidate dashboard: reference status | ✅ Done | References quick action card on dashboard. /references page link. |
+| L3.14 | Email/SMS notifications to references | ⬜ Todo | Needs email provider (SendGrid/Resend). Share link manually for now. |
 
 ### F6 Summary
 
@@ -96,9 +96,9 @@
 
 | Feature | Tasks | Done | Status |
 |---|---|---|---|
-| F6 Peer/360 (Layer 3) | 14 | 10 | 🟡 L3.11-L3.14 (reviewer/psych views + notifications) remaining |
+| F6 Peer/360 (Layer 3) | 14 | 13 | 🟡 L3.14 (email notifications) needs email provider |
 | F7 Training Impact | 14 | 7 | 🟡 TI-B (cohort dashboard UI) + TI-C (integration) remaining |
-| **Total** | **28** | **17** | **61% complete** |
+| **Total** | **28** | **20** | **71% complete** |
 
 ---
 

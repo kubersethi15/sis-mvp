@@ -368,7 +368,7 @@ export default function MyDashboard() {
         )}
 
         {/* QUICK ACTIONS */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
             <span className="text-xl" style={{ fontFamily: "Georgia, serif", color: "#48BB78" }}>kaya</span>
             <p className="text-xs font-medium text-stone-700 mt-1">Talk to Aya</p>
@@ -380,6 +380,10 @@ export default function MyDashboard() {
           <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
             <span className="text-sm font-semibold" style={{ color: '#486581' }}>JOBS</span>
             <p className="text-xs font-medium text-stone-700 mt-1">Browse Jobs</p>
+          </Link>
+          <Link href="/references" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-purple-200 hover:shadow-md transition-all">
+            <span className="text-sm font-semibold" style={{ color: '#8E44AD' }}>360°</span>
+            <p className="text-xs font-medium text-stone-700 mt-1">References</p>
           </Link>
         </div>
       </div>

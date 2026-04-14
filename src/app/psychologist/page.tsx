@@ -57,7 +57,7 @@ export default function PsychologistPage() {
   const [licenseNumber, setLicenseNumber] = useState('');
   const [validationStatus, setValidationStatus] = useState<'pending' | 'validated' | 'rejected' | 'revision_needed'>('pending');
   const [signed, setSigned] = useState(false);
-  const [activeTab, setActiveTab] = useState<'audit' | 'simulation' | 'methodology' | 'validate'>('audit');
+  const [activeTab, setActiveTab] = useState<'audit' | 'simulation' | 'layer3' | 'methodology' | 'validate'>('audit');
 
   useEffect(() => {
     fetchExtractions();
@@ -245,6 +245,7 @@ export default function PsychologistPage() {
               {[
                 { id: 'audit' as const, label: 'Layer 1: Audit Trail' },
                 { id: 'simulation' as const, label: 'Layer 2: Simulation' },
+                { id: 'layer3' as const, label: 'Layer 3: Peer/360' },
                 { id: 'methodology' as const, label: 'Methodology' },
                 { id: 'validate' as const, label: 'Validate & Sign' },
               ].map(tab => (
@@ -649,6 +650,137 @@ export default function PsychologistPage() {
                     </>
                   );
                 })()}
+              </div>
+            )}
+
+            {/* LAYER 3: PEER/360 TAB */}
+            {activeTab === 'layer3' && (
+              <div className="space-y-6">
+                {selected ? (() => {
+                  const convergence = (selected as any).layer3_convergence || [];
+                  const independence = (selected as any).layer3_independence;
+                  const peerCount = (selected as any).layer3_peer_count || 0;
+
+                  if (convergence.length === 0) {
+                    return (
+                      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                        <p className="text-sm text-gray-500">No peer/360 data available for this candidate yet.</p>
+                        <p className="text-xs text-gray-400 mt-2">Layer 3 evidence is collected when the candidate provides reference contacts and they submit their assessments.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <>
+                      {/* Overview */}
+                      <div className="bg-white rounded-lg border border-purple-200 p-6">
+                        <h2 className="text-lg font-semibold mb-2" style={{ color: '#6C3483' }}>Three-Layer Convergence Analysis</h2>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Comparing self-report (Layer 1), behavioral observation (Layer 2), and peer assessment (Layer 3).
+                          {peerCount} reference(s) submitted. Weighting: L1 (25%) + L2 (40%) + L3 (35%).
+                        </p>
+
+                        {/* Convergence table */}
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr style={{ background: '#F4ECF7' }}>
+                                <th className="text-left px-3 py-2 text-xs font-semibold" style={{ color: '#6C3483' }}>Skill</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#2471A3' }}>L1 Self</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#1E8449' }}>L2 Simulation</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#8E44AD' }}>L3 Peers</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#102A43' }}>Combined</th>
+                                <th className="text-left px-3 py-2 text-xs font-semibold" style={{ color: '#627D98' }}>Pattern</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {convergence.map((c: any, i: number) => (
+                                <tr key={i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
+                                  <td className="px-3 py-2 font-medium text-gray-700">{c.skill_name}</td>
+                                  <td className="text-center px-3 py-2">
+                                    <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#EBF5FB', color: '#2471A3' }}>{c.layer1_score}</span>
+                                  </td>
+                                  <td className="text-center px-3 py-2">
+                                    <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#E8F8F5', color: '#1E8449' }}>{c.layer2_score}</span>
+                                  </td>
+                                  <td className="text-center px-3 py-2">
+                                    <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#F4ECF7', color: '#8E44AD' }}>
+                                      {c.layer3_score} <span className="text-[9px]">({c.layer3_peer_count})</span>
+                                    </span>
+                                  </td>
+                                  <td className="text-center px-3 py-2">
+                                    <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: '#102A43', color: 'white' }}>{c.combined_score}</span>
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
+                                      background: c.convergence_type === 'full_agreement' ? '#D4EFDF' :
+                                                  c.convergence_type === 'undersell' ? '#D4E6F1' :
+                                                  c.convergence_type === 'overclaim' ? '#FADBD8' : '#FCF3CF',
+                                      color: c.convergence_type === 'full_agreement' ? '#1E8449' :
+                                             c.convergence_type === 'undersell' ? '#2471A3' :
+                                             c.convergence_type === 'overclaim' ? '#C0392B' : '#7D6608',
+                                    }}>
+                                      {c.convergence_type === 'full_agreement' ? '✓ All agree' :
+                                       c.convergence_type === 'undersell' ? '↑ Undersells' :
+                                       c.convergence_type === 'overclaim' ? '↓ Overclaim' :
+                                       c.convergence_type.replace(/_/g, ' ')}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Convergence notes */}
+                      <div className="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-3">Convergence Notes</h3>
+                        <div className="space-y-2">
+                          {convergence.filter((c: any) => c.note).map((c: any, i: number) => (
+                            <div key={i} className="flex items-start gap-2 text-xs">
+                              <span className="font-medium" style={{ color: '#334E68', minWidth: '120px' }}>{c.skill_name}:</span>
+                              <span style={{ color: '#627D98' }}>{c.note}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Independence verification */}
+                      {independence && (
+                        <div className="bg-white rounded-lg border border-gray-200 p-6">
+                          <h3 className="text-sm font-semibold text-gray-900 mb-3">Reference Independence Verification</h3>
+                          {independence.independent ? (
+                            <div className="p-3 rounded-lg" style={{ background: '#D4EFDF' }}>
+                              <p className="text-sm" style={{ color: '#1E8449' }}>✓ All references appear to be independent. No red flags detected.</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {independence.flags.map((f: string, i: number) => (
+                                <div key={i} className="p-2 rounded-lg" style={{ background: '#FDEDEC' }}>
+                                  <p className="text-sm" style={{ color: '#C0392B' }}>⚠ {f}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Methodology note */}
+                      <div className="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-2">Three-Layer Methodology</h3>
+                        <p className="text-sm text-gray-600">
+                          Layer 3 completes the assessment triangle. A candidate can rehearse answers for Layer 1 (self-report) and may game a simulation in Layer 2 (observed behavior), but they cannot fabricate what multiple independent references say about them. When all three layers converge, confidence in the skills profile is at its highest. When they diverge, it reveals patterns — underselling (common with modest or culturally deferential candidates), overclaiming, or context-dependent performance.
+                        </p>
+                        <p className="text-xs text-gray-400 mt-2">Weighting: L2 observation (40%) + L3 peer report (35%) + L1 self-report (25%). Based on multi-source assessment validity research.</p>
+                      </div>
+                    </>
+                  );
+                })() : (
+                  <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                    <p className="text-sm text-gray-500">Select a candidate extraction to view Layer 3 data.</p>
+                  </div>
+                )}
               </div>
             )}
 

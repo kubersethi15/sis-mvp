@@ -418,6 +418,40 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
                           )}
                         </div>
 
+                        {/* L3.11: Layer 3 — Peer/360 Assessment */}
+                        {(app as any).layer3_convergence?.length > 0 && (
+                          <div className="mt-3 p-3 rounded-lg" style={{ background: 'rgba(142,68,173,0.05)', border: '1px solid rgba(142,68,173,0.15)' }}>
+                            <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#8E44AD' }}>Layer 3 — Peer/360 Assessment ({(app as any).layer3_peer_count || '?'} references)</p>
+                            <div className="space-y-1.5">
+                              {(app as any).layer3_convergence.map((c: any, j: number) => (
+                                <div key={j} className="flex items-center justify-between text-xs px-2 py-1.5 rounded" style={{ background: 'rgba(255,255,255,0.7)' }}>
+                                  <span className="font-medium" style={{ color: '#334E68' }}>{c.skill_name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: '#EBF5FB', color: '#2471A3' }}>L1: {c.layer1_score}</span>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: '#E8F8F5', color: '#1E8449' }}>L2: {c.layer2_score}</span>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: '#F4ECF7', color: '#8E44AD' }}>L3: {c.layer3_score}</span>
+                                    <span className="text-[9px] font-semibold" style={{
+                                      color: c.convergence_type === 'full_agreement' ? '#1E8449' :
+                                             c.convergence_type === 'overclaim' ? '#C0392B' :
+                                             c.convergence_type === 'undersell' ? '#2E86C1' : '#E67E22'
+                                    }}>
+                                      → {c.combined_score}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            {(app as any).layer3_independence && !(app as any).layer3_independence.independent && (
+                              <div className="mt-2 p-2 rounded" style={{ background: '#FDEDEC' }}>
+                                <p className="text-[10px] font-semibold" style={{ color: '#C0392B' }}>⚠ Independence Flags</p>
+                                {(app as any).layer3_independence.flags.map((f: string, k: number) => (
+                                  <p key={k} className="text-[10px]" style={{ color: '#922B21' }}>{f}</p>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Simulation Transcript (collapsible) */}
                         {(app.gate3 as any).simulation_results?.transcript && (
                           <details className="rounded-lg overflow-hidden" style={{ border: '1px solid #D4E6F1' }}>
