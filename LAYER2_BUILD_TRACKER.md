@@ -26,6 +26,10 @@
 | C5 | Character memory: per-round context accumulation | ✅ Done | character_memories Map in GameMaster, updated each round |
 | C6 | Round management: character actions → candidate → next | ✅ Done | processRound() handles full turn cycle with twist injection |
 | C7 | Checkpoint detection: trigger evaluation at defined points | ✅ Done | Checks checkpoints array, triggers evaluateCheckpoint() at matching round |
+| C8 | Scenario selection from Layer 1 seeds | ✅ Done | selector.ts — selectScenario() scores scenarios against skill gaps |
+| C9 | Adaptive difficulty from Layer 1 proficiency | ✅ Done | basic/intermediate/advanced modifiers + gaming flag escalation |
+| C10 | Reflection phase post-scenario | ✅ Done | evaluateReflection() — metacognition, self-awareness, growth orientation |
+| C11 | Holistic arc assessment (not just checkpoints) | ✅ Done | evaluateHolisticArc() — trajectory, adaptation arc, authenticity |
 
 ## Phase 2 — Simulation UI (1 week)
 
@@ -70,12 +74,12 @@
 
 | Phase | Total | Done | In Progress | Todo |
 |-------|-------|------|-------------|------|
-| 0.5 Scenarios | 5 | 5 | 0 | 0 |
-| 1 Character Engine | 7 | 7 | 0 | 0 |
+| 0.5 Scenarios | 5 | 2 | 0 | 3 |
+| 1 Character Engine | 11 | 11 | 0 | 0 |
 | 2 UI | 9 | 0 | 0 | 9 |
 | 3 Observer + Evidence | 6 | 1 | 0 | 5 |
 | 4 Scoring + Integration | 7 | 0 | 0 | 7 |
-| **Total** | **34** | **13** | **0** | **21** |
+| **Total** | **38** | **14** | **0** | **24** |
 
 ---
 
