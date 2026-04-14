@@ -445,7 +445,27 @@ async function handleExtract(sessionId: string) {
       });
     }
 
-    const result = await runExtractionPipeline(transcript, vacancySkills);
+    // Fetch voice analysis data if available (V2.5)
+    let voiceAnalysis: any[] = [];
+    try {
+      const { data: sessionData } = await supabase.from('leee_sessions')
+        .select('voice_analysis')
+        .eq('id', sessionId)
+        .single();
+      if (sessionData?.voice_analysis) {
+        voiceAnalysis = sessionData.voice_analysis;
+      }
+    } catch { /* voice data is optional */ }
+
+    const sessionMinutes = Math.floor(
+      (Date.now() - new Date(orchestrator.getState().session.started_at).getTime()) / 60000
+    );
+    const result = await runExtractionPipeline(
+      transcript,
+      vacancySkills,
+      sessionMinutes,
+      voiceAnalysis.length > 0 ? voiceAnalysis : undefined
+    );
 
     if (!result.success) {
       console.error('Pipeline error:', result.error);

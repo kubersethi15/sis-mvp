@@ -575,6 +575,66 @@ export default function PsychologistPage() {
                         </div>
                       )}
 
+                      {/* V2.7: Voice Signals / Paralinguistic Analysis */}
+                      {(selected as any)?.voice_analysis?.length > 0 && (
+                        <div className="bg-white rounded-lg border border-purple-200 p-6">
+                          <h3 className="text-sm font-semibold mb-3" style={{ color: '#6C3483' }}>Voice Signals (Paralinguistic Analysis)</h3>
+                          <p className="text-xs text-gray-500 mb-4">
+                            Emotional expression detected from voice tone, rhythm, and timbre via Hume AI Expression Measurement.
+                            {(selected as any).voice_analysis.length} audio segment(s) analyzed.
+                          </p>
+
+                          {/* Emotion timeline */}
+                          <div className="space-y-2 mb-4">
+                            {(selected as any).voice_analysis.map((va: any, idx: number) => (
+                              <div key={idx} className="flex items-center gap-3 p-2 rounded" style={{ background: '#F5F3FF' }}>
+                                <span className="text-[10px] font-mono" style={{ color: '#7C3AED' }}>Msg {va.message_index || idx + 1}</span>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    {(va.dominant_emotions || []).map((e: string, i: number) => (
+                                      <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.1)', color: '#7C3AED' }}>{e}</span>
+                                    ))}
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[9px]" style={{ color: '#9CA3AF' }}>
+                                      Intensity: {Math.round((va.emotional_intensity || 0) * 100)}%
+                                    </span>
+                                    {va.authenticity?.genuine_laughter && <span className="text-[9px]">😂 Laughter</span>}
+                                    {va.authenticity?.thoughtful_pauses && <span className="text-[9px]">🤔 Thoughtful</span>}
+                                    {va.authenticity?.voice_tremor && <span className="text-[9px]">💧 Genuine emotion</span>}
+                                    {va.authenticity?.flat_affect && <span className="text-[9px]" style={{ color: '#DC2626' }}>⚠ Flat</span>}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Skill confidence adjustments from voice */}
+                          {(() => {
+                            const allAdj = (selected as any).voice_analysis.flatMap((va: any) => va.skill_adjustments || []);
+                            if (allAdj.length === 0) return null;
+                            return (
+                              <div className="mb-3">
+                                <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#6C3483' }}>Confidence Adjustments from Voice</p>
+                                <div className="space-y-1">
+                                  {allAdj.map((adj: any, i: number) => (
+                                    <div key={i} className="flex items-center justify-between text-xs p-1.5 rounded" style={{ background: adj.adjustment > 0 ? '#F0FFF4' : '#FEF2F2' }}>
+                                      <span style={{ color: '#334E68' }}>{adj.skill_name === '_all' ? 'All skills' : adj.skill_name}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-[10px]" style={{ color: adj.adjustment > 0 ? '#1E8449' : '#C0392B' }}>
+                                          {adj.adjustment > 0 ? '+' : ''}{(adj.adjustment * 100).toFixed(0)}%
+                                        </span>
+                                        <span className="text-[9px]" style={{ color: '#9CA3AF' }}>{adj.reason?.substring(0, 60)}</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+
                       {/* Full Transcript */}
                       {simData.transcript && (
                         <details className="bg-white rounded-lg border border-gray-200 overflow-hidden">

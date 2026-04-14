@@ -570,7 +570,8 @@ async function callClaudeForStage(
 export async function runExtractionPipeline(
   transcript: string,
   vacancySkills: string[] = [],
-  sessionDurationMinutes: number = 15
+  sessionDurationMinutes: number = 15,
+  voiceAnalysis?: any[] // Paralinguistic data from Hume — array of per-message analyses
 ): Promise<PipelineResult> {
   const timing: { [key: string]: number } = {};
   const stages: PipelineResult['stages'] = {
@@ -650,6 +651,60 @@ export async function runExtractionPipeline(
 
     stages.stage5_profile = profile;
     timing.stage5_ms = Date.now() - t0;
+
+    // ── VOICE ENHANCEMENT: Apply paralinguistic confidence adjustments ──
+    if (voiceAnalysis && voiceAnalysis.length > 0 && profile.vacancy_aligned_skills) {
+      // Aggregate all skill adjustments from all voice analysis segments
+      const allAdjustments: Record<string, { total: number; reasons: string[] }> = {};
+
+      for (const va of voiceAnalysis) {
+        for (const adj of (va.skill_adjustments || [])) {
+          if (adj.skill_name === '_all') {
+            // Apply to all skills
+            for (const skill of (profile.vacancy_aligned_skills || [])) {
+              const key = skill.skill_name;
+              if (!allAdjustments[key]) allAdjustments[key] = { total: 0, reasons: [] };
+              allAdjustments[key].total += adj.adjustment;
+              allAdjustments[key].reasons.push(adj.reason);
+            }
+          } else {
+            if (!allAdjustments[adj.skill_name]) allAdjustments[adj.skill_name] = { total: 0, reasons: [] };
+            allAdjustments[adj.skill_name].total += adj.adjustment;
+            allAdjustments[adj.skill_name].reasons.push(adj.reason);
+          }
+        }
+      }
+
+      // Apply adjustments to profile skills (cap at ±0.20)
+      for (const skills of [profile.vacancy_aligned_skills, profile.additional_skills_evidenced]) {
+        if (!skills) continue;
+        for (const skill of skills) {
+          const adj = allAdjustments[skill.skill_name];
+          if (adj) {
+            const cappedAdj = Math.max(-0.20, Math.min(0.20, adj.total));
+            const originalConf = skill.adjusted_confidence || skill.confidence || 0.5;
+            skill.adjusted_confidence = Math.max(0.1, Math.min(1.0, originalConf + cappedAdj));
+            skill.voice_analysis = {
+              adjustment: cappedAdj,
+              reasons: adj.reasons,
+              original_confidence: originalConf,
+            };
+          }
+        }
+      }
+
+      // Aggregate gaming signals
+      const voiceGamingFlags = voiceAnalysis.flatMap((va: any) =>
+        (va.gaming_signals || []).filter((g: any) => g.type !== 'authentic')
+      );
+      if (voiceGamingFlags.length > 0) {
+        profile.voice_gaming_flags = voiceGamingFlags;
+      }
+
+      profile.voice_enhanced = true;
+      profile.voice_segments_analyzed = voiceAnalysis.length;
+    }
+
     timing.total_ms = Object.values(timing).reduce((a, b) => a + b, 0);
 
     return {

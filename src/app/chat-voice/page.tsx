@@ -203,10 +203,30 @@ export default function VoiceChatPage() {
           setTranscript('Transcribing...');
 
           try {
+            // Parallel: Whisper STT + Hume voice analysis
             const form = new FormData();
             form.append('audio', audioBlob, 'recording.webm');
+
+            // V2.8: Send audio to Hume in parallel (non-blocking)
+            const messageIdx = messages.filter(m => m.role === 'user').length;
+            const humeForm = new FormData();
+            humeForm.append('audio', audioBlob, 'recording.webm');
+            if (sessionId) humeForm.append('session_id', sessionId);
+            humeForm.append('message_index', String(messageIdx));
+            // Fire and forget — don't block the conversation
+            fetch('/api/voice-analysis', { method: 'POST', body: humeForm })
+              .then(r => r.json())
+              .then(data => {
+                if (data.profile) {
+                  console.log('[Hume] Voice analysis:', data.summary);
+                  trackCost('stt', 5); // Track Hume cost (~$0.064/min, ~5s per message)
+                }
+              })
+              .catch(() => {}); // Non-fatal
+
             const res = await fetch('/api/stt', { method: 'POST', body: form });
             const data = await res.json();
+            trackCost('stt', 5); // Track Whisper cost
             if (data.text?.trim()) {
               setTranscript(data.text);
               sendMessage(data.text);
