@@ -475,7 +475,7 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
                       className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
                       style={{ background: '#48BB78' }}
                     >
-                      {gate < 3 ? `Approve — Pass to Gate ${gate + 1}` : 'Select for Hiring → Onboarding'}
+                      {gate === 2 ? 'Approve — Send to Simulation (Gate 3)' : gate < 3 ? `Approve — Pass to Gate ${gate + 1}` : 'Select for Hiring → Onboarding'}
                     </button>
                     <button
                       onClick={() => handleDecision('held')}

@@ -89,6 +89,28 @@ export async function POST(req: NextRequest) {
         return result;
       });
 
+      // Enrich with simulation data from gate3_results (if any)
+      for (const ext of enriched) {
+        try {
+          // Find the application linked to this session's user
+          const { data: session } = await db().from('leee_sessions').select('user_id').eq('id', ext.session_id).single();
+          if (session?.user_id) {
+            // Find applications for this user
+            const { data: apps } = await db().from('applications')
+              .select('id').eq('user_id', session.user_id).limit(1);
+            if (apps?.length) {
+              const { data: g3 } = await db().from('gate3_results')
+                .select('simulation_results, readiness_index')
+                .eq('application_id', apps[0].id).limit(1).single();
+              if (g3?.simulation_results) {
+                ext.simulation_results = g3.simulation_results;
+                ext.readiness_index = g3.readiness_index;
+              }
+            }
+          }
+        } catch { /* skip — simulation data is optional */ }
+      }
+
       return NextResponse.json({ extractions: enriched });
     }
 
