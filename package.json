@@ -10,6 +10,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@supabase/supabase-js": "^2.99.2",
+    "inkjs": "^2.4.0",
     "jszip": "^3.10.1",
     "next": "^14.2.0",
     "pdf-parse": "^2.4.5",
