@@ -38,14 +38,29 @@ export async function POST(req: NextRequest) {
 // ============================================================
 
 async function handleStart(body: any) {
-  const { application_id, scenario_id, layer2_seeds } = body;
+  const { application_id, scenario_id, layer2_seeds, employer_id } = body;
 
-  // Select scenario — either specified or auto-selected from seeds
+  // Select scenario — priority: specified > employer-generated > static
   let scenario;
   if (scenario_id && SCENARIOS[scenario_id]) {
     scenario = SCENARIOS[scenario_id];
   } else {
-    const selected = selectScenarios(layer2_seeds || [], 1);
+    // Check for employer-generated scenarios
+    let employerScenarios: any[] = [];
+    const eid = employer_id || body.employer_id;
+    if (eid) {
+      try {
+        const { data } = await db().from('employer_intelligence')
+          .select('generated_scenarios')
+          .eq('employer_id', eid)
+          .single();
+        if (data?.generated_scenarios?.length) {
+          employerScenarios = data.generated_scenarios;
+        }
+      } catch { /* no employer scenarios — use static */ }
+    }
+
+    const selected = selectScenarios(layer2_seeds || [], 1, employerScenarios.length > 0 ? employerScenarios : undefined);
     scenario = selected[0];
   }
 
