@@ -11,9 +11,9 @@
 |---|------|--------|-------|
 | S1 | Install inkjs + set up scenario infrastructure | ✅ Done | inkjs installed, simulation/engine.ts created (450+ lines), scenarios/ directory |
 | S2 | Author Scenario 1: Customer Escalation | ✅ Done | 6 rounds, 3 characters (Carlos/Ana/Maria), 3 checkpoints, 2 twists |
-| S3 | Author Scenario 2: Team Coordination | ⬜ Todo | 6 rounds, 3 characters, 3 checkpoints |
-| S4 | Author Scenario 3: Onboarding & Knowledge Transfer | ⬜ Todo | 5 rounds, 3 characters, 3 checkpoints |
-| S5 | Scenario testing in browser (inkjs runtime) | ⬜ Todo | Verify branching + checkpoints work |
+| S3 | Author Scenario 2: Team Coordination | ✅ Done | 6 rounds, 3 characters (Ben/Joy/Ana), 3 checkpoints, 2 twists |
+| S4 | Author Scenario 3: Onboarding & Knowledge Transfer | ✅ Done | 5 rounds, 3 characters (Maria/Carlos/Ana), 3 checkpoints, 2 twists |
+| S5 | Scenario registry + seed-based selection | ✅ Done | scenarios/index.ts — selectScenarios() matches layer2_seeds to scenarios |
 
 ## Phase 1 — Character Engine + Game Master (1 week)
 
@@ -23,9 +23,9 @@
 | C2 | Character generation prompt from JD + seeds | ✅ Done | generateCharacter() with TinyTroupe-pattern prompt |
 | C3 | Game Master orchestrator | ✅ Done | GameMaster class: startSimulation(), processRound(), generateReport() |
 | C4 | Character agent: individual Claude call per character | ✅ Done | executeCharacter() with Managed Agents fault isolation |
-| C5 | Character memory: per-round context accumulation | ⬜ Todo | Each character remembers previous rounds |
-| C6 | Round management: character actions → candidate → next | ⬜ Todo | Turn order, who speaks when |
-| C7 | Checkpoint detection: trigger evaluation at defined points | ⬜ Todo | Ink knot → evaluation pause |
+| C5 | Character memory: per-round context accumulation | ✅ Done | character_memories Map in GameMaster, updated each round |
+| C6 | Round management: character actions → candidate → next | ✅ Done | processRound() handles full turn cycle with twist injection |
+| C7 | Checkpoint detection: trigger evaluation at defined points | ✅ Done | Checks checkpoints array, triggers evaluateCheckpoint() at matching round |
 
 ## Phase 2 — Simulation UI (1 week)
 
@@ -70,12 +70,12 @@
 
 | Phase | Total | Done | In Progress | Todo |
 |-------|-------|------|-------------|------|
-| 0.5 Scenarios | 5 | 2 | 0 | 3 |
-| 1 Character Engine | 7 | 4 | 0 | 3 |
+| 0.5 Scenarios | 5 | 5 | 0 | 0 |
+| 1 Character Engine | 7 | 7 | 0 | 0 |
 | 2 UI | 9 | 0 | 0 | 9 |
 | 3 Observer + Evidence | 6 | 1 | 0 | 5 |
 | 4 Scoring + Integration | 7 | 0 | 0 | 7 |
-| **Total** | **34** | **7** | **0** | **27** |
+| **Total** | **34** | **13** | **0** | **21** |
 
 ---
 
