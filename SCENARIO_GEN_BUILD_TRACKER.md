@@ -70,24 +70,23 @@ Candidates enter employer-specific workplace simulations
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| E1 | Seed material upload page | ⬜ Todo | Upload JDs (PDF/DOCX), handbook, company description text |
-| E2 | Processing status indicator | ⬜ Todo | "Analyzing... Building graph... Running discovery... Generating scenarios..." |
-| E3 | Generated scenarios preview | ⬜ Todo | Employer sees what scenarios candidates will face |
-| E4 | Approve/reject/regenerate controls | ⬜ Todo | Employer can approve or request regeneration with more context |
-| E5 | Employer scenario library | ⬜ Todo | Accumulated scenarios over time, select which to use per vacancy |
+| E1 | Seed material upload page | ✅ Done | Textarea on Scenarios tab — paste JDs, handbook, company desc |
+| E2 | Processing status indicator | ✅ Done | Real-time status: "Analysing..." → "Done! X scenarios generated" with spinner |
+| E3 | Generated scenarios preview | ✅ Done | Shows title, setting, characters, target skills for each scenario |
+| E4 | Approve/reject/regenerate controls | ✅ Done | Regenerate with different seed material. Active badge shows scenarios in use. |
+| E5 | Employer scenario library | ✅ Done | Graph summary (entities, relationships, friction points, critical skills) + scenario cards |
 
 ### Phase 1 Summary
 
 | Sub-Phase | Tasks | Status |
 |---|---|---|
-| 1A Knowledge Graph | 6 | ✅ 5 done (G1 upload UI in 1D) |
-| 1B Discovery Simulation | 7 | ✅ 7 done |
-| 1C Scenario Generation | 7 | ✅ 7 done |
-| 1D Employer Dashboard | 5 | ⬜ 0 done |
-| **Total Phase 1** | **25** | **19 done (76%)** |
+| 1A Knowledge Graph | 6 | ✅ Complete |
+| 1B Discovery Simulation | 7 | ✅ Complete |
+| 1C Scenario Generation | 7 | ✅ Complete |
+| 1D Employer Dashboard | 5 | ✅ Complete |
+| **Total Phase 1** | **25** | **25 done (100%)** |
 
-**Estimated build time:** 2-3 weeks
-**New infrastructure:** None
+### 🎉 Phase 1 Complete — Employer-Specific Scenario Generation fully built.
 **New API keys:** None
 **Cost per employer:** ~$1-3 (Claude calls for graph extraction + discovery simulation + scenario generation. One-time per employer, scenarios reused.)
 

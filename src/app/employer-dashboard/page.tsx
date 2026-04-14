@@ -14,9 +14,14 @@ export default function EmployerDashboardPage() {
   const [vacancies, setVacancies] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'vacancies' | 'talent' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'vacancies' | 'talent' | 'scenarios' | 'settings'>('overview');
   const [talentMatches, setTalentMatches] = useState<any[]>([]);
   const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
+  const [seedText, setSeedText] = useState('');
+  const [scenarioLoading, setScenarioLoading] = useState(false);
+  const [scenarioStatus, setScenarioStatus] = useState('');
+  const [generatedScenarios, setGeneratedScenarios] = useState<any[]>([]);
+  const [graphSummary, setGraphSummary] = useState<any>(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -92,6 +97,7 @@ export default function EmployerDashboardPage() {
             { id: 'overview' as const, label: 'Overview' },
             { id: 'vacancies' as const, label: `Vacancies (${vacancies.length})` },
             { id: 'talent' as const, label: `Talent (${talentMatches.length})` },
+            { id: 'scenarios' as const, label: 'Scenarios' },
             { id: 'settings' as const, label: 'Settings' },
           ]).map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} className="px-4 py-2.5 text-sm font-medium transition-colors"
@@ -323,6 +329,176 @@ export default function EmployerDashboardPage() {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>)}
+
+        {/* SCENARIOS — Employer-Specific Assessment Generation */}
+        {activeTab === 'scenarios' && (<div className="space-y-6">
+          {/* Intro */}
+          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#F4ECF7' }}>
+                <span className="text-xl">🎭</span>
+              </div>
+              <div>
+                <h2 className="text-base font-semibold" style={{ color: '#102A43' }}>Custom Assessment Scenarios</h2>
+                <p className="text-sm mt-1" style={{ color: '#627D98' }}>
+                  Generate workplace simulation scenarios tailored to your company. Upload your job descriptions, handbook excerpts, or company information — Kaya will analyse your workplace dynamics and create assessment scenarios that test the skills that actually matter for your roles.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Seed Material Upload */}
+          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Upload Workplace Context</h3>
+            <p className="text-xs mb-4" style={{ color: '#829AB1' }}>
+              Paste your job descriptions, company handbook excerpts, team structure descriptions, or any information about how your workplace operates. The more context you provide, the more relevant the scenarios will be.
+            </p>
+            <textarea
+              value={seedText}
+              onChange={e => setSeedText(e.target.value)}
+              placeholder={"Paste your workplace context here. Examples:\n\n• Job descriptions for the roles you're hiring for\n• Company handbook excerpts about team structure\n• Description of common workplace challenges\n• Customer interaction guidelines\n• Information about your industry and customers\n\nMinimum: a few paragraphs. More detail = better scenarios."}
+              rows={10}
+              className="w-full px-4 py-3 border rounded-xl text-sm resize-none outline-none focus:ring-2 focus:ring-purple-200"
+              style={{ borderColor: '#D9E2EC', color: '#334E68' }}
+            />
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-xs" style={{ color: '#829AB1' }}>
+                {seedText.length > 0 ? `${seedText.length} characters` : 'Paste or type your company context'}
+                {seedText.length > 0 && seedText.length < 200 && ' — add more detail for better results'}
+              </span>
+              <button
+                onClick={async () => {
+                  if (!employer?.id || seedText.length < 100) return;
+                  setScenarioLoading(true);
+                  setScenarioStatus('Analysing your workplace...');
+                  try {
+                    const res = await fetch('/api/employer-graph', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        action: 'full_pipeline',
+                        employer_id: employer.id,
+                        seed_material: seedText,
+                      }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      setGraphSummary(data.graph_summary);
+                      setGeneratedScenarios(data.scenarios || []);
+                      setScenarioStatus(`Done! ${data.scenarios?.length || 0} scenarios generated.`);
+                    } else {
+                      setScenarioStatus('Generation failed: ' + (data.error || 'Unknown error'));
+                    }
+                  } catch (e: any) {
+                    setScenarioStatus('Error: ' + e.message);
+                  } finally {
+                    setScenarioLoading(false);
+                  }
+                }}
+                disabled={scenarioLoading || seedText.length < 100 || !employer?.id}
+                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+                style={{
+                  background: scenarioLoading ? '#829AB1' : seedText.length >= 100 ? '#8E44AD' : '#D5D8DC',
+                  cursor: scenarioLoading || seedText.length < 100 ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {scenarioLoading ? 'Generating...' : 'Generate Scenarios'}
+              </button>
+            </div>
+
+            {/* Processing Status */}
+            {scenarioStatus && (
+              <div className="mt-3 px-4 py-2.5 rounded-lg text-sm" style={{
+                background: scenarioStatus.includes('Done') ? '#E8F8F5' : scenarioStatus.includes('Error') || scenarioStatus.includes('failed') ? '#FDEDEC' : '#EBF5FB',
+                color: scenarioStatus.includes('Done') ? '#1E8449' : scenarioStatus.includes('Error') || scenarioStatus.includes('failed') ? '#C0392B' : '#1A5276',
+              }}>
+                {scenarioLoading && <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-2" style={{ animation: 'spin 1s linear infinite' }} />}
+                {scenarioStatus}
+              </div>
+            )}
+          </div>
+
+          {/* Graph Summary */}
+          {graphSummary && (
+            <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Workplace Analysis</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                {[
+                  { label: 'Entities Found', value: graphSummary.nodes, color: '#2E86C1' },
+                  { label: 'Relationships', value: graphSummary.edges, color: '#27AE60' },
+                  { label: 'Friction Points', value: graphSummary.friction_points, color: '#E67E22' },
+                  { label: 'Industry', value: graphSummary.industry || 'General', color: '#8E44AD' },
+                ].map((s, i) => (
+                  <div key={i} className="p-3 rounded-lg text-center" style={{ background: `${s.color}10` }}>
+                    <div className="text-lg font-bold" style={{ color: s.color }}>{s.value}</div>
+                    <div className="text-[10px] font-medium" style={{ color: '#627D98' }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {graphSummary.critical_skills?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#486581' }}>Critical Skills Identified</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {graphSummary.critical_skills.map((s: string, i: number) => (
+                      <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#F4ECF7', color: '#8E44AD' }}>{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Generated Scenarios */}
+          {generatedScenarios.length > 0 && (
+            <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold" style={{ color: '#102A43' }}>Generated Scenarios ({generatedScenarios.length})</h3>
+                <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: '#E8F8F5', color: '#1E8449' }}>Active — candidates will see these</span>
+              </div>
+              <div className="space-y-3">
+                {generatedScenarios.map((s: any, i: number) => (
+                  <div key={i} className="p-4 rounded-xl" style={{ background: '#FAFAF9', border: '1px solid #E2E8F0' }}>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold" style={{ color: '#102A43' }}>{s.title}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#F4ECF7', color: '#8E44AD' }}>
+                            {s.characters?.length || '?'} characters · {s.target_skills?.length || '?'} skills
+                          </span>
+                        </div>
+                        <p className="text-xs" style={{ color: '#627D98' }}>{s.setting}</p>
+                        {s.target_skills && (
+                          <div className="flex gap-1 mt-2">
+                            {s.target_skills.map((sk: string, j: number) => (
+                              <span key={j} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#EBF5FB', color: '#2E86C1' }}>{sk}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {s.characters && (
+                      <div className="flex gap-2 mt-3 pt-2" style={{ borderTop: '1px solid #E2E8F0' }}>
+                        {s.characters.map((c: any, j: number) => (
+                          <span key={j} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#F0F4F8', color: '#486581' }}>
+                            {c.name} ({c.role})
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* No scenarios yet */}
+          {generatedScenarios.length === 0 && !scenarioLoading && !graphSummary && (
+            <div className="text-center py-8">
+              <p className="text-sm" style={{ color: '#829AB1' }}>No custom scenarios yet. Upload your workplace context above to generate them.</p>
+              <p className="text-xs mt-2" style={{ color: '#BCCCDC' }}>Until then, candidates will use Kaya's default assessment scenarios.</p>
             </div>
           )}
         </div>)}
