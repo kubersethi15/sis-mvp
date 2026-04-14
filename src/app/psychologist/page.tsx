@@ -40,6 +40,9 @@ const METHODOLOGY_REFS = [
   { id: 'MOTH', title: 'The Moth Storytelling Methodology', source: 'The Moth (25+ years)', relevance: 'Proven framework for surfacing meaningful personal narratives' },
   { id: 'STAR', title: 'STAR+E+R Behavioral Evidence Framework', source: 'Behavioral interview research', relevance: 'Extended STAR model with Emotion and Reflection components' },
   { id: 'CBA', title: 'Competency-Based Assessment', source: 'Psychometric literature', relevance: 'Evidence-based skills assessment through behavioral indicators' },
+  { id: 'SOTOPIA', title: 'Sotopia-Eval: 7-Dimension Social Evaluation', source: 'CMU — ICLR 2024 Spotlight', relevance: 'Peer-reviewed framework for evaluating social interaction across 7 dimensions. Maps to PSF skills for Layer 2 simulation scoring.' },
+  { id: 'CONCORDIA', title: 'Concordia: Game Master Architecture', source: 'Google DeepMind — NeurIPS 2024', relevance: 'Tabletop RPG-inspired orchestration for multi-agent workplace simulations. Controls character behavior, round flow, and twist injection.' },
+  { id: 'TINYTROUPE', title: 'TinyTroupe: Cognitive Persona Specification', source: 'Microsoft Research (MIT license)', relevance: 'Rich persona model (MBTI, agenda, triggers, constraints) for generating realistic workplace characters.' },
 ];
 
 const PROFICIENCY_COLORS: Record<string, string> = {
@@ -54,7 +57,7 @@ export default function PsychologistPage() {
   const [licenseNumber, setLicenseNumber] = useState('');
   const [validationStatus, setValidationStatus] = useState<'pending' | 'validated' | 'rejected' | 'revision_needed'>('pending');
   const [signed, setSigned] = useState(false);
-  const [activeTab, setActiveTab] = useState<'audit' | 'methodology' | 'validate'>('audit');
+  const [activeTab, setActiveTab] = useState<'audit' | 'simulation' | 'methodology' | 'validate'>('audit');
 
   useEffect(() => {
     fetchExtractions();
@@ -240,7 +243,8 @@ export default function PsychologistPage() {
             {/* TABS */}
             <div className="flex gap-1 border-b border-gray-200 mb-6">
               {[
-                { id: 'audit' as const, label: 'Audit Trail' },
+                { id: 'audit' as const, label: 'Layer 1: Audit Trail' },
+                { id: 'simulation' as const, label: 'Layer 2: Simulation' },
                 { id: 'methodology' as const, label: 'Methodology' },
                 { id: 'validate' as const, label: 'Validate & Sign' },
               ].map(tab => (
@@ -420,6 +424,171 @@ export default function PsychologistPage() {
                     })()}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* SIMULATION TAB (Layer 2 Audit Trail) */}
+            {activeTab === 'simulation' && (
+              <div className="space-y-6">
+                {/* Overview */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Layer 2: Workplace Simulation Evidence</h2>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Multi-agent behavioral simulation where the candidate interacted with AI characters in a realistic workplace scenario.
+                    Evidence from this simulation is compared against Layer 1 (conversation) data to establish convergence.
+                  </p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-3 rounded-lg" style={{ background: '#EBF5FB' }}>
+                      <p className="text-xs font-semibold" style={{ color: '#1A5276' }}>Framework</p>
+                      <p className="text-xs" style={{ color: '#486581' }}>Concordia Game Master + TinyTroupe Personas + Sotopia-Eval (7 dimensions)</p>
+                    </div>
+                    <div className="p-3 rounded-lg" style={{ background: '#E8F8F5' }}>
+                      <p className="text-xs font-semibold" style={{ color: '#1E8449' }}>Evaluation Method</p>
+                      <p className="text-xs" style={{ color: '#486581' }}>Sotopia-Eval dimensions mapped to PSF skills. Per-checkpoint behavioral assessment.</p>
+                    </div>
+                    <div className="p-3 rounded-lg" style={{ background: '#F4ECF7' }}>
+                      <p className="text-xs font-semibold" style={{ color: '#6C3483' }}>Anti-Gaming</p>
+                      <p className="text-xs" style={{ color: '#486581' }}>Rehearsed response detection, L1/L2 inconsistency checks, pattern analysis, believability scoring.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Simulation Results — pulled from extraction or gate3 */}
+                {(() => {
+                  // Try to find simulation data in various places
+                  const simData = (selected as any)?.simulation_results || (selected as any)?.gate3?.simulation_results;
+
+                  if (!simData) {
+                    return (
+                      <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
+                        <p className="text-2xl mb-2">🎭</p>
+                        <p className="text-sm" style={{ color: '#627D98' }}>No simulation data available for this candidate yet.</p>
+                        <p className="text-xs mt-1" style={{ color: '#829AB1' }}>The simulation is run during Gate 3. Once complete, evidence will appear here.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <>
+                      {/* Scenario Info */}
+                      <div className="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-3">Scenario: {simData.scenario_title || 'Workplace Simulation'}</h3>
+                        <p className="text-xs text-gray-500 mb-3">{simData.rounds_completed || '?'} rounds completed</p>
+
+                        {/* Skills Assessed */}
+                        {simData.skill_scores?.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#486581' }}>Skills Observed</p>
+                            <div className="space-y-2">
+                              {simData.skill_scores.map((s: any, i: number) => (
+                                <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ background: '#F8F9FA' }}>
+                                  <div>
+                                    <span className="text-sm font-medium" style={{ color: '#334E68' }}>{s.skill_name}</span>
+                                    {s.behavioral_evidence && (
+                                      <p className="text-[10px] mt-0.5" style={{ color: '#829AB1' }}>{s.behavioral_evidence.substring(0, 120)}...</p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{
+                                      background: s.proficiency === 'Advanced' ? '#D4EFDF' : s.proficiency === 'Intermediate' ? '#D4E6F1' : '#FADBD8',
+                                      color: s.proficiency === 'Advanced' ? '#1E8449' : s.proficiency === 'Intermediate' ? '#2471A3' : '#C0392B',
+                                    }}>{s.proficiency}</span>
+                                    <span className="text-[10px]" style={{ color: '#829AB1' }}>{Math.round((s.confidence || 0.5) * 100)}%</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Sotopia-Eval Dimension Scores */}
+                        {simData.sotopia_scores?.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#486581' }}>Sotopia-Eval Dimension Scores</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {simData.sotopia_scores.map((s: any, i: number) => (
+                                <div key={i} className="flex items-center justify-between p-2 rounded" style={{ background: '#F8F9FA' }}>
+                                  <span className="text-xs" style={{ color: '#334E68' }}>{s.dimension?.replace(/_/g, ' ')}</span>
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-16 h-1.5 rounded-full" style={{ background: '#E2E8F0' }}>
+                                      <div className="h-full rounded-full" style={{
+                                        width: `${((s.score || 5) / 10) * 100}%`,
+                                        background: s.score >= 7 ? '#27AE60' : s.score >= 4 ? '#F39C12' : '#E74C3C',
+                                      }} />
+                                    </div>
+                                    <span className="text-[10px] font-mono" style={{ color: '#627D98' }}>{s.score}/10</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Convergence Analysis */}
+                      {simData.convergence?.length > 0 && (
+                        <div className="bg-white rounded-lg border border-gray-200 p-6">
+                          <h3 className="text-sm font-semibold text-gray-900 mb-3">Convergence: Layer 1 vs Layer 2</h3>
+                          <p className="text-xs text-gray-500 mb-3">Comparing self-reported (conversation) vs observed (simulation) skill levels. Convergence increases confidence; divergence flags for review.</p>
+                          <div className="space-y-2">
+                            {simData.convergence.map((c: any, i: number) => (
+                              <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{
+                                background: c.convergent ? '#F0FFF4' : '#FFF7ED',
+                                border: `1px solid ${c.convergent ? '#C6F6D5' : '#FEEBC8'}`,
+                              }}>
+                                <span className="text-sm font-medium" style={{ color: '#334E68' }}>{c.skill_name}</span>
+                                <div className="flex items-center gap-3 text-xs">
+                                  <span style={{ color: '#627D98' }}>L1: {c.layer1_score}</span>
+                                  <span className="text-base">{c.convergent ? '✅' : '⚠️'}</span>
+                                  <span style={{ color: '#627D98' }}>L2: {c.layer2_score}</span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded" style={{
+                                    background: c.confidence_adjustment > 0 ? '#D4EFDF' : c.confidence_adjustment < 0 ? '#FADBD8' : '#F0F4F8',
+                                    color: c.confidence_adjustment > 0 ? '#1E8449' : c.confidence_adjustment < 0 ? '#C0392B' : '#627D98',
+                                  }}>{c.confidence_adjustment > 0 ? '+' : ''}{c.confidence_adjustment}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Gaming Flags */}
+                      {simData.gaming_flags?.length > 0 && (
+                        <div className="bg-white rounded-lg border border-red-200 p-6">
+                          <h3 className="text-sm font-semibold text-red-700 mb-3">⚠ Gaming Detection Flags</h3>
+                          <p className="text-xs text-gray-500 mb-3">These flags indicate potential gaming behavior. Review the transcript to determine if concerns are valid.</p>
+                          <div className="space-y-2">
+                            {simData.gaming_flags.map((f: string, i: number) => (
+                              <div key={i} className="p-2 rounded text-xs" style={{ background: '#FEF2F2', color: '#922B21' }}>
+                                {f}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Observer Summary */}
+                      {simData.observer_summary && (
+                        <div className="bg-white rounded-lg border border-gray-200 p-6">
+                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Observer Summary</h3>
+                          <p className="text-sm text-gray-700">{simData.observer_summary}</p>
+                        </div>
+                      )}
+
+                      {/* Full Transcript */}
+                      {simData.transcript && (
+                        <details className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                          <summary className="px-6 py-3 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            View Full Simulation Transcript
+                          </summary>
+                          <pre className="px-6 py-4 text-xs whitespace-pre-wrap max-h-96 overflow-y-auto" style={{ background: '#F8F9FA', color: '#486581' }}>
+                            {simData.transcript}
+                          </pre>
+                        </details>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             )}
 

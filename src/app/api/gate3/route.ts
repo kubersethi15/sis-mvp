@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     switch (action) {
       case 'generate_simulation': return generateSimulation(body);
+      case 'start_l2_simulation': return startL2Simulation(body);
       case 'submit_simulation': return submitSimulation(body);
       case 'generate_interview': return generateInterview(body);
       case 'submit_interview': return submitInterview(body);
@@ -70,6 +71,48 @@ async function generateSimulation(body: any) {
   if (!res) return NextResponse.json({ error: 'Simulation generation failed' }, { status: 500 });
 
   return NextResponse.json({ simulation: res, application_id });
+}
+
+// ============================================================
+// LAYER 2 MULTI-AGENT SIMULATION (NEW)
+// Bridges the Gate 3 flow to the new multi-agent simulation engine
+// ============================================================
+
+async function startL2Simulation(body: any) {
+  const { application_id } = body;
+
+  // Fetch Gate 2 data for Layer 2 seeds
+  const { data: app } = await db().from('applications').select('*').eq('id', application_id).single();
+  if (!app) return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+
+  const { data: g2 } = await db().from('gate2_results').select('*').eq('application_id', application_id).limit(1).single();
+
+  let layer2Seeds: any[] = [];
+  let layer1Skills: any[] = [];
+  if (g2?.leee_session_id) {
+    const { data: extraction } = await db().from('leee_extractions')
+      .select('layer2_seeds, skills_profile')
+      .eq('session_id', g2.leee_session_id)
+      .limit(1).single();
+    if (extraction) {
+      layer2Seeds = extraction.layer2_seeds || [];
+      layer1Skills = extraction.skills_profile || [];
+    }
+  }
+
+  // Update application status
+  await db().from('applications').update({
+    status: 'gate3_simulation',
+    current_gate: 3,
+  }).eq('id', application_id);
+
+  return NextResponse.json({
+    status: 'ready',
+    simulation_url: `/simulation?app=${application_id}`,
+    layer2_seeds: layer2Seeds,
+    layer1_skills: layer1Skills,
+    application_id,
+  });
 }
 
 async function submitSimulation(body: any) {

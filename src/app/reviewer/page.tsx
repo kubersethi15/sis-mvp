@@ -12,7 +12,7 @@ interface AppData {
   jobseeker: { full_name: string } | null;
   gate1: { alignment_score: number; strengths: any[]; gaps: any[]; ai_recommendation: string; reviewer_decision: string } | null;
   gate2: { evidence_rating: string; leee_skills_profile: any; ai_recommendation: string; reviewer_decision: string } | null;
-  gate3: { readiness_index: number; success_conditions: any[]; support_needs: any[]; ai_recommendation: string; reviewer_decision: string } | null;
+  gate3: { readiness_index: number; success_conditions: any[]; support_needs: any[]; ai_recommendation: string; reviewer_decision: string; simulation_results?: any } | null;
 }
 
 export default function ReviewerDashboard() {
@@ -347,6 +347,91 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
                     <div className="flex items-center gap-4 text-sm">
                       <span style={{ color: '#486581' }}>Readiness Index: <strong style={{ color: '#102A43' }}>{app.gate3.readiness_index}/100</strong></span>
                     </div>
+
+                    {/* Simulation Results (Layer 2) */}
+                    {app.gate3.simulation_results && (
+                      <>
+                        <div className="p-3 rounded-lg" style={{ background: '#EBF5FB' }}>
+                          <p className="text-xs font-semibold mb-2" style={{ color: '#1A5276' }}>Layer 2: Simulation Results</p>
+                          <p className="text-xs mb-2" style={{ color: '#2C3E50' }}>
+                            Scenario: <strong>{(app.gate3 as any).simulation_results?.scenario_title || 'Workplace Simulation'}</strong>
+                            {' · '}{(app.gate3 as any).simulation_results?.rounds_completed || '?'} rounds completed
+                          </p>
+
+                          {/* Skill Scores */}
+                          {(app.gate3 as any).simulation_results?.skill_scores?.length > 0 && (
+                            <div className="space-y-1.5 mb-3">
+                              <p className="text-[10px] font-semibold uppercase" style={{ color: '#5DADE2' }}>Skills Observed in Simulation</p>
+                              {(app.gate3 as any).simulation_results.skill_scores.map((s: any, j: number) => (
+                                <div key={j} className="flex items-center justify-between text-xs">
+                                  <span style={{ color: '#334E68' }}>{s.skill_name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{
+                                      background: s.proficiency === 'Advanced' ? '#D4EFDF' : s.proficiency === 'Intermediate' ? '#D4E6F1' : '#FADBD8',
+                                      color: s.proficiency === 'Advanced' ? '#1E8449' : s.proficiency === 'Intermediate' ? '#2471A3' : '#C0392B',
+                                    }}>{s.proficiency}</span>
+                                    <div className="w-12 h-1.5 rounded-full" style={{ background: '#EBF5FB' }}>
+                                      <div className="h-full rounded-full" style={{
+                                        width: `${Math.round((s.confidence || 0.5) * 100)}%`,
+                                        background: s.proficiency === 'Advanced' ? '#27AE60' : s.proficiency === 'Intermediate' ? '#2E86C1' : '#E74C3C',
+                                      }} />
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Convergence */}
+                          {(app.gate3 as any).simulation_results?.convergence?.length > 0 && (
+                            <div className="space-y-1.5 mb-3">
+                              <p className="text-[10px] font-semibold uppercase" style={{ color: '#5DADE2' }}>Layer 1 ↔ Layer 2 Convergence</p>
+                              {(app.gate3 as any).simulation_results.convergence.map((c: any, j: number) => (
+                                <div key={j} className="flex items-center justify-between text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,255,255,0.5)' }}>
+                                  <span style={{ color: '#334E68' }}>{c.skill_name}</span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px]" style={{ color: '#627D98' }}>Conversation: {c.layer1_score}</span>
+                                    <span style={{ color: c.convergent ? '#27AE60' : '#E67E22', fontSize: '11px' }}>{c.convergent ? '✓' : '⚠'}</span>
+                                    <span className="text-[10px]" style={{ color: '#627D98' }}>Simulation: {c.layer2_score}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Observer Summary */}
+                          {(app.gate3 as any).simulation_results?.observer_summary && (
+                            <div className="p-2 rounded" style={{ background: 'rgba(255,255,255,0.5)' }}>
+                              <p className="text-[10px] font-semibold mb-1" style={{ color: '#5DADE2' }}>Observer Summary</p>
+                              <p className="text-xs" style={{ color: '#486581' }}>{(app.gate3 as any).simulation_results.observer_summary}</p>
+                            </div>
+                          )}
+
+                          {/* Gaming Flags */}
+                          {(app.gate3 as any).simulation_results?.gaming_flags?.length > 0 && (
+                            <div className="p-2 rounded mt-2" style={{ background: '#FDEDEC' }}>
+                              <p className="text-[10px] font-semibold mb-1" style={{ color: '#C0392B' }}>⚠ Gaming Flags</p>
+                              {(app.gate3 as any).simulation_results.gaming_flags.map((f: string, j: number) => (
+                                <p key={j} className="text-[10px]" style={{ color: '#922B21' }}>{f}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Simulation Transcript (collapsible) */}
+                        {(app.gate3 as any).simulation_results?.transcript && (
+                          <details className="rounded-lg overflow-hidden" style={{ border: '1px solid #D4E6F1' }}>
+                            <summary className="px-3 py-2 cursor-pointer text-xs font-medium" style={{ background: '#EBF5FB', color: '#1A5276' }}>
+                              View Full Simulation Transcript
+                            </summary>
+                            <pre className="p-3 text-[10px] whitespace-pre-wrap max-h-64 overflow-y-auto" style={{ background: '#FAFAF9', color: '#486581' }}>
+                              {(app.gate3 as any).simulation_results.transcript}
+                            </pre>
+                          </details>
+                        )}
+                      </>
+                    )}
+
                     {/* Success conditions */}
                     {app.gate3.success_conditions?.length > 0 && (
                       <div className="p-3 rounded-lg" style={{ background: '#F0FFF4' }}>

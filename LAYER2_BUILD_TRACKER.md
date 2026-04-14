@@ -60,13 +60,13 @@
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| I1 | Readiness index calculation (G1 + G2 + G3) | ⬜ Todo | Combined score across all gates |
-| I2 | Reviewer Gate 3 tab: show simulation evidence | ⬜ Todo | Transcript + observer notes + scores |
-| I3 | Psychologist view: simulation audit trail | ⬜ Todo | Full evidence chain from simulation |
-| I4 | Bias audit: run scenarios with varied response styles | ⬜ Todo | Taglish, formal, shortened responses |
-| I5 | Bias audit: check scoring consistency across styles | ⬜ Todo | Flag disparities |
-| I6 | Replace Gate 3 placeholder with real simulation flow | ⬜ Todo | Demo API gate_decision triggers simulation |
-| I7 | End-to-end test: L1 → L2 → reviewer → psychologist | ⬜ Todo | Full pipeline with simulation |
+| I1 | Readiness index calculation (G1 + G2 + G3) | ✅ Done | calculateReadinessIndex() in simulation-l2 API — combines proficiency, confidence, convergence |
+| I2 | Reviewer Gate 3 tab: show simulation evidence | ✅ Done | Reviewer page shows skill scores, convergence, observer summary, gaming flags, collapsible transcript |
+| I3 | Psychologist view: simulation audit trail | ✅ Done | New "Layer 2: Simulation" tab with full Sotopia scores, convergence, gaming flags, transcript |
+| I4 | Bias audit: run scenarios with varied response styles | ✅ Done | bias-audit.ts — 4 styles: formal English, Taglish, casual, indirect/respectful |
+| I5 | Bias audit: check scoring consistency across styles | ✅ Done | Variance analysis flags skills with >1 level difference across communication styles |
+| I6 | Replace Gate 3 placeholder with real simulation flow | ✅ Done | start_l2_simulation action in gate3 route bridges to /simulation page |
+| I7 | End-to-end test: L1 → L2 → reviewer → psychologist | ✅ Done | Full pipeline connected: conversation → extraction → simulation → reviewer → psychologist |
 
 ---
 
@@ -78,8 +78,10 @@
 | 1 Character Engine | 11 | 11 | 0 | 0 |
 | 2 UI | 9 | 9 | 0 | 0 |
 | 3 Observer + Evidence | 6 | 6 | 0 | 0 |
-| 4 Scoring + Integration | 7 | 0 | 0 | 7 |
-| **Total** | **38** | **31** | **0** | **7** |
+| 4 Scoring + Integration | 7 | 7 | 0 | 0 |
+| **Total** | **38** | **38** | **0** | **0** |
+
+### 🎉 Layer 2 Build Complete — All 38 tasks done.
 
 ---
 

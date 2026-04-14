@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GameMaster, SimulationReport, CharacterMessage } from '@/lib/simulation/engine';
 import { SCENARIOS, selectScenarios } from '@/lib/scenarios';
+import { runBiasAudit } from '@/lib/simulation/bias-audit';
 import { createServerClient } from '@/lib/supabase';
 
 function db() { return createServerClient(); }
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
       case 'respond': return handleRespond(body);
       case 'get_state': return handleGetState(body);
       case 'complete': return handleComplete(body);
+      case 'bias_audit': return handleBiasAudit(body);
       default:
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
     }
@@ -253,4 +255,28 @@ function generateRecommendation(report: SimulationReport): string {
   }
 
   return rec;
+}
+
+// ============================================================
+// BIAS AUDIT — Run same scenario with varied communication styles
+// ============================================================
+
+async function handleBiasAudit(body: any) {
+  const { scenario_id } = body;
+
+  const scenario = scenario_id ? SCENARIOS[scenario_id] : Object.values(SCENARIOS)[0];
+  if (!scenario) {
+    return NextResponse.json({ error: 'Scenario not found' }, { status: 400 });
+  }
+
+  const scenarioContext = `Setting: ${scenario.setting}\nSituation: ${scenario.opening_situation}`;
+  const checkpointSkills = scenario.target_skills;
+
+  const result = await runBiasAudit(scenarioContext, checkpointSkills);
+
+  return NextResponse.json({
+    audit: result,
+    scenario_title: scenario.title,
+    scenario_id: scenario.id,
+  });
 }
