@@ -37,6 +37,8 @@ export default function VoiceChatPage() {
   const [consentGiven, setConsentGiven] = useState(false);
   const [connectionOk, setConnectionOk] = useState(true);
   const [sessionCost, setSessionCost] = useState({ stt: 0, tts: 0, llm: 0 });
+  const [pendingScenario, setPendingScenario] = useState<any>(null);
+  const [scenarioCount, setScenarioCount] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -340,7 +342,61 @@ export default function VoiceChatPage() {
       // Brief pause before Aya responds (V3.6 — natural pacing)
       await new Promise(resolve => setTimeout(resolve, 400));
 
-      const ayaMsg: Message = { id: crypto.randomUUID(), role: 'assistant', content: data.message, timestamp: new Date() };
+      // Parse scenario triggers from Aya's response
+      let messageContent = data.message || '';
+      const scenarioMatch = messageContent.match(/\[SCENARIO:(\{[\s\S]*?\})\]/);
+      if (scenarioMatch && scenarioCount < 2) {
+        messageContent = messageContent.replace(/\[SCENARIO:[\s\S]*?\]/, '').trim();
+        // Generate scenario card in background
+        try {
+          const triggerData = JSON.parse(scenarioMatch[1]);
+          const recentContext = messages.slice(-4).map(m => `${m.role}: ${m.content}`).join('\n');
+          const scenRes = await fetch('/api/scenario', {
+            method: 'POST',
+            headers: await authHeaders(),
+            body: JSON.stringify({ ...triggerData, recent_context: recentContext }),
+          });
+          const scenData = await scenRes.json();
+          if (scenData.scenario) {
+            setTimeout(() => setPendingScenario(scenData.scenario), 1500); // Show after Aya speaks
+            setScenarioCount(c => c + 1);
+          }
+        } catch (e) {
+          console.error('Voice scenario generation error:', e);
+        }
+      }
+
+      // Client-side scenario trigger (readiness-based, same logic as text chat)
+      if (!scenarioMatch && scenarioCount < 2 && !pendingScenario) {
+        const userMsgCount = messages.filter(m => m.role === 'user').length + 1;
+        const pastOpening = data.stage && data.stage !== 'opening';
+        const minReached = (scenarioCount === 0 && userMsgCount >= 6) || (scenarioCount === 1 && userMsgCount >= 13);
+        const maxNotExceeded = (scenarioCount === 0 && userMsgCount <= 20) || (scenarioCount === 1 && userMsgCount <= 28);
+
+        if (minReached && maxNotExceeded && pastOpening) {
+          // Generate scenario card
+          try {
+            const recentContext = messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n');
+            const evidenced = data.skills_evidenced || {};
+            const gaps = ['Communication', 'Collaboration', 'Problem Solving', 'Adaptability', 'Self-Management', 'Learning Agility']
+              .filter(s => !Object.entries(evidenced).filter(([_, v]) => v).some(([k]) => s.toLowerCase().includes(k.toLowerCase())));
+            const targetSkill = gaps.length > 0 ? gaps[Math.floor(Math.random() * Math.min(3, gaps.length))] : 'Communication';
+
+            const scenRes = await fetch('/api/scenario', {
+              method: 'POST',
+              headers: await authHeaders(),
+              body: JSON.stringify({ skill_gap: targetSkill, domain: 'work', recent_context: recentContext }),
+            });
+            const scenData = await scenRes.json();
+            if (scenData.scenario) {
+              setTimeout(() => setPendingScenario(scenData.scenario), 2000);
+              setScenarioCount(c => c + 1);
+            }
+          } catch { /* scenario generation is optional */ }
+        }
+      }
+
+      const ayaMsg: Message = { id: crypto.randomUUID(), role: 'assistant', content: messageContent, timestamp: new Date() };
       setMessages(prev => [...prev, ayaMsg]);
 
       // Store stage info for UI awareness
@@ -516,6 +572,65 @@ export default function VoiceChatPage() {
         </div>
       )}
 
+      {/* SCENARIO CARD — pops up during voice conversation */}
+      {pendingScenario && !isLoading && (
+        <div className="px-4 py-3" style={{ animation: 'scenarioSlideIn 0.4s ease-out' }}>
+          <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(142,68,173,0.15), rgba(41,128,185,0.15))', border: '1px solid rgba(142,68,173,0.2)' }}>
+            {/* Scenario header */}
+            <div className="px-4 py-3" style={{ background: 'rgba(142,68,173,0.1)' }}>
+              <div className="flex items-center gap-2">
+                <span className="text-base">🎭</span>
+                <span className="text-xs font-semibold" style={{ color: '#D4A5E5' }}>
+                  {pendingScenario.scenario_label || 'Scenario'}
+                </span>
+              </div>
+              <p className="text-sm mt-1.5 leading-relaxed" style={{ color: 'rgba(255,255,255,0.8)' }}>
+                {pendingScenario.scenario}
+              </p>
+            </div>
+            {/* Options */}
+            <div className="p-3 space-y-2">
+              {(pendingScenario.options || []).map((opt: any, i: number) => (
+                <button
+                  key={i}
+                  onClick={async () => {
+                    // Build evidence string
+                    const evidence = `[SCENARIO EVIDENCE] Situation: "${pendingScenario.scenario}" | Choice: "${opt.text}" | PSF Skill Tested: ${pendingScenario.psf_skill_tested || pendingScenario.target_skill || 'Unknown'} | Skill Signal: ${opt.signal || 'Unknown'} | Proficiency: ${opt.proficiency_signal || 'intermediate'}`;
+
+                    // Add to messages
+                    setMessages(prev => [...prev,
+                      { id: crypto.randomUUID(), role: 'user', content: `Chose: ${opt.text}`, timestamp: new Date() },
+                    ]);
+
+                    // Send evidence to chat API so it enters the transcript
+                    setPendingScenario(null);
+                    try {
+                      const res = await fetch('/api/chat', {
+                        method: 'POST', headers: await authHeaders(),
+                        body: JSON.stringify({ session_id: sessionId, message: evidence }),
+                      });
+                      const data = await res.json();
+                      if (data.message) {
+                        const cleanMsg = data.message.replace(/\[SCENARIO:[\s\S]*?\]/, '').trim();
+                        setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: cleanMsg, timestamp: new Date() }]);
+                        if (voiceEnabled) await speak(cleanMsg);
+                      }
+                    } catch { /* continue conversation */ }
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm transition-all active:scale-[0.98]"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)' }}
+                >
+                  <span className="font-semibold mr-2" style={{ color: '#D4A5E5' }}>
+                    {String.fromCharCode(65 + i)}.
+                  </span>
+                  {opt.text}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main area */}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         {!isStarted ? (
@@ -652,6 +767,7 @@ export default function VoiceChatPage() {
         @keyframes wave { 0%,100% { height:8px; } 50% { height:28px; } }
         @keyframes speakDot { 0%,100% { transform:scale(0.8); opacity:0.4; } 50% { transform:scale(1.2); opacity:1; } }
         @keyframes bounce { 0%,80%,100% { transform:scale(0); } 40% { transform:scale(1); } }
+        @keyframes scenarioSlideIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
       {/* Close consent wrapper */}
