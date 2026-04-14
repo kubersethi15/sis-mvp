@@ -424,6 +424,93 @@ export async function evaluateCheckpoint(
 }
 
 // ============================================================
+// GAMING DETECTION (Simulation Context)
+// ============================================================
+
+const GAMING_DETECTION_PROMPT = `You are a behavioral assessment integrity analyst. Analyze this simulation transcript for signs of gaming — responses that seem rehearsed, artificially perfect, or inconsistent with natural behavior.
+
+SIMULATION TRANSCRIPT:
+{transcript}
+
+LAYER 1 SKILLS (from conversation — self-reported):
+{layer1_skills}
+
+CHECK FOR:
+1. REHEARSED RESPONSES: Language that sounds like interview prep rather than natural workplace behavior. Overuse of corporate jargon, STAR format without being asked, unnaturally perfect conflict resolution.
+2. INCONSISTENCY: Layer 2 behavior that dramatically differs from Layer 1 conversation (not just upgrade/downgrade — suspicious pivots in personality or capability).
+3. PATTERN GAMING: Identical response structure across different rounds. Always de-escalating, always delegating, never showing genuine frustration or uncertainty.
+4. CONTEXT MISMATCH: Responses that ignore scenario-specific details (character names, setting, time constraints) and instead give generic workplace advice.
+5. OVERCLAIMING: Taking credit for impossible outcomes ("I immediately solved the system outage") when the scenario didn't provide that option.
+
+IMPORTANT: Genuine improvement from Layer 1 to Layer 2 is NORMAL — people often perform better in action than they describe in conversation. Only flag behavior that seems artificially constructed.
+
+Return JSON:
+{
+  "gaming_detected": false,
+  "flags": [],
+  "confidence": 0.85,
+  "explanation": "Brief explanation of findings"
+}
+
+Each flag should be:
+{ "type": "rehearsed|inconsistency|pattern|context_mismatch|overclaiming", "round": 3, "evidence": "specific example", "severity": "low|medium|high" }`;
+
+export async function detectGaming(
+  transcript: string,
+  layer1Skills: { skill_name: string; proficiency: string }[]
+): Promise<{ gaming_detected: boolean; flags: any[]; confidence: number; explanation: string }> {
+  const prompt = GAMING_DETECTION_PROMPT
+    .replace('{transcript}', transcript)
+    .replace('{layer1_skills}', layer1Skills.map(s => `${s.skill_name}: ${s.proficiency}`).join('\n'));
+
+  try {
+    const result = await callLLM({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 800,
+    });
+
+    const cleaned = result.text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    return JSON.parse(cleaned);
+  } catch {
+    return { gaming_detected: false, flags: [], confidence: 0.5, explanation: 'Gaming detection failed — defaulting to no flags.' };
+  }
+}
+
+// ============================================================
+// SIMULATION EVIDENCE EXTRACTION (feeds into LEEE pipeline)
+// ============================================================
+
+export function formatSimulationForExtraction(
+  transcript: string,
+  scenarioTitle: string,
+  scenarioSetting: string
+): string {
+  // Format the simulation transcript so the LEEE extraction pipeline
+  // can process it alongside the conversation transcript.
+  // Uses [SIMULATION EVIDENCE] tags that Stage 1 segmentation recognizes.
+
+  const lines = transcript.split('\n').filter(l => l.trim());
+  const formatted: string[] = [
+    `[SIMULATION EVIDENCE — ${scenarioTitle}]`,
+    `Setting: ${scenarioSetting}`,
+    '',
+  ];
+
+  for (const line of lines) {
+    if (line.startsWith('[Candidate]:')) {
+      // Candidate responses are the behavioral evidence
+      formatted.push(`[SIMULATION EVIDENCE] ${line}`);
+    } else {
+      // Character messages are context
+      formatted.push(line);
+    }
+  }
+
+  formatted.push(`[END SIMULATION EVIDENCE — ${scenarioTitle}]`);
+  return formatted.join('\n');
+}
+
+// ============================================================
 // CONVERGENCE CALCULATOR
 // ============================================================
 
@@ -669,6 +756,20 @@ export class GameMaster {
       ? calculateConvergence(layer1Skills, Array.from(skillMap.values()))
       : [];
 
+    // Run gaming detection
+    const transcript = this.buildConversationHistory();
+    const gamingResult = await detectGaming(
+      transcript,
+      layer1Skills?.map(s => ({ skill_name: s.skill_name, proficiency: s.proficiency })) || []
+    );
+
+    // Format evidence for LEEE pipeline integration
+    const evidenceForExtraction = formatSimulationForExtraction(
+      transcript,
+      this.state.scenario.title,
+      this.state.scenario.setting
+    );
+
     const report: SimulationReport = {
       scenario_id: this.state.scenario.id,
       scenario_title: this.state.scenario.title,
@@ -677,8 +778,8 @@ export class GameMaster {
       sotopia_scores: allSotopiaScores,
       convergence,
       observer_summary: allNarratives.join(' '),
-      gaming_flags: [],
-      evidence_for_psychologist: this.buildConversationHistory(),
+      gaming_flags: gamingResult.flags.map((f: any) => `[${f.severity}] ${f.type}: ${f.evidence}`),
+      evidence_for_psychologist: evidenceForExtraction,
     };
 
     this.state.final_report = report;

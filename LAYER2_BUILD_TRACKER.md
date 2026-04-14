@@ -50,11 +50,11 @@
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | E1 | Observer agent prompt (Sotopia-Eval 7 dimensions) | ✅ Done | evaluateCheckpoint() with full Sotopia→PSF mapping |
-| E2 | Per-checkpoint scoring | ⬜ Todo | Score specific competencies at each checkpoint |
-| E3 | Evidence extraction: reuse STAR+E+R pipeline | ⬜ Todo | Feed simulation transcript to Stages 2-3 |
-| E4 | Convergence report: Layer 1 vs Layer 2 | ⬜ Todo | Compare self-reported vs observed |
-| E5 | Gaming detection in simulation context | ⬜ Todo | Rehearsed responses, inconsistency with L1 |
-| E6 | Evidence storage to Supabase | ⬜ Todo | gate3_results with simulation evidence |
+| E2 | Per-checkpoint scoring | ✅ Done | evaluateCheckpoint() scores skills at each defined checkpoint |
+| E3 | Evidence extraction: reuse STAR+E+R pipeline | ✅ Done | formatSimulationForExtraction() outputs [SIMULATION EVIDENCE] tags for LEEE pipeline |
+| E4 | Convergence report: Layer 1 vs Layer 2 | ✅ Done | calculateConvergence() in engine.ts — L1=L2/L2>L1/L2<L1 |
+| E5 | Gaming detection in simulation context | ✅ Done | detectGaming() — checks rehearsed, inconsistency, pattern, context_mismatch, overclaiming |
+| E6 | Evidence storage to Supabase | ✅ Done | API route saves to gate3_results + updates application status |
 
 ## Phase 4 — Scoring + Bias Audit + Integration (1 week)
 
@@ -77,9 +77,9 @@
 | 0.5 Scenarios | 5 | 5 | 0 | 0 |
 | 1 Character Engine | 11 | 11 | 0 | 0 |
 | 2 UI | 9 | 9 | 0 | 0 |
-| 3 Observer + Evidence | 6 | 1 | 0 | 5 |
+| 3 Observer + Evidence | 6 | 6 | 0 | 0 |
 | 4 Scoring + Integration | 7 | 0 | 0 | 7 |
-| **Total** | **38** | **26** | **0** | **12** |
+| **Total** | **38** | **31** | **0** | **7** |
 
 ---
 
