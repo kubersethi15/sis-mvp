@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 // ============================================================
 // TYPES
@@ -61,7 +62,18 @@ const TONE_INDICATORS: Record<string, string> = {
 // COMPONENT
 // ============================================================
 
-export default function SimulationPage() {
+export default function SimulationPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: '#0B1929', color: '#829AB1' }}>Loading simulation...</div>}>
+      <SimulationPage />
+    </Suspense>
+  );
+}
+
+function SimulationPage() {
+  const searchParams = useSearchParams();
+  const applicationId = searchParams.get('app') || null;
+  
   const [phase, setPhase] = useState<'intro' | 'active' | 'checkpoint' | 'complete'>('intro');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [scenario, setScenario] = useState<ScenarioInfo | null>(null);
@@ -105,6 +117,7 @@ export default function SimulationPage() {
         body: JSON.stringify({
           action: 'start',
           scenario_id: selectedScenario,
+          application_id: applicationId,
         }),
       });
       const data = await res.json();
@@ -203,6 +216,7 @@ export default function SimulationPage() {
         body: JSON.stringify({
           action: 'complete',
           session_id: sessionId,
+          application_id: applicationId,
         }),
       });
       const data = await res.json();

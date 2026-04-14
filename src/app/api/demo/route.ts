@@ -538,14 +538,60 @@ async function handleGateDecision(body: any) {
       }
     } else if (gate === 2) {
       newStatus = 'gate3_pending';
-      // Auto-populate Gate 3 with readiness assessment
+      // Prepare Gate 3 with Layer 2 simulation data
       try {
+        // Fetch L1 extraction for layer2_seeds
+        const { data: app } = await supabase.from('applications')
+          .select('jobseeker_id, user_id, vacancy_id').eq('id', application_id).single();
+        
+        let layer2Seeds: any[] = [];
+        let layer1Skills: any[] = [];
+        let narrativeSummary = '';
+        
+        if (app) {
+          const userId = app.user_id || app.jobseeker_id;
+          const { data: sessions } = await supabase.from('leee_sessions')
+            .select('id').eq('user_id', userId).eq('status', 'completed')
+            .order('created_at', { ascending: false }).limit(1);
+          if (sessions?.length) {
+            const { data: ext } = await supabase.from('leee_extractions')
+              .select('skills_profile, layer2_seeds, narrative_summary')
+              .eq('session_id', sessions[0].id).limit(1).single();
+            if (ext) {
+              layer2Seeds = ext.layer2_seeds || [];
+              layer1Skills = ext.skills_profile || [];
+              narrativeSummary = ext.narrative_summary || '';
+            }
+          }
+        }
+
+        // Determine which skills need simulation validation
+        const lowConfidenceSkills = layer1Skills
+          .filter((s: any) => (s.confidence || 0) < 0.65)
+          .map((s: any) => s.skill_name);
+        const highConfidenceSkills = layer1Skills
+          .filter((s: any) => (s.confidence || 0) >= 0.65)
+          .map((s: any) => s.skill_name);
+
         await supabase.from('gate3_results').insert({
           application_id,
-          readiness_index: 72, // Placeholder — Jazzel/Chamar plug in here
-          success_conditions: ['Structured onboarding', 'Mentorship pairing', 'Regular check-ins'],
-          support_needs: ['May need additional role-specific training', 'Benefits from collaborative environment'],
-          ai_recommendation: 'Candidate shows strong foundational skills from lived experience. Recommend proceeding with structured onboarding. Simulation and interview stages will be enhanced when Gate 3 modules are integrated.',
+          readiness_index: 0, // Will be calculated after simulation
+          simulation_results: null, // Populated when simulation completes
+          success_conditions: [
+            'Complete Layer 2 workplace simulation',
+            'Demonstrate skills identified in Layer 1 through behavioral observation',
+            ...(lowConfidenceSkills.length > 0
+              ? [`Validate low-confidence skills: ${lowConfidenceSkills.join(', ')}`]
+              : []),
+          ],
+          support_needs: [
+            ...(layer2Seeds.length > 0
+              ? layer2Seeds.map((s: any) => `Simulation focus: ${s.skill_gap} — ${s.rationale}`)
+              : ['General behavioral validation through workplace scenario']),
+          ],
+          ai_recommendation: layer2Seeds.length > 0
+            ? `Layer 1 identified ${layer1Skills.length} skills. ${lowConfidenceSkills.length} skill(s) need simulation validation: ${lowConfidenceSkills.join(', ')}. ${highConfidenceSkills.length} skill(s) are high-confidence from conversation. Layer 2 seeds suggest testing: ${layer2Seeds.map((s: any) => s.skill_gap).join(', ')}. Candidate should proceed to /simulation to complete Gate 3.`
+            : `Layer 1 complete. ${narrativeSummary.substring(0, 150)}. Candidate should proceed to /simulation for behavioral validation.`,
         });
       } catch (e) { console.error('Gate 3 auto-populate:', e); }
     } else if (gate === 3) {

@@ -326,6 +326,7 @@ export default function MyDashboard() {
                 const isDeclined = app.status === 'not_selected' || app.status?.includes('stopped');
                 const isSelected = app.status === 'selected' || app.status === 'onboarding';
                 const isPending = app.status?.includes('pending');
+                const isGate3 = app.status === 'gate3_pending' || app.status === 'gate3_simulation' || app.current_gate === 3;
                 return (
                   <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-stone-100">
                     <div>
@@ -343,6 +344,11 @@ export default function MyDashboard() {
                       }`}>
                         {isSelected ? 'Selected' : isDeclined ? 'Not Selected' : app.status?.replace(/_/g, ' ')}
                       </span>
+                      {isGate3 && !isSelected && !isDeclined && (
+                        <Link href={`/simulation?app=${app.id}`} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: '#48BB78' }}>
+                          Start Simulation →
+                        </Link>
+                      )}
                       {isDeclined && (
                         <Link href="/feedback" className="text-xs font-medium px-2 py-1 rounded-lg" style={{ background: '#F0F4F8', color: '#2E86C1' }}>
                           View Feedback
