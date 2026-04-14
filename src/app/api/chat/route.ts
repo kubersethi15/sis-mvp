@@ -271,6 +271,8 @@ async function handleStart(req: NextRequest, body: any) {
       accessibility_mode: body.accessibility_mode || {},
       skills_evidenced: {},
       skills_gaps: {},
+      session_tag: body.session_tag || null, // "baseline" | "mid-program" | "post-program" | "follow-up"
+      cohort_id: body.cohort_id || null,
     })
     .select()
     .single();
@@ -635,6 +637,54 @@ async function handleExtract(sessionId: string) {
         final_profile: result.final_profile,
       },
     });
+
+    // T13: Auto-compare if this is a tagged session (post-training, follow-up)
+    try {
+      const { data: sessionMeta } = await supabase.from('leee_sessions')
+        .select('session_tag, user_id').eq('id', sessionId).single();
+
+      if (sessionMeta?.session_tag && ['post-program', 'follow-up', 'mid-program'].includes(sessionMeta.session_tag)) {
+        // Find the most recent baseline session for this user
+        const { data: baselineSessions } = await supabase.from('leee_sessions')
+          .select('id, created_at')
+          .eq('user_id', sessionMeta.user_id)
+          .eq('session_tag', 'baseline')
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (baselineSessions?.length) {
+          const { data: baselineExt } = await supabase.from('leee_extractions')
+            .select('skills_profile').eq('session_id', baselineSessions[0].id).limit(1).single();
+
+          if (baselineExt?.skills_profile && extraction.skills_profile) {
+            const { calculateDelta } = await import('@/lib/growth/growth-engine');
+            const daysBetween = Math.max(1,
+              (Date.now() - new Date(baselineSessions[0].created_at).getTime()) / (24 * 60 * 60 * 1000)
+            );
+            const beforeSkills = baselineExt.skills_profile.map((s: any) => ({
+              skill_name: s.skill_name, proficiency: s.proficiency,
+              confidence: s.confidence || 0.5, session_id: baselineSessions[0].id,
+              session_date: baselineSessions[0].created_at,
+            }));
+            const afterSkills = extraction.skills_profile.map((s: any) => ({
+              skill_name: s.skill_name, proficiency: s.proficiency,
+              confidence: s.confidence || 0.5, session_id: sessionId,
+              session_date: new Date().toISOString(),
+            }));
+            const deltas = calculateDelta(beforeSkills, afterSkills, daysBetween);
+            // Store growth data on the extraction for easy access
+            await supabase.from('leee_extractions').update({
+              growth_delta: deltas,
+              baseline_session_id: baselineSessions[0].id,
+            }).eq('session_id', sessionId);
+
+            console.log(`[Growth] Auto-compared: ${deltas.filter(d => d.direction === 'improved').length} skills improved over ${Math.round(daysBetween)} days`);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('[Growth] Auto-comparison failed (non-fatal):', e);
+    }
 
     return NextResponse.json({ extraction, session_id: sessionId, status: 'extracted' });
   } catch (e: any) {
