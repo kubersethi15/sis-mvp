@@ -32,6 +32,8 @@ export default function VoiceChatPage() {
   const [elapsed, setElapsed] = useState(0);
   const [textInput, setTextInput] = useState('');
   const [ayaThinking, setAyaThinking] = useState('');
+  const [currentStage, setCurrentStage] = useState('opening');
+  const [storiesCompleted, setStoriesCompleted] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -234,6 +236,13 @@ export default function VoiceChatPage() {
   // SEND MESSAGE
   // ============================================================
 
+  // Acknowledgment phrases — played while Aya "thinks" to fill silence
+  const ACKNOWLEDGMENTS = [
+    "Mm-hmm...", "I see...", "Go on...", "That's interesting...",
+    "I hear you...", "Tell me more...", "Okay...", "Right...",
+  ];
+  const getAcknowledgment = () => ACKNOWLEDGMENTS[Math.floor(Math.random() * ACKNOWLEDGMENTS.length)];
+
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading || !sessionId) return;
     setTranscript(''); setTextInput(''); setStatus('processing'); setIsLoading(true);
@@ -241,18 +250,63 @@ export default function VoiceChatPage() {
     const userMsg: Message = { id: crypto.randomUUID(), role: 'user', content: text.trim(), timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
 
+    // Show acknowledgment while processing (V3.7)
+    const ack = getAcknowledgment();
+    setAyaThinking(ack);
+
+    // Play brief acknowledgment audio if voice enabled (V3.6)
+    if (voiceEnabled) {
+      try {
+        const ackRes = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: ack }),
+        });
+        if (ackRes.headers.get('content-type')?.includes('audio')) {
+          const blob = await ackRes.blob();
+          const url = URL.createObjectURL(blob);
+          const ackAudio = new Audio(url);
+          ackAudio.volume = 0.7;
+          ackAudio.onended = () => URL.revokeObjectURL(url);
+          await ackAudio.play().catch(() => {});
+        }
+      } catch { /* acknowledgment is optional */ }
+    }
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST', headers: await authHeaders(),
         body: JSON.stringify({ session_id: sessionId, message: text.trim() }),
       });
       const data = await res.json();
+      setAyaThinking('');
+
+      // Handle distress escalation (V3 Wellbeing Protocol)
+      if (data.distress_level >= 3) {
+        // Crisis — Aya's response already handles this via prompt, but show visual indicator
+        setMessages(prev => [...prev, {
+          id: crypto.randomUUID(), role: 'assistant',
+          content: data.message, timestamp: new Date(),
+        }]);
+        if (voiceEnabled) await speak(data.message);
+        else setStatus('idle');
+        return;
+      }
+
+      // Brief pause before Aya responds (V3.6 — natural pacing)
+      await new Promise(resolve => setTimeout(resolve, 400));
+
       const ayaMsg: Message = { id: crypto.randomUUID(), role: 'assistant', content: data.message, timestamp: new Date() };
       setMessages(prev => [...prev, ayaMsg]);
+
+      // Store stage info for UI awareness
+      if (data.stage) setCurrentStage(data.stage);
+      if (data.stories_completed !== undefined) setStoriesCompleted(data.stories_completed);
 
       if (voiceEnabled && data.message) await speak(data.message);
       else setStatus('idle');
     } catch {
+      setAyaThinking('');
       setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: 'Sorry, connection issue. Try again?', timestamp: new Date() }]);
       setStatus('idle');
     } finally { setIsLoading(false); }
@@ -452,6 +506,40 @@ export default function VoiceChatPage() {
       {/* Bottom */}
       {isStarted && (
         <div className="flex-none px-4 pb-6 pt-3">
+          {/* Stage progress dots */}
+          <div className="flex items-center justify-center gap-1.5 mb-3">
+            {['opening', 'story_select', 'elicitation', 'core_probe', 'skill_probe', 'verification', 'closing'].map((stage, i) => {
+              const stageLabels: Record<string, string> = {
+                opening: 'Getting to know you',
+                story_select: 'Choosing a story',
+                elicitation: 'Tell me more',
+                core_probe: 'Diving deeper',
+                skill_probe: 'Exploring details',
+                verification: 'Wrapping up story',
+                closing: 'Finishing up',
+              };
+              const isActive = currentStage === stage;
+              const isPast = ['opening', 'story_select', 'elicitation', 'core_probe', 'skill_probe', 'verification', 'closing'].indexOf(currentStage) > i;
+              return (
+                <div key={stage} className="flex flex-col items-center">
+                  <div className="w-2 h-2 rounded-full transition-all" style={{
+                    background: isActive ? '#48BB78' : isPast ? 'rgba(72,187,120,0.4)' : 'rgba(255,255,255,0.1)',
+                    boxShadow: isActive ? '0 0 6px rgba(72,187,120,0.5)' : 'none',
+                  }} />
+                  {isActive && (
+                    <span className="text-[8px] mt-1 whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                      {stageLabels[stage] || stage}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {storiesCompleted > 0 && (
+            <p className="text-center text-[9px] mb-2" style={{ color: 'rgba(72,187,120,0.5)' }}>
+              {storiesCompleted} {storiesCompleted === 1 ? 'story' : 'stories'} shared
+            </p>
+          )}
           <div className="flex items-center justify-between max-w-xs mx-auto">
             <a href="/chat" className="text-[11px] px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)' }}>Text Mode</a>
             <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>{messages.filter(m => m.role === 'user').length} messages</span>

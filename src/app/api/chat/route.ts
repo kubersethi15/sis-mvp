@@ -120,6 +120,8 @@ export async function POST(req: NextRequest) {
       message: aiText, session_status: 'active', stage: finalState.currentStage,
       stories_completed: finalState.storiesCompleted, skills_evidenced: finalState.gapScan,
       should_extract: false,
+      distress_level: finalState.userDistressLevel || 0,
+      story_completeness: orchestrator.hasStoryCompleteness(),
     });
 
   } catch (error: any) {

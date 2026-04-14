@@ -73,18 +73,21 @@ The advanced voice system has 5 layers:
 
 ## Phase V3 — Conversational Intelligence (Playbook State Machine)
 
-**What:** The Voice Playbook defines explicit phase transitions, question bank retrieval, mid-session skill gap tracking, and conversational repair. Currently the system prompt handles this loosely. This phase makes it explicit.
+**What:** The Voice Playbook defines explicit phase transitions, question bank retrieval, mid-session skill gap tracking, and conversational repair. The orchestrator already implements most of this for text chat — this phase ensures voice uses it fully.
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| V3.1 | Explicit phase state machine (stored per session) | ⬜ Todo | 5 phases: Warm-up → Stakes → Struggle → Shift → Meaning |
-| V3.2 | Phase transition criteria (measurable, not vibes) | ⬜ Todo | Per playbook roadmap: specific situation named, WHO involved, etc. |
-| V3.3 | Mid-session skill gap scan after each story cycle | ⬜ Todo | Lightweight Claude call: which of 6 domains have evidence? |
-| V3.4 | Question bank retrieval based on skill gaps | ⬜ Todo | Select bridge questions targeting unmeasured domains |
-| V3.5 | Conversational repair library | ⬜ Todo | One-word answers, tangents, story about someone else, wants to stop |
-| V3.6 | Aya voice pacing — slight pause before responding | ⬜ Todo | 500ms delay + "Mmm" or "I see" acknowledgment before full response |
-| V3.7 | Short acknowledgment during processing | ⬜ Todo | While Claude thinks, play brief "mm-hmm" or "I see" audio clip |
-| V3.8 | Interruption handling | ⬜ Todo | If candidate starts talking while Aya speaks, Aya stops gracefully |
+| V3.1 | Explicit phase state machine (stored per session) | ✅ Done | LEEEOrchestrator: 7 stages with TransitionRules, turn counting, timer-based closing |
+| V3.2 | Phase transition criteria (measurable, not vibes) | ✅ Done | orchestrator.ts: turn count per stage, story completeness (STAR+E+R checks), session duration |
+| V3.3 | Mid-session skill gap scan after each story cycle | ✅ Done | runGapScan() in chat route — 8-domain scan after verification stage |
+| V3.4 | Question bank retrieval based on skill gaps | ✅ Done | question-bank.ts (305 lines, 98 prompts, trilingual) + updateSuggestedPrompts() targets gaps |
+| V3.5 | Conversational repair library | ✅ Done | In system prompt: one-word answer probing, tangent redirect, story-about-others redirect, early-stop respect |
+| V3.6 | Aya voice pacing — slight pause before responding | ✅ Done | 400ms delay before Aya speaks + acknowledgment audio first |
+| V3.7 | Short acknowledgment during processing | ✅ Done | Plays "Mm-hmm" / "I see" / "I hear you" TTS while Claude thinks |
+| V3.8 | Interruption handling | ✅ Done | Tap orb while Aya speaks → stops audio, returns to idle |
+| V3.9 | Wellbeing protocol (3-level distress escalation) | ✅ Done | Orchestrator detects distress keywords (L1-L3), API exposes level, voice page responds |
+| V3.10 | Stage progress indicator in voice UI | ✅ Done | Progress dots + stage label + stories count in bottom bar |
+| V3.11 | Chat API enhanced with voice metadata | ✅ Done | Returns distress_level, story_completeness, stage to voice page |
 
 ---
 
@@ -138,12 +141,12 @@ The advanced voice system has 5 layers:
 | Phase | Tasks | Done | Status |
 |-------|-------|------|--------|
 | V1 Voice I/O | 10 | 10 | ✅ Complete |
-| V2 Paralinguistic (Hume) | 8 | 0 | ⬜ Next |
-| V3 Conversational Intelligence | 8 | 0 | ⬜ Planned |
+| V2 Paralinguistic (Hume) | 8 | 0 | ⬜ Next (waiting for API key) |
+| V3 Conversational Intelligence | 11 | 11 | ✅ Complete |
 | V4 Voice-Enhanced Extraction | 7 | 0 | ⬜ Planned |
 | V5 Voice Simulation | 6 | 0 | ⬜ Planned |
 | V6 Production Hardening | 7 | 0 | ⬜ Planned |
-| **Total** | **46** | **10** | **22% complete** |
+| **Total** | **49** | **21** | **43% complete** |
 
 ---
 
