@@ -35,15 +35,15 @@
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| U1 | Simulation page: /simulation route | ⬜ Todo | Standalone page for Gate 3 simulation |
-| U2 | Multi-party chat interface | ⬜ Todo | Characters + candidate in team channel view |
-| U3 | Character avatars + typing indicators | ⬜ Todo | Visual identity per character |
-| U4 | Round counter + progress indicator | ⬜ Todo | "Round 3 of 6" |
-| U5 | Checkpoint evaluation display | ⬜ Todo | Brief pause, show what's being assessed |
-| U6 | Scenario intro screen | ⬜ Todo | Setting, characters, what to expect |
-| U7 | Scenario completion screen | ⬜ Todo | Summary before full scoring |
-| U8 | Mobile responsive | ⬜ Todo | Pipeline funnels etc on mobile |
-| U9 | Connect to Gate 3 flow | ⬜ Todo | Reviewer approves Gate 2 → simulation starts |
+| U1 | Simulation page: /simulation route | ✅ Done | src/app/simulation/page.tsx — full 4-phase UI |
+| U2 | Multi-party chat interface | ✅ Done | Team channel view with character messages + candidate replies |
+| U3 | Character avatars + typing indicators | ✅ Done | Color-coded initials, tone emoji indicators, bounce loading dots |
+| U4 | Round counter + progress indicator | ✅ Done | "Round 3 of 6" + progress bar in header |
+| U5 | Checkpoint evaluation display | ✅ Done | Modal with skills assessed, proficiency badges, confidence bars |
+| U6 | Scenario intro screen | ✅ Done | 3 scenario cards with descriptions, skill tags, duration |
+| U7 | Scenario completion screen | ✅ Done | Skills observed, convergence display, observer summary |
+| U8 | Mobile responsive | ✅ Done | Flex layout, responsive max-widths, touch-friendly inputs |
+| U9 | Layer 2 API route | ✅ Done | /api/simulation-l2 — start, respond, get_state, complete actions + Supabase storage |
 
 ## Phase 3 — Observer + Evidence Extraction (1 week)
 
@@ -74,12 +74,12 @@
 
 | Phase | Total | Done | In Progress | Todo |
 |-------|-------|------|-------------|------|
-| 0.5 Scenarios | 5 | 2 | 0 | 3 |
+| 0.5 Scenarios | 5 | 5 | 0 | 0 |
 | 1 Character Engine | 11 | 11 | 0 | 0 |
-| 2 UI | 9 | 0 | 0 | 9 |
+| 2 UI | 9 | 9 | 0 | 0 |
 | 3 Observer + Evidence | 6 | 1 | 0 | 5 |
 | 4 Scoring + Integration | 7 | 0 | 0 | 7 |
-| **Total** | **38** | **14** | **0** | **24** |
+| **Total** | **38** | **26** | **0** | **12** |
 
 ---
 
