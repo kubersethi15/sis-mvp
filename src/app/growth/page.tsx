@@ -247,7 +247,49 @@ export default function GrowthDashboard() {
             {cohortSummary && (
               <>
                 <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-                  <h2 className="text-base font-semibold mb-2" style={{ color: '#102A43' }}>{cohortSummary.cohort_name}</h2>
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-base font-semibold" style={{ color: '#102A43' }}>{cohortSummary.cohort_name}</h2>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch('/api/growth-report', {
+                              method: 'POST', headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ action: 'cohort_report', cohort_id: cohortId }),
+                            });
+                            const data = await res.json();
+                            const blob = new Blob([JSON.stringify(data.report, null, 2)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url; a.download = `cohort_report_${cohortId}.json`;
+                            a.click(); URL.revokeObjectURL(url);
+                          } catch {}
+                        }}
+                        className="text-[10px] px-3 py-1.5 rounded-lg font-medium"
+                        style={{ background: '#EBF5FB', color: '#2471A3' }}>
+                        Export Report
+                      </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch('/api/growth-report', {
+                              method: 'POST', headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ action: 'funder_report', cohort_ids: [cohortId], program_name: cohortSummary.cohort_name }),
+                            });
+                            const data = await res.json();
+                            const blob = new Blob([JSON.stringify(data.report, null, 2)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url; a.download = `funder_report_${cohortId}.json`;
+                            a.click(); URL.revokeObjectURL(url);
+                          } catch {}
+                        }}
+                        className="text-[10px] px-3 py-1.5 rounded-lg font-medium"
+                        style={{ background: '#F4ECF7', color: '#8E44AD' }}>
+                        Funder Report
+                      </button>
+                    </div>
+                  </div>
                   <p className="text-sm mb-4" style={{ color: '#627D98' }}>{cohortSummary.summary}</p>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="p-3 rounded-lg text-center" style={{ background: '#F4ECF7' }}>

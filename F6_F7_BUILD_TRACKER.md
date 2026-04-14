@@ -96,9 +96,11 @@
 
 | Feature | Tasks | Done | Status |
 |---|---|---|---|
-| F6 Peer/360 (Layer 3) | 14 | 13 | 🟡 L3.14 (email notifications) needs email provider |
-| F7 Training Impact | 14 | 7 | 🟡 TI-B (cohort dashboard UI) + TI-C (integration) remaining |
-| **Total** | **28** | **20** | **71% complete** |
+| F6 Peer/360 (Layer 3) | 14 | 13 | 🟡 L3.14 email notifications needs email provider |
+| F7 Training Impact | 14 | 14 | ✅ Complete |
+| **Total** | **28** | **27** | **96% complete** |
+
+### 🎉 F7 Training Impact Measurement fully built.
 
 ---
 
