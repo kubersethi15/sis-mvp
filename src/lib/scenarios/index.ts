@@ -18,19 +18,34 @@ export const SCENARIOS: Record<string, ScenarioConfig> = {
 };
 
 // Select scenarios based on layer2_seeds from LEEE extraction
+// Priority: employer-specific generated scenarios > static scenarios
 export function selectScenarios(
   layer2Seeds: Array<{ skill_gap: string; suggested_scenario: string; rationale: string }>,
-  maxScenarios: number = 2
+  maxScenarios: number = 2,
+  employerScenarios?: ScenarioConfig[] // Generated from employer intelligence pipeline
 ): ScenarioConfig[] {
+  // If employer has generated scenarios, use those first
+  if (employerScenarios?.length) {
+    const selected = employerScenarios.slice(0, maxScenarios);
+    // Fill remaining with static if needed
+    if (selected.length < maxScenarios) {
+      const staticList = Object.values(SCENARIOS);
+      for (const s of staticList) {
+        if (selected.length >= maxScenarios) break;
+        selected.push(s);
+      }
+    }
+    return selected;
+  }
+
+  // Fallback: match layer2_seeds to static scenarios
   if (!layer2Seeds?.length) {
-    // Default: customer escalation + team coordination
     return [customerEscalationScenario, teamCoordinationScenario];
   }
 
   const selected: ScenarioConfig[] = [];
   const scenarioList = Object.values(SCENARIOS);
 
-  // Match seeds to scenarios by target skills
   for (const seed of layer2Seeds) {
     if (selected.length >= maxScenarios) break;
 
@@ -46,7 +61,6 @@ export function selectScenarios(
     if (match) selected.push(match);
   }
 
-  // Fill remaining slots with unselected scenarios
   if (selected.length < maxScenarios) {
     for (const s of scenarioList) {
       if (selected.length >= maxScenarios) break;
