@@ -15,10 +15,9 @@ const authHeaders = async () => {
 interface Message { id: string; role: 'user' | 'assistant'; content: string; timestamp: Date; }
 
 // ============================================================
-// VOICE CHAT PAGE — Rebuilt for natural conversation feel
+// VOICE CHAT — Talk to Aya
 // STT: OpenAI Whisper (server-side) with browser fallback
 // TTS: OpenAI nova voice with sentence chunking
-// UX: Auto-listen, silence detection, smooth turn-taking
 // ============================================================
 
 export default function VoiceChatPage() {
@@ -27,29 +26,26 @@ export default function VoiceChatPage() {
   const [status, setStatus] = useState<'idle' | 'listening' | 'processing' | 'speaking'>('idle');
   const [isStarted, setIsStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [liveTranscript, setLiveTranscript] = useState('');
-  const [showTranscript, setShowTranscript] = useState(true);
+  const [transcript, setTranscript] = useState('');
+  const [showText, setShowText] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [elapsed, setElapsed] = useState(0);
-  const [whisperAvailable, setWhisperAvailable] = useState(true);
-  const [autoListen, setAutoListen] = useState(true);
-  const [amplitude, setAmplitude] = useState(0);
+  const [textInput, setTextInput] = useState('');
+  const [ayaThinking, setAyaThinking] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animFrameRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const isRecordingRef = useRef(false);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const useWhisperRef = useRef(true);
 
-  // Auto-scroll
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const thinkingMessages = ['Aya is listening...', 'Let me think about that...', 'Hmm, interesting...', 'Processing your story...', 'I hear you...'];
 
-  // Timer
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, status]);
+
   useEffect(() => {
     if (!isStarted) return;
     const start = Date.now();
@@ -57,181 +53,22 @@ export default function VoiceChatPage() {
     return () => clearInterval(t);
   }, [isStarted]);
 
-  // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-    };
-  }, []);
+    if (status !== 'processing') { setAyaThinking(''); return; }
+    let idx = 0;
+    setAyaThinking(thinkingMessages[0]);
+    const t = setInterval(() => { idx = (idx + 1) % thinkingMessages.length; setAyaThinking(thinkingMessages[idx]); }, 2500);
+    return () => clearInterval(t);
+  }, [status]);
 
   // ============================================================
-  // AUDIO RECORDING — captures audio for Whisper
-  // ============================================================
-
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000 },
-      });
-      streamRef.current = stream;
-
-      // Set up amplitude analysis for visual feedback
-      const audioCtx = new AudioContext();
-      const source = audioCtx.createMediaStreamSource(stream);
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      source.connect(analyser);
-      analyserRef.current = analyser;
-
-      // Animate amplitude
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const updateAmplitude = () => {
-        analyser.getByteFrequencyData(dataArray as any);
-        const avg = Array.from(dataArray).reduce((a, b) => a + b, 0) / dataArray.length;
-        setAmplitude(avg / 255);
-        animFrameRef.current = requestAnimationFrame(updateAmplitude);
-      };
-      updateAmplitude();
-
-      // MediaRecorder for Whisper
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/mp4')
-        ? 'audio/mp4'
-        : 'audio/webm';
-
-      const recorder = new MediaRecorder(stream, { mimeType });
-      audioChunksRef.current = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-
-      recorder.start(250); // Collect data every 250ms
-      mediaRecorderRef.current = recorder;
-      setStatus('listening');
-      setLiveTranscript('');
-
-      // Silence detection — auto-stop after 2.5s of silence
-      startSilenceDetection(analyser, dataArray);
-
-    } catch (e: any) {
-      console.error('Mic error:', e);
-      if (e.name === 'NotAllowedError') {
-        alert('Microphone access denied. Please allow microphone access in your browser settings.');
-      }
-    }
-  }, []);
-
-  const startSilenceDetection = (analyser: AnalyserNode, dataArray: Uint8Array) => {
-    let silentFrames = 0;
-    const SILENCE_THRESHOLD = 8;
-    const FRAMES_FOR_SILENCE = 25;
-
-    const check = () => {
-      if (mediaRecorderRef.current?.state !== 'recording') return;
-
-      analyser.getByteFrequencyData(dataArray as any);
-      const avg = Array.from(dataArray).reduce((a, b) => a + b, 0) / dataArray.length;
-
-      if (avg < SILENCE_THRESHOLD) {
-        silentFrames++;
-        if (silentFrames >= FRAMES_FOR_SILENCE && audioChunksRef.current.length > 0) {
-          // Silence detected — auto-stop and send
-          stopRecordingAndSend();
-          return;
-        }
-      } else {
-        silentFrames = 0; // Reset on speech
-      }
-
-      silenceTimerRef.current = setTimeout(check, 100);
-    };
-    check();
-  };
-
-  const stopRecordingAndSend = useCallback(async () => {
-    // Stop silence detection
-    if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
-    if (animFrameRef.current) { cancelAnimationFrame(animFrameRef.current); animFrameRef.current = null; }
-
-    const recorder = mediaRecorderRef.current;
-    if (!recorder || recorder.state !== 'recording') return;
-
-    setStatus('processing');
-    setAmplitude(0);
-
-    // Stop recording and get audio
-    return new Promise<void>((resolve) => {
-      recorder.onstop = async () => {
-        // Stop mic stream
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(t => t.stop());
-          streamRef.current = null;
-        }
-
-        const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType });
-        audioChunksRef.current = [];
-
-        if (audioBlob.size < 1000) {
-          // Too short — probably just noise
-          setStatus('idle');
-          resolve();
-          return;
-        }
-
-        // Send to Whisper for transcription
-        const transcript = await transcribeWithWhisper(audioBlob);
-
-        if (transcript && transcript.trim()) {
-          setLiveTranscript(transcript);
-          await sendMessage(transcript);
-        } else {
-          setStatus('idle');
-        }
-        resolve();
-      };
-      recorder.stop();
-    });
-  }, []);
-
-  // ============================================================
-  // WHISPER STT — server-side transcription
-  // ============================================================
-
-  const transcribeWithWhisper = async (audioBlob: Blob): Promise<string> => {
-    try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
-
-      const res = await fetch('/api/stt', { method: 'POST', body: formData });
-      const data = await res.json();
-
-      if (data.fallback) {
-        setWhisperAvailable(false);
-        return ''; // Will fall back to browser STT
-      }
-
-      return data.text || '';
-    } catch (e) {
-      console.error('Whisper STT error:', e);
-      setWhisperAvailable(false);
-      return '';
-    }
-  };
-
-  // ============================================================
-  // TTS — OpenAI nova voice with sentence chunking
+  // TTS — Aya speaks with OpenAI nova voice
   // ============================================================
 
   const speak = useCallback(async (text: string) => {
-    if (!voiceEnabled) { setStatus('idle'); return; }
+    if (!voiceEnabled) return;
     setStatus('speaking');
-
     try {
-      // Request first chunk immediately for fast response
       const res = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -243,136 +80,186 @@ export default function VoiceChatPage() {
         const url = URL.createObjectURL(blob);
         const audio = new Audio(url);
         audioRef.current = audio;
-
-        // Check if there's more to speak
-        const remaining = decodeURIComponent(res.headers.get('X-Remaining-Text') || '');
+        const remaining = res.headers.get('X-Remaining-Text');
 
         audio.onended = async () => {
           URL.revokeObjectURL(url);
-          if (remaining && remaining.trim()) {
-            // Speak remaining text
-            await speakChunk(remaining);
-          } else {
-            finishSpeaking();
+          if (remaining) {
+            const decoded = decodeURIComponent(remaining);
+            if (decoded.trim()) { await speakMore(decoded); return; }
           }
+          setStatus('idle');
+          // Auto-resume listening after Aya finishes
+          setTimeout(() => { if (!isRecordingRef.current) startListening(); }, 700);
         };
-        audio.onerror = () => { URL.revokeObjectURL(url); finishSpeaking(); };
+        audio.onerror = () => { URL.revokeObjectURL(url); setStatus('idle'); };
         await audio.play();
         return;
       }
-
-      // Fallback — browser TTS
-      fallbackSpeak(text);
-    } catch (e) {
-      console.log('TTS failed, using browser fallback');
-      fallbackSpeak(text);
+      // Fallback
+      browserSpeak(text);
+    } catch {
+      browserSpeak(text);
     }
   }, [voiceEnabled]);
 
-  const speakChunk = async (text: string) => {
+  const speakMore = async (text: string) => {
     try {
       const res = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       });
-
       if (res.headers.get('content-type')?.includes('audio')) {
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         const audio = new Audio(url);
         audioRef.current = audio;
-        audio.onended = () => { URL.revokeObjectURL(url); finishSpeaking(); };
-        audio.onerror = () => { URL.revokeObjectURL(url); finishSpeaking(); };
+        audio.onended = () => {
+          URL.revokeObjectURL(url); setStatus('idle');
+          setTimeout(() => { if (!isRecordingRef.current) startListening(); }, 700);
+        };
+        audio.onerror = () => { URL.revokeObjectURL(url); setStatus('idle'); };
         await audio.play();
-      } else {
-        finishSpeaking();
       }
-    } catch {
-      finishSpeaking();
-    }
+    } catch { setStatus('idle'); }
   };
 
-  const finishSpeaking = useCallback(() => {
-    setStatus('idle');
-    // Auto-listen after Aya finishes speaking
-    if (autoListen && isStarted) {
-      setTimeout(() => {
-        if (mediaRecorderRef.current?.state !== 'recording') {
-          startRecording();
-        }
-      }, 800); // Brief pause before listening again
-    }
-  }, [autoListen, isStarted, startRecording]);
-
-  const fallbackSpeak = (text: string) => {
-    if (!window.speechSynthesis) { setStatus('idle'); return; }
+  const browserSpeak = (text: string) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) { setStatus('idle'); return; }
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1.05;
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 0.92; utt.pitch = 1.05;
     const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v =>
-      v.name.includes('Samantha') || v.name.includes('Karen') ||
-      (v.lang.startsWith('en') && v.name.toLowerCase().includes('female'))
-    );
-    if (preferred) utterance.voice = preferred;
-    utterance.onend = () => finishSpeaking();
-    utterance.onerror = () => finishSpeaking();
-    window.speechSynthesis.speak(utterance);
+    const pref = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('female')));
+    if (pref) utt.voice = pref;
+    utt.onend = () => { setStatus('idle'); setTimeout(() => { if (!isRecordingRef.current) startListening(); }, 700); };
+    utt.onerror = () => setStatus('idle');
+    window.speechSynthesis.speak(utt);
   };
 
   const stopSpeaking = () => {
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; audioRef.current = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
     setStatus('idle');
   };
 
   // ============================================================
-  // SEND MESSAGE to Aya
+  // STT — MediaRecorder → Whisper API (server-side)
+  // ============================================================
+
+  const startListening = useCallback(async () => {
+    if (status === 'speaking' || status === 'processing' || isLoading) return;
+
+    if (useWhisperRef.current) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000 }
+        });
+        streamRef.current = stream;
+        audioChunksRef.current = [];
+
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+        const recorder = new MediaRecorder(stream, { mimeType });
+
+        recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+
+        recorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+          isRecordingRef.current = false;
+
+          if (audioChunksRef.current.length === 0) { setStatus('idle'); return; }
+
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          if (audioBlob.size < 4000) { setStatus('idle'); return; } // Skip noise
+
+          setStatus('processing');
+          setTranscript('Transcribing...');
+
+          try {
+            const form = new FormData();
+            form.append('audio', audioBlob, 'recording.webm');
+            const res = await fetch('/api/stt', { method: 'POST', body: form });
+            const data = await res.json();
+            if (data.text?.trim()) {
+              setTranscript(data.text);
+              sendMessage(data.text);
+            } else {
+              setTranscript(''); setStatus('idle');
+            }
+          } catch {
+            setTranscript(''); setStatus('idle');
+          }
+        };
+
+        mediaRecorderRef.current = recorder;
+        recorder.start(250);
+        isRecordingRef.current = true;
+        setStatus('listening');
+        setTranscript('');
+
+        // Max 30s per recording
+        silenceTimerRef.current = setTimeout(() => {
+          if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+        }, 30000);
+        return;
+      } catch {
+        useWhisperRef.current = false;
+      }
+    }
+
+    // Browser fallback
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice not supported. Use Chrome or Safari.');
+      return;
+    }
+    const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const rec = new SR();
+    rec.continuous = false; rec.interimResults = true; rec.lang = 'en-PH';
+    rec.onstart = () => { setStatus('listening'); isRecordingRef.current = true; };
+    rec.onresult = (e: any) => { let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; setTranscript(t); };
+    rec.onend = () => { isRecordingRef.current = false; if (transcript.trim()) sendMessage(transcript); else setStatus('idle'); };
+    rec.onerror = () => { isRecordingRef.current = false; setStatus('idle'); };
+    rec.start();
+  }, [status, isLoading]);
+
+  const stopListening = () => {
+    if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
+    if (mediaRecorderRef.current?.state === 'recording') { mediaRecorderRef.current.stop(); }
+    else { isRecordingRef.current = false; setStatus('idle'); }
+  };
+
+  // ============================================================
+  // SEND MESSAGE
   // ============================================================
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading || !sessionId) return;
-    setLiveTranscript('');
-    setStatus('processing');
-    setIsLoading(true);
+    setTranscript(''); setTextInput(''); setStatus('processing'); setIsLoading(true);
 
     const userMsg: Message = { id: crypto.randomUUID(), role: 'user', content: text.trim(), timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
 
     try {
       const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: await authHeaders(),
+        method: 'POST', headers: await authHeaders(),
         body: JSON.stringify({ session_id: sessionId, message: text.trim() }),
       });
       const data = await res.json();
-
       const ayaMsg: Message = { id: crypto.randomUUID(), role: 'assistant', content: data.message, timestamp: new Date() };
       setMessages(prev => [...prev, ayaMsg]);
 
-      // Speak Aya's response
-      if (voiceEnabled && data.message) {
-        await speak(data.message);
-      } else {
-        setStatus('idle');
-      }
-    } catch (e) {
-      console.error('Send error:', e);
-      setMessages(prev => [...prev, {
-        id: crypto.randomUUID(), role: 'assistant',
-        content: 'Sorry, I had a connection issue. Can you say that again?',
-        timestamp: new Date(),
-      }]);
+      if (voiceEnabled && data.message) await speak(data.message);
+      else setStatus('idle');
+    } catch {
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: 'Sorry, connection issue. Try again?', timestamp: new Date() }]);
       setStatus('idle');
-    } finally {
-      setIsLoading(false);
-    }
+    } finally { setIsLoading(false); }
   }, [sessionId, isLoading, speak, voiceEnabled]);
 
   // ============================================================
-  // SESSION MANAGEMENT
+  // SESSION
   // ============================================================
 
   const startSession = async () => {
@@ -392,115 +279,69 @@ export default function VoiceChatPage() {
 
       const chatRes = await fetch('/api/chat', {
         method: 'POST', headers: await authHeaders(),
-        body: JSON.stringify({ session_id: startData.session_id, message: '[SESSION START: Please greet the user warmly, introduce yourself as Aya, and begin Phase 1 of the conversation. Keep your greeting to 2-3 sentences — warm and natural, like meeting someone for coffee.]' }),
+        body: JSON.stringify({
+          session_id: startData.session_id,
+          message: '[SESSION START: Greet warmly, introduce yourself as Aya. Keep it to 2-3 sentences — this is voice mode so be brief and natural. Sound like a friend, not a robot.]'
+        }),
       });
       const chatData = await chatRes.json();
-
-      const ayaMsg: Message = { id: crypto.randomUUID(), role: 'assistant', content: chatData.message, timestamp: new Date() };
-      setMessages([ayaMsg]);
+      setMessages([{ id: crypto.randomUUID(), role: 'assistant', content: chatData.message, timestamp: new Date() }]);
       setIsStarted(true);
 
-      if (voiceEnabled) {
-        await speak(chatData.message);
-      } else {
-        setStatus('idle');
-      }
-    } catch (e) {
-      console.error('Failed to start:', e);
-    } finally {
-      setIsLoading(false);
-    }
+      if (voiceEnabled) await speak(chatData.message);
+      else setStatus('idle');
+    } catch { console.error('Start failed'); }
+    finally { setIsLoading(false); }
   };
 
   const finishSession = async () => {
     if (!sessionId) return;
-    setIsLoading(true);
-    stopSpeaking();
+    setIsLoading(true); stopSpeaking(); stopListening();
     try {
       await fetch('/api/chat', {
         method: 'POST', headers: await authHeaders(),
         body: JSON.stringify({ session_id: sessionId, message: '[USER REQUESTED END]', action: 'finish' }),
       });
       window.location.href = '/skills';
-    } catch (e) {
-      console.error(e);
-      setIsLoading(false);
-    }
+    } catch { setIsLoading(false); }
   };
 
-  // ============================================================
-  // TEXT INPUT — for typing when voice isn't possible
-  // ============================================================
-
-  const [textInput, setTextInput] = useState('');
-  const handleTextSend = () => {
-    if (textInput.trim() && !isLoading) {
-      sendMessage(textInput.trim());
-      setTextInput('');
-    }
+  const handleMainAction = () => {
+    if (status === 'listening') stopListening();
+    else if (status === 'speaking') stopSpeaking();
+    else if (status === 'idle' && isStarted) startListening();
   };
 
   const mins = Math.floor(elapsed / 60);
   const secs = elapsed % 60;
-
-  // Orb visual properties based on state
-  const orbGradient = status === 'listening'
-    ? 'radial-gradient(circle, #FF6B6B 0%, #C0392B 70%)'
-    : status === 'speaking'
-    ? 'radial-gradient(circle, #BB86FC 0%, #7C3AED 70%)'
-    : status === 'processing'
-    ? 'radial-gradient(circle, #FFB347 0%, #E67E22 70%)'
-    : 'radial-gradient(circle, #69DB7C 0%, #2B8A3E 70%)';
-
-  const orbScale = status === 'listening' ? 1 + amplitude * 0.4 : status === 'speaking' ? 1.05 : 1;
-  const orbShadow = status === 'listening'
-    ? `0 0 ${30 + amplitude * 60}px rgba(255,107,107,${0.3 + amplitude * 0.4})`
-    : status === 'speaking'
-    ? '0 0 40px rgba(187,134,252,0.4)'
-    : status === 'processing'
-    ? '0 0 30px rgba(255,179,71,0.3)'
-    : '0 0 25px rgba(105,219,124,0.3)';
-
-  const statusLabel = status === 'listening' ? 'Listening...'
-    : status === 'speaking' ? 'Aya is talking...'
-    : status === 'processing' ? 'Thinking...'
-    : 'Tap to talk';
-
-  // ============================================================
-  // RENDER
-  // ============================================================
+  const orbColor = status === 'listening' ? '#EF4444' : status === 'speaking' ? '#8B5CF6' : status === 'processing' ? '#F59E0B' : '#48BB78';
+  const statusLabel = status === 'listening' ? 'Listening... tap to send' : status === 'speaking' ? 'Aya is talking...' : status === 'processing' ? (ayaThinking || 'Thinking...') : isStarted ? 'Tap to speak' : '';
 
   return (
-    <div className="h-screen flex flex-col" style={{ background: 'linear-gradient(160deg, #080E1A 0%, #0F1B2D 40%, #1A0F2E 100%)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(160deg, #0a1628 0%, #0f2035 40%, #1a0e2e 100%)' }}>
       {/* Header */}
-      <div className="flex-none px-5 pt-4 pb-2">
+      <div className="flex-none px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
-          <a href="/my-dashboard" className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.07)' }}>
+          <a href="/my-dashboard" className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
           </a>
           <div className="text-center">
-            <p className="text-sm font-semibold" style={{ color: '#F0F4F8', fontFamily: 'Georgia, serif' }}>Aya</p>
-            <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              {isStarted ? `${mins}:${secs.toString().padStart(2, '0')}` : 'Voice Mode'}
-              {!whisperAvailable && isStarted && ' · Browser mic'}
-            </p>
+            <div className="flex items-center gap-2 justify-center">
+              <div className="w-2 h-2 rounded-full" style={{ background: isStarted ? '#48BB78' : '#627D98' }} />
+              <span className="text-sm font-semibold" style={{ color: '#F0F4F8', fontFamily: 'Georgia, serif' }}>Aya</span>
+            </div>
+            {isStarted && <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>Voice · {mins}:{secs.toString().padStart(2, '0')}</p>}
           </div>
           <div className="flex items-center gap-1.5">
             {isStarted && (
               <>
-                <button onClick={() => setShowTranscript(!showTranscript)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ background: showTranscript ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showTranscript ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)'} strokeWidth="2">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                  </svg>
+                <button onClick={() => setShowText(!showText)} className="text-[10px] px-2.5 py-1 rounded-full"
+                  style={{ background: showText ? 'rgba(72,187,120,0.2)' : 'rgba(255,255,255,0.06)', color: showText ? '#48BB78' : 'rgba(255,255,255,0.4)' }}>
+                  {showText ? 'Text' : 'Text'}
                 </button>
-                <button onClick={() => setAutoListen(!autoListen)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ background: autoListen ? 'rgba(105,219,124,0.2)' : 'rgba(255,255,255,0.05)' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={autoListen ? '#69DB7C' : 'rgba(255,255,255,0.3)'} strokeWidth="2">
-                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/>
-                  </svg>
+                <button onClick={() => setVoiceEnabled(!voiceEnabled)} className="text-[10px] px-2.5 py-1 rounded-full"
+                  style={{ background: voiceEnabled ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.06)', color: voiceEnabled ? '#a78bfa' : 'rgba(255,255,255,0.4)' }}>
+                  {voiceEnabled ? '🔊' : '🔇'}
                 </button>
               </>
             )}
@@ -508,158 +349,99 @@ export default function VoiceChatPage() {
         </div>
       </div>
 
-      {/* Transcript area — scrollable messages */}
-      {showTranscript && isStarted && (
-        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3" style={{ maxHeight: 'calc(100vh - 340px)' }}>
+      {/* Transcript */}
+      {showText && isStarted && (
+        <div className="flex-none overflow-y-auto px-4 py-2 space-y-2" style={{ maxHeight: '35vh' }}>
           {messages.map(msg => (
             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}>
               {msg.role === 'assistant' && (
-                <div className="w-7 h-7 rounded-full flex-none flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #F6AD55, #ED8936)' }}>
-                  <span style={{ fontSize: '12px' }}>🦋</span>
+                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-none" style={{ background: 'linear-gradient(135deg, #F6AD55, #ED8936)' }}>
+                  <span style={{ fontSize: '10px' }}>🦋</span>
                 </div>
               )}
-              <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm'}`}
-                style={{
-                  background: msg.role === 'user' ? 'rgba(105,219,124,0.15)' : 'rgba(255,255,255,0.06)',
-                  border: msg.role === 'user' ? '1px solid rgba(105,219,124,0.2)' : '1px solid rgba(255,255,255,0.06)',
-                  color: 'rgba(255,255,255,0.85)',
-                }}>
+              <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-[13px] ${msg.role === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm'}`}
+                style={{ background: msg.role === 'user' ? 'rgba(72,187,120,0.15)' : 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.85)' }}>
                 {msg.content}
               </div>
             </div>
           ))}
-          {/* Live transcript while listening */}
-          {liveTranscript && status === 'listening' && (
-            <div className="flex justify-end">
-              <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-br-sm text-sm"
-                style={{ background: 'rgba(105,219,124,0.08)', border: '1px dashed rgba(105,219,124,0.2)', color: 'rgba(255,255,255,0.5)' }}>
-                {liveTranscript}...
-              </div>
-            </div>
-          )}
           <div ref={messagesEndRef} />
         </div>
       )}
 
-      {/* Voice interaction area */}
-      <div className={`flex flex-col items-center justify-center px-5 ${showTranscript && isStarted ? '' : 'flex-1'}`}
-        style={{ minHeight: showTranscript && isStarted ? '260px' : '100%' }}>
-
+      {/* Main area */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6">
         {!isStarted ? (
-          /* ===== WELCOME SCREEN ===== */
-          <div className="text-center">
-            <div className="relative mx-auto mb-8">
-              {/* Ambient glow */}
-              <div className="absolute inset-0 w-36 h-36 rounded-full mx-auto" style={{
-                background: 'radial-gradient(circle, rgba(246,173,85,0.15) 0%, transparent 70%)',
-                transform: 'translate(-50%, -50%)', left: '50%', top: '50%',
-                filter: 'blur(20px)',
-              }} />
-              <div className="relative w-28 h-28 rounded-full mx-auto flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #F6AD55, #ED8936)', boxShadow: '0 0 50px rgba(246,173,85,0.3)' }}>
-                <span style={{ fontSize: '44px' }}>🦋</span>
-              </div>
+          <div className="text-center max-w-xs">
+            <div className="w-28 h-28 rounded-full mx-auto mb-8 flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #F6AD55, #ED8936, #DD6B20)', boxShadow: '0 0 60px rgba(246,173,85,0.2)' }}>
+              <span style={{ fontSize: '48px' }}>🦋</span>
             </div>
-            <h1 className="text-2xl font-bold mb-2" style={{ color: '#F0F4F8', fontFamily: 'Georgia, serif' }}>Talk with Aya</h1>
-            <p className="text-sm mb-8 max-w-xs mx-auto leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Have a conversation. Share your stories. Aya listens, responds, and helps discover the skills hidden in your experiences.
+            <h1 className="text-2xl font-bold mb-2" style={{ color: '#F0F4F8', fontFamily: 'Georgia, serif' }}>Talk to Aya</h1>
+            <p className="text-sm leading-relaxed mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              Share your stories through voice. Just like talking to a friend.
             </p>
             <button onClick={startSession} disabled={isLoading}
-              className="px-10 py-4 rounded-2xl font-semibold text-white text-sm transition-all active:scale-95"
-              style={{
-                background: isLoading ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #48BB78, #38A169)',
-                boxShadow: isLoading ? 'none' : '0 4px 25px rgba(72,187,120,0.35)',
-              }}>
-              {isLoading ? 'Connecting...' : 'Start Conversation'}
+              className="w-full py-4 rounded-2xl font-semibold text-white text-sm active:scale-95 transition-transform"
+              style={{ background: isLoading ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #48BB78, #38A169)', boxShadow: isLoading ? 'none' : '0 4px 24px rgba(72,187,120,0.3)' }}>
+              {isLoading ? 'Starting...' : 'Start Talking'}
             </button>
-            <p className="text-[10px] mt-5" style={{ color: 'rgba(255,255,255,0.25)' }}>
-              Uses your microphone · English, Filipino, or Taglish
-            </p>
+            <a href="/chat" className="block text-[11px] mt-5" style={{ color: 'rgba(255,255,255,0.25)' }}>Prefer text? →</a>
           </div>
         ) : (
-          /* ===== ACTIVE SESSION — ORB + CONTROLS ===== */
-          <div className="text-center">
-            {/* The Orb */}
-            <div className="relative mb-5">
-              {/* Outer ambient pulse */}
+          <div className="text-center w-full max-w-xs">
+            {/* Orb */}
+            <div className="relative mx-auto mb-6" style={{ width: '140px', height: '140px' }}>
               {(status === 'listening' || status === 'speaking') && (
-                <div className="absolute rounded-full" style={{
-                  width: '140px', height: '140px',
-                  left: '50%', top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  background: orbGradient,
-                  opacity: 0.08,
-                  animation: 'orbPulse 2s ease-in-out infinite',
-                }} />
+                <>
+                  <div className="absolute rounded-full" style={{ inset: '-12px', background: `radial-gradient(circle, ${orbColor}15 0%, transparent 70%)`, animation: 'pulse1 2s ease-in-out infinite' }} />
+                  <div className="absolute rounded-full" style={{ inset: '-24px', background: `radial-gradient(circle, ${orbColor}08 0%, transparent 70%)`, animation: 'pulse2 2s ease-in-out 0.5s infinite' }} />
+                </>
               )}
-              {/* Main orb button */}
-              <button
-                onClick={() => {
-                  if (status === 'listening') stopRecordingAndSend();
-                  else if (status === 'speaking') stopSpeaking();
-                  else if (status === 'idle') startRecording();
-                }}
-                disabled={status === 'processing'}
-                className="relative w-24 h-24 rounded-full flex items-center justify-center transition-transform duration-150 active:scale-90 mx-auto"
+              {status === 'processing' && (
+                <div className="absolute rounded-full" style={{ inset: '-6px', border: '2px solid transparent', borderTopColor: orbColor, borderRightColor: `${orbColor}40`, animation: 'spin 1.2s linear infinite' }} />
+              )}
+              <button onClick={handleMainAction} disabled={status === 'processing'}
+                className="relative w-full h-full rounded-full flex items-center justify-center transition-all active:scale-95"
                 style={{
-                  background: orbGradient,
-                  transform: `scale(${orbScale})`,
-                  boxShadow: orbShadow,
-                  transition: 'transform 0.1s ease-out, box-shadow 0.2s ease-out',
+                  background: status === 'listening' ? 'linear-gradient(135deg, #EF4444, #DC2626)' : status === 'speaking' ? 'linear-gradient(135deg, #8B5CF6, #7C3AED)' : status === 'processing' ? 'linear-gradient(135deg, #1E3A5F, #0f2035)' : 'linear-gradient(135deg, #48BB78, #38A169)',
+                  boxShadow: `0 0 40px ${orbColor}30`,
                 }}>
                 {status === 'listening' ? (
-                  /* Animated bars */
-                  <div className="flex items-end gap-1 h-7">
-                    {[0,1,2,3,4].map(i => (
-                      <div key={i} className="w-1 rounded-full bg-white" style={{
-                        height: `${8 + amplitude * 20 + Math.sin(Date.now() / 200 + i) * 4}px`,
-                        opacity: 0.8 + amplitude * 0.2,
-                        transition: 'height 0.1s ease-out',
-                      }} />
-                    ))}
-                  </div>
+                  <div className="flex items-center gap-1">{[0,1,2,3,4].map(i => (<div key={i} className="w-1 rounded-full bg-white" style={{ animation: `wave 1s ease-in-out ${i*0.12}s infinite` }} />))}</div>
                 ) : status === 'speaking' ? (
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-                    <path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14" opacity="0.5"/><path d="M15.54 8.46a5 5 0 010 7.07"/>
-                  </svg>
+                  <div className="flex flex-col items-center">
+                    <span style={{ fontSize: '36px' }}>🦋</span>
+                    <div className="flex gap-0.5 mt-1">{[0,1,2].map(i => (<div key={i} className="w-1 h-1 rounded-full bg-white/60" style={{ animation: `speakDot 1.4s ease-in-out ${i*0.2}s infinite` }} />))}</div>
+                  </div>
                 ) : status === 'processing' ? (
-                  <div className="flex gap-1.5">
-                    {[0,1,2].map(i => (
-                      <div key={i} className="w-2 h-2 rounded-full bg-white" style={{ animation: `dotBounce 1.2s ease-in-out ${i * 0.15}s infinite` }} />
-                    ))}
+                  <div className="flex flex-col items-center">
+                    <span style={{ fontSize: '32px', opacity: 0.7 }}>🦋</span>
+                    <div className="flex gap-1.5 mt-2">{[0,1,2].map(i => (<div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: orbColor, animation: `bounce 1.2s ease-in-out ${i*0.15}s infinite` }} />))}</div>
                   </div>
                 ) : (
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
-                  </svg>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                 )}
               </button>
             </div>
 
-            <p className="text-sm font-medium mb-1" style={{ color: status === 'listening' ? '#FF6B6B' : status === 'speaking' ? '#BB86FC' : status === 'processing' ? '#FFB347' : '#69DB7C' }}>
-              {statusLabel}
-            </p>
-            <p className="text-[10px] mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>
-              {status === 'listening' ? 'Speak naturally — I\'ll detect when you pause' :
-               status === 'idle' && autoListen ? 'Auto-listen is on' : ''}
-            </p>
+            <p className="text-sm font-medium mb-2" style={{ color: orbColor }}>{statusLabel}</p>
 
-            {/* Text input fallback */}
-            <div className="flex items-center gap-2 max-w-sm mx-auto">
-              <input type="text" placeholder="Or type here..."
-                value={textInput}
-                onChange={e => setTextInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') handleTextSend(); }}
-                disabled={isLoading || status === 'speaking'}
-                className="flex-1 px-4 py-2.5 rounded-2xl text-sm outline-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)' }}
-              />
+            {transcript && (status === 'listening' || status === 'processing') && (
+              <div className="px-4 py-2 rounded-xl mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <p className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>{transcript}</p>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 mt-3">
+              <input type="text" value={textInput} onChange={e => setTextInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && textInput.trim()) sendMessage(textInput); }}
+                placeholder="Or type here..."
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)' }} />
               {textInput.trim() && (
-                <button onClick={handleTextSend} disabled={isLoading}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-90"
-                  style={{ background: 'rgba(105,219,124,0.3)', border: '1px solid rgba(105,219,124,0.3)' }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#69DB7C" strokeWidth="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+                <button onClick={() => sendMessage(textInput)} className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(72,187,120,0.3)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#48BB78" strokeWidth="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
                 </button>
               )}
             </div>
@@ -667,36 +449,28 @@ export default function VoiceChatPage() {
         )}
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom */}
       {isStarted && (
-        <div className="flex-none px-5 pb-6 pt-2">
-          <div className="flex items-center justify-between max-w-sm mx-auto">
-            <a href="/chat" className="text-[10px] px-3 py-1.5 rounded-full transition-all"
-              style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)' }}>
-              Switch to Text
-            </a>
-            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
-              {messages.filter(m => m.role === 'user').length} messages
-            </span>
+        <div className="flex-none px-4 pb-6 pt-3">
+          <div className="flex items-center justify-between max-w-xs mx-auto">
+            <a href="/chat" className="text-[11px] px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)' }}>Text Mode</a>
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>{messages.filter(m => m.role === 'user').length} messages</span>
             <button onClick={finishSession} disabled={isLoading || messages.length < 4}
-              className="text-[10px] px-3 py-1.5 rounded-full transition-all"
-              style={{ background: messages.length >= 4 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', color: messages.length >= 4 ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)' }}>
-              Finish & See Skills →
+              className="text-[11px] px-3 py-1.5 rounded-full"
+              style={{ background: messages.length >= 4 ? 'rgba(72,187,120,0.15)' : 'rgba(255,255,255,0.05)', color: messages.length >= 4 ? '#48BB78' : 'rgba(255,255,255,0.2)' }}>
+              Finish →
             </button>
           </div>
         </div>
       )}
 
-      {/* Animations */}
       <style jsx global>{`
-        @keyframes orbPulse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.08; }
-          50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.03; }
-        }
-        @keyframes dotBounce {
-          0%, 80%, 100% { transform: scale(0); }
-          40% { transform: scale(1.0); }
-        }
+        @keyframes pulse1 { 0%,100% { transform:scale(1); opacity:0.6; } 50% { transform:scale(1.15); opacity:0.2; } }
+        @keyframes pulse2 { 0%,100% { transform:scale(1); opacity:0.4; } 50% { transform:scale(1.2); opacity:0.1; } }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        @keyframes wave { 0%,100% { height:8px; } 50% { height:28px; } }
+        @keyframes speakDot { 0%,100% { transform:scale(0.8); opacity:0.4; } 50% { transform:scale(1.2); opacity:1; } }
+        @keyframes bounce { 0%,80%,100% { transform:scale(0); } 40% { transform:scale(1); } }
       `}</style>
     </div>
   );
