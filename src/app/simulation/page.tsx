@@ -46,6 +46,11 @@ const CHAR_COLORS = [
   { bg: '#FDEDEC', text: '#C0392B', border: '#F5B7B1', avatar: '#C0392B' },
 ];
 
+// Character voice assignments — distinct OpenAI TTS voices per position
+// alloy=neutral, echo=male deep, fable=male warm, onyx=male authoritative,
+// nova=female warm, shimmer=female bright
+const CHAR_VOICES = ['onyx', 'shimmer', 'echo', 'fable', 'alloy'];
+
 const TONE_INDICATORS: Record<string, string> = {
   frustrated: '😤',
   calm: '😌',
@@ -86,14 +91,86 @@ function SimulationPage() {
   const [report, setReport] = useState<any>(null);
   const [scenarioId, setScenarioId] = useState<string | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<string>('scenario_customer_escalation');
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  // Speak a character's message with their assigned voice
+  const speakCharacter = useCallback(async (text: string, charIndex: number) => {
+    if (!voiceMode) return;
+    const voice = CHAR_VOICES[charIndex % CHAR_VOICES.length];
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voice_override: voice }),
+      });
+      if (res.headers.get('content-type')?.includes('audio')) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        return new Promise<void>((resolve) => {
+          const audio = new Audio(url);
+          audioRef.current = audio;
+          setIsSpeaking(true);
+          audio.onended = () => { URL.revokeObjectURL(url); setIsSpeaking(false); resolve(); };
+          audio.onerror = () => { URL.revokeObjectURL(url); setIsSpeaking(false); resolve(); };
+          audio.play().catch(() => { setIsSpeaking(false); resolve(); });
+        });
+      }
+    } catch { /* voice is optional */ }
+  }, [voiceMode]);
+
+  // Speak all character messages in sequence
+  const speakCharacterMessages = useCallback(async (charMessages: CharMessage[]) => {
+    if (!voiceMode || !scenario) return;
+    for (const msg of charMessages) {
+      const idx = scenario.characters.findIndex(c => c.id === msg.character_id);
+      await speakCharacter(msg.message, idx >= 0 ? idx : 0);
+      // Brief pause between characters
+      await new Promise(r => setTimeout(r, 300));
+    }
+  }, [voiceMode, scenario, speakCharacter]);
+
+  // Record and transcribe candidate voice input
+  const recordVoiceInput = useCallback(async (): Promise<string | null> => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+      const recorder = new MediaRecorder(stream, { mimeType });
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.start(250);
+
+      return new Promise((resolve) => {
+        // Auto-stop after 30 seconds max, or user can stop via UI
+        const timeout = setTimeout(() => { if (recorder.state === 'recording') recorder.stop(); }, 30000);
+        recorder.onstop = async () => {
+          clearTimeout(timeout);
+          stream.getTracks().forEach(t => t.stop());
+          const blob = new Blob(chunks, { type: mimeType });
+          if (blob.size < 1000) { resolve(null); return; }
+          // Send to Whisper
+          const form = new FormData();
+          form.append('audio', blob, 'recording.webm');
+          try {
+            const res = await fetch('/api/stt', { method: 'POST', body: form });
+            const data = await res.json();
+            resolve(data.text || null);
+          } catch { resolve(null); }
+        };
+        // Store recorder ref so UI can stop it
+        (window as any).__simRecorder = recorder;
+      });
+    } catch { return null; }
+  }, []);
 
   // Character color lookup
   const getCharColor = useCallback((charId: string) => {
@@ -135,6 +212,11 @@ function SimulationPage() {
         ]);
 
         setPhase('active');
+
+        // Voice mode: speak opening messages
+        if (voiceMode && data.opening_messages?.length) {
+          await speakCharacterMessages(data.opening_messages);
+        }
       } else {
         alert('Failed to start simulation: ' + (data.error || 'Unknown error'));
       }
@@ -150,11 +232,11 @@ function SimulationPage() {
   // SEND MESSAGE
   // ============================================================
 
-  const sendMessage = useCallback(async () => {
-    if (!input.trim() || !sessionId || loading) return;
+  const sendMessage = useCallback(async (overrideText?: string) => {
+    const text = overrideText || input.trim();
+    if (!text || !sessionId || loading) return;
 
-    const text = input.trim();
-    setInput('');
+    if (!overrideText) setInput('');
     setMessages(prev => [...prev, { type: 'candidate', text }]);
     setLoading(true);
 
@@ -176,13 +258,18 @@ function SimulationPage() {
         return;
       }
 
-      // Add character responses with staggered animation feel
+      // Add character responses
       const newMsgs = data.character_messages.map((m: CharMessage) => ({
         type: 'character' as const,
         character: m,
       }));
       setMessages(prev => [...prev, ...newMsgs]);
       setCurrentRound(data.current_round);
+
+      // Voice mode: speak character responses
+      if (voiceMode && data.character_messages?.length) {
+        await speakCharacterMessages(data.character_messages);
+      }
 
       // Handle checkpoint
       if (data.checkpoint) {
@@ -200,7 +287,25 @@ function SimulationPage() {
     } finally {
       setLoading(false);
     }
-  }, [input, sessionId, loading]);
+  }, [input, sessionId, loading, voiceMode, speakCharacterMessages]);
+
+  // Voice input for simulation — record, transcribe, send
+  const [isRecording, setIsRecording] = useState(false);
+  const handleVoiceInput = useCallback(async () => {
+    if (isRecording) {
+      // Stop recording
+      const rec = (window as any).__simRecorder;
+      if (rec?.state === 'recording') rec.stop();
+      setIsRecording(false);
+      return;
+    }
+    setIsRecording(true);
+    const text = await recordVoiceInput();
+    setIsRecording(false);
+    if (text) {
+      sendMessage(text);
+    }
+  }, [isRecording, recordVoiceInput, sendMessage]);
 
   // ============================================================
   // COMPLETE SIMULATION
@@ -324,6 +429,29 @@ function SimulationPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Voice Mode Toggle */}
+          <div className="rounded-2xl p-4 mb-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <button
+              onClick={() => setVoiceMode(!voiceMode)}
+              className="w-full flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: voiceMode ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.05)' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={voiceMode ? '#a78bfa' : '#627D98'} strokeWidth="2">
+                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/>
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-medium" style={{ color: voiceMode ? '#a78bfa' : '#BCCCDC' }}>Voice Mode</div>
+                  <div className="text-[10px]" style={{ color: '#627D98' }}>Characters speak aloud · respond by voice or text</div>
+                </div>
+              </div>
+              <div className="w-10 h-6 rounded-full flex items-center px-0.5 transition-all" style={{ background: voiceMode ? '#7C3AED' : 'rgba(255,255,255,0.1)' }}>
+                <div className="w-5 h-5 rounded-full bg-white transition-transform" style={{ transform: voiceMode ? 'translateX(16px)' : 'translateX(0)' }} />
+              </div>
+            </button>
           </div>
 
           <button
@@ -628,7 +756,7 @@ function SimulationPage() {
             }}
           />
           <button
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={!input.trim() || loading}
             className="px-4 py-3 rounded-xl text-sm font-medium transition-all"
             style={{
@@ -638,11 +766,37 @@ function SimulationPage() {
           >
             Send
           </button>
+          {voiceMode && (
+            <button
+              onClick={handleVoiceInput}
+              disabled={loading || isSpeaking}
+              className="w-12 py-3 rounded-xl flex items-center justify-center transition-all"
+              style={{
+                background: isRecording ? 'rgba(239,68,68,0.3)' : 'rgba(139,92,246,0.2)',
+                border: isRecording ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(139,92,246,0.3)',
+              }}
+            >
+              {isRecording ? (
+                <div className="w-3 h-3 rounded-sm bg-red-400" />
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isSpeaking ? '#627D98' : '#a78bfa'} strokeWidth="2">
+                  <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/>
+                </svg>
+              )}
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-3 mt-2">
           <span className="text-[10px]" style={{ color: '#486581' }}>
             {scenario?.title} · Round {currentRound}/{totalRounds} · {scenario?.characters.length} characters
+            {voiceMode && ' · 🎙 Voice'}
           </span>
+          {isSpeaking && (
+            <span className="text-[10px] flex items-center gap-1" style={{ color: '#a78bfa' }}>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-400" style={{ animation: 'bounce 1s infinite' }} />
+              Speaking...
+            </span>
+          )}
         </div>
       </div>
 

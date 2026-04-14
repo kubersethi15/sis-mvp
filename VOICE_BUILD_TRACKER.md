@@ -113,12 +113,12 @@ The advanced voice system has 5 layers:
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| V5.1 | Character voice assignment (TTS voice per character) | ⬜ Todo | Different OpenAI voice per character: onyx, echo, fable, etc. |
-| V5.2 | Simulation page voice mode toggle | ⬜ Todo | /simulation?mode=voice — same scenarios, voice I/O |
-| V5.3 | Multi-voice playback: characters speak in sequence | ⬜ Todo | Carlos (onyx) → Ana (shimmer) → Maria (nova) |
-| V5.4 | Candidate voice responses in simulation | ⬜ Todo | Whisper STT for simulation responses |
-| V5.5 | Paralinguistic analysis during simulation | ⬜ Todo | Voice emotion during simulation = richer behavioral evidence |
-| V5.6 | Simulation observer uses voice data | ⬜ Todo | Observer evaluateCheckpoint() receives paralinguistic data |
+| V5.1 | Character voice assignment (TTS voice per character) | ✅ Done | CHAR_VOICES array: onyx, shimmer, echo, fable, alloy. TTS route accepts voice_override. |
+| V5.2 | Simulation page voice mode toggle | ✅ Done | Toggle on intro screen with on/off switch. State persists through simulation. |
+| V5.3 | Multi-voice playback: characters speak in sequence | ✅ Done | speakCharacterMessages() plays each character with their voice, 300ms gap between |
+| V5.4 | Candidate voice responses in simulation | ✅ Done | Mic button in input bar. recordVoiceInput() → Whisper STT → sendMessage(). Stop/start toggle. |
+| V5.5 | Paralinguistic analysis during simulation | ⬜ Todo | Needs Hume AI integration (V2) — voice emotion during simulation |
+| V5.6 | Simulation observer uses voice data | ⬜ Todo | Needs V2 — evaluateCheckpoint() receives paralinguistic data |
 
 ---
 
@@ -143,10 +143,10 @@ The advanced voice system has 5 layers:
 | V1 Voice I/O | 10 | 10 | ✅ Complete |
 | V2 Paralinguistic (Hume) | 8 | 0 | ⬜ Next (waiting for API key) |
 | V3 Conversational Intelligence | 11 | 11 | ✅ Complete |
-| V4 Voice-Enhanced Extraction | 7 | 0 | ⬜ Planned |
-| V5 Voice Simulation | 6 | 0 | ⬜ Planned |
+| V4 Voice-Enhanced Extraction | 7 | 0 | ⬜ Blocked by V2 |
+| V5 Voice Simulation | 6 | 4 | 🟡 V5.5-V5.6 need V2 |
 | V6 Production Hardening | 7 | 0 | ⬜ Planned |
-| **Total** | **49** | **21** | **43% complete** |
+| **Total** | **49** | **25** | **51% complete** |
 
 ---
 

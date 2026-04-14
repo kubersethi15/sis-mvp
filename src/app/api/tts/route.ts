@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { text, chunk_mode } = body;
+    const { text, chunk_mode, voice_override } = body;
 
     if (!text) return NextResponse.json({ error: 'No text provided' }, { status: 400 });
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       const sentences = splitIntoSentences(text);
       const firstChunk = sentences.slice(0, 2).join(' ');
 
-      const audio = await generateSpeech(openaiKey, firstChunk);
+      const audio = await generateSpeech(openaiKey, firstChunk, voice_override);
       if (audio) {
         return new NextResponse(audio, {
           headers: {
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Full text mode
-    const audio = await generateSpeech(openaiKey, text);
+    const audio = await generateSpeech(openaiKey, text, voice_override);
     if (audio) {
       return new NextResponse(audio, {
         headers: {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function generateSpeech(apiKey: string, text: string): Promise<ArrayBuffer | null> {
+async function generateSpeech(apiKey: string, text: string, voice?: string): Promise<ArrayBuffer | null> {
   try {
     const res = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
@@ -64,7 +64,7 @@ async function generateSpeech(apiKey: string, text: string): Promise<ArrayBuffer
       body: JSON.stringify({
         model: 'tts-1',
         input: text.substring(0, 4096),
-        voice: 'nova',
+        voice: voice || 'nova', // Default nova for Aya, override for simulation characters
         response_format: 'mp3',
         speed: 0.95,
       }),
