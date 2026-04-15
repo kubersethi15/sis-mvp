@@ -2,19 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-const GATES = [
-  { num: 1, label: 'Alignment', reviewer: 'Recruiter', color: '#2E86C1', bg: '#EBF5FB' },
-  { num: 2, label: 'Evidence', reviewer: 'Hiring Manager', color: '#27AE60', bg: '#E8F8F5' },
-  { num: 3, label: 'Predictability', reviewer: 'Final Approver', color: '#8E44AD', bg: '#F4ECF7' },
-];
+import { PageShell, TabBar, Card, SectionHeader, Button, StatusBadge, MetricCard, DataTable, TableRow, TableCell, GateIndicator, LoadingState, EmptyState, Input, TextArea, Alert, Divider } from '@/components/KayaUI';
 
 export default function EmployerDashboardPage() {
   const [employer, setEmployer] = useState<any>(null);
   const [vacancies, setVacancies] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'vacancies' | 'talent' | 'scenarios' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState('overview');
   const [talentMatches, setTalentMatches] = useState<any[]>([]);
   const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
   const [seedText, setSeedText] = useState('');
@@ -43,511 +38,397 @@ export default function EmployerDashboardPage() {
         });
         const talentData = await talentRes.json();
         setTalentMatches(talentData.extractions || []);
-      } catch (e) {}
-    } catch (e) { console.error(e); }
+      } catch {}
+    } catch (e) { console.error('Failed to load:', e); }
     finally { setLoading(false); }
   };
 
-  const getAppsForVacancy = (vid: string) => applications.filter(a => a.vacancy_id === vid);
+  if (loading) return (
+    <PageShell title="Employer dashboard" subtitle="Kaya employer portal">
+      <LoadingState message="Loading your workspace..." />
+    </PageShell>
+  );
 
-  const getPipelineCounts = (vid?: string) => {
-    const apps = vid ? getAppsForVacancy(vid) : applications;
-    return {
-      applied: apps.filter(a => a.status === 'applied' || a.status === 'eligibility_pending').length,
-      gate1: apps.filter(a => a.status?.includes('gate1') || a.current_gate === 1).length,
-      gate2: apps.filter(a => a.status?.includes('gate2') || a.current_gate === 2).length,
-      gate3: apps.filter(a => a.status?.includes('gate3') || a.current_gate === 3).length,
-      selected: apps.filter(a => a.status === 'selected').length,
-      total: apps.length,
-    };
-  };
+  const counts = { applied: 0, gate1: 0, gate2: 0, gate3: 0, selected: 0 };
+  applications.forEach(a => {
+    if (a.status?.includes('gate1')) counts.gate1++;
+    else if (a.status?.includes('gate2')) counts.gate2++;
+    else if (a.status?.includes('gate3')) counts.gate3++;
+    else if (a.status === 'selected') counts.selected++;
+    else counts.applied++;
+  });
 
-  const initials = (name: string) => name?.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '??';
-  const companyInit = employer?.organization_name ? initials(employer.organization_name) : 'KY';
-  const counts = getPipelineCounts();
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}><p className="text-sm" style={{ color: '#829AB1' }}>Loading...</p></div>;
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'vacancies', label: 'Vacancies', count: vacancies.length },
+    { id: 'talent', label: 'Talent pool', count: talentMatches.length },
+    { id: 'scenarios', label: 'Scenarios' },
+    { id: 'settings', label: 'Settings' },
+  ];
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
-        <Link href="/employer-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
-          </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+    <PageShell
+      title={employer?.organization_name || 'Employer dashboard'}
+      subtitle="Kaya employer portal"
+      actions={
+        <Link href="/reviewer" className="text-caption text-white/60 hover:text-white transition-colors">
+          Open reviewer portal →
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link href="/employer" className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: '#48BB78', color: 'white' }}>New Vacancy</Link>
-          <Link href="/reviewer" className="text-xs" style={{ color: '#9FB3C8' }}>Pipeline</Link>
-          <Link href="/psychologist" className="text-xs" style={{ color: '#9FB3C8' }}>Validation</Link>
-        </div>
-      </nav>
+      }
+    >
+      <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
 
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <div className="mb-5 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-md" style={{ background: '#102A43' }}>{companyInit}</div>
-          <div>
-            <h1 className="text-lg font-bold" style={{ color: '#102A43' }}>{employer?.organization_name || 'Employer Dashboard'}</h1>
-            <p className="text-xs" style={{ color: '#627D98' }}>Kaya Employer Portal</p>
+      {/* ═══════════ OVERVIEW ═══════════ */}
+      {activeTab === 'overview' && (
+        <div className="space-y-6">
+          {/* Pipeline metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <MetricCard label="Applied" value={counts.applied} variant="navy" />
+            <MetricCard label="Gate 1" value={counts.gate1} />
+            <MetricCard label="Gate 2" value={counts.gate2} />
+            <MetricCard label="Gate 3" value={counts.gate3} />
+            <MetricCard label="Selected" value={counts.selected} variant="success" />
           </div>
-        </div>
-        <div className="flex gap-1" style={{ borderBottom: '1px solid #E2E8F0' }}>
-          {([
-            { id: 'overview' as const, label: 'Overview' },
-            { id: 'vacancies' as const, label: `Vacancies (${vacancies.length})` },
-            { id: 'talent' as const, label: `Talent (${talentMatches.length})` },
-            { id: 'scenarios' as const, label: 'Scenarios' },
-            { id: 'settings' as const, label: 'Settings' },
-          ]).map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className="px-4 py-2.5 text-sm font-medium transition-colors"
-              style={{ color: activeTab === tab.id ? '#102A43' : '#829AB1', borderBottom: activeTab === tab.id ? '2px solid #102A43' : '2px solid transparent' }}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-6">
-
-        {/* OVERVIEW */}
-        {activeTab === 'overview' && (<div className="space-y-6">
-          <div className="bg-white rounded-xl border p-4 sm:p-6" style={{ borderColor: '#E2E8F0' }}>
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#102A43' }}>Hiring Pipeline</h2>
-            <div className="flex flex-wrap sm:flex-nowrap items-stretch gap-2">
+          {/* Gate process */}
+          <Card>
+            <SectionHeader title="Three-gate hiring process" subtitle="Every gate has a human reviewer. Kaya supports decisions, never makes them." />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { label: 'Applied', count: counts.applied, color: '#486581', bg: '#F0F4F8' },
-                { label: 'G1: Alignment', count: counts.gate1, color: '#2E86C1', bg: '#EBF5FB' },
-                { label: 'G2: Evidence', count: counts.gate2, color: '#27AE60', bg: '#E8F8F5' },
-                { label: 'G3: Predict', count: counts.gate3, color: '#8E44AD', bg: '#F4ECF7' },
-                { label: 'Selected', count: counts.selected, color: '#48BB78', bg: '#F0FFF4' },
-              ].map((s, i) => (
-                <div key={i} className="flex items-center gap-1 sm:gap-2 flex-1 min-w-[60px]">
-                  <div className="flex-1 rounded-xl p-2 sm:p-4 text-center" style={{ background: s.bg }}>
-                    <div className="text-lg sm:text-2xl font-bold" style={{ color: s.color }}>{s.count}</div>
-                    <div className="text-[9px] sm:text-[10px] font-medium mt-1" style={{ color: s.color, opacity: 0.8 }}>{s.label}</div>
-                  </div>
-                  {i < 4 && <svg className="hidden sm:block" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D9E2EC" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>}
+                { gate: 1 as const, title: 'Alignment', role: 'Recruiter', desc: 'Does this candidate align with what the role needs?' },
+                { gate: 2 as const, title: 'Evidence', role: 'Hiring manager', desc: 'Is there sufficient behavioral evidence of their capabilities?' },
+                { gate: 3 as const, title: 'Predictability', role: 'Final approver', desc: 'Given simulation + peer data, will this person succeed?' },
+              ].map(g => (
+                <div key={g.gate} className="p-4 rounded-kaya border border-kaya-stone-200">
+                  <GateIndicator gate={g.gate} status="pending" />
+                  <p className="text-body text-kaya-stone-600 mt-3">{g.desc}</p>
+                  <p className="text-caption text-kaya-stone-200 mt-1">Reviewer: {g.role}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 flex flex-wrap gap-3 sm:gap-4" style={{ borderTop: '1px solid #F0F4F8' }}>
-              {GATES.map(g => (
-                <div key={g.num} className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: g.color }} />
-                  <span className="text-[11px]" style={{ color: '#627D98' }}>Gate {g.num}: <span className="font-medium">{g.reviewer}</span></span>
-                </div>
-              ))}
-            </div>
-          </div>
+          </Card>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { n: vacancies.length, l: 'Active Vacancies' },
-              { n: talentMatches.length, l: 'Talent Matches' },
-              { n: counts.total, l: 'Total Applicants' },
-            ].map((c, i) => (
-              <div key={i} className="bg-white rounded-xl border p-5" style={{ borderColor: '#E2E8F0' }}>
-                <div className="text-2xl font-bold" style={{ color: '#102A43' }}>{c.n}</div>
-                <div className="text-xs mt-1" style={{ color: '#627D98' }}>{c.l}</div>
-              </div>
-            ))}
-          </div>
-
-          {talentMatches.length > 0 && (
-            <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold" style={{ color: '#102A43' }}>Recent Talent Matches</h2>
-                <button onClick={() => setActiveTab('talent')} className="text-xs font-medium" style={{ color: '#2E86C1' }}>View All →</button>
-              </div>
-              {talentMatches.slice(0, 3).map((ext: any, i: number) => {
-                const skills = ext.skills_profile || [];
-                const name = ext.candidate_name || `Candidate ${i + 1}`;
-                return (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg mb-2" style={{ background: '#F8FAFB' }}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: '#486581' }}>{initials(name)}</div>
-                      <div>
-                        <div className="text-sm font-medium" style={{ color: '#102A43' }}>{name}</div>
-                        <div className="text-[11px]" style={{ color: '#829AB1' }}>{skills.length} skills</div>
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5">
-                      {skills.slice(0, 3).map((s: any, j: number) => (
-                        <span key={j} className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#EBF5FB', color: '#2E86C1' }}>{s.skill_name}</span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          {/* Recent applications */}
+          {applications.length > 0 && (
+            <Card>
+              <SectionHeader
+                title="Recent applications"
+                action={<Link href="/reviewer" className="text-caption text-kaya-navy-600 hover:underline">View all in reviewer →</Link>}
+              />
+              <DataTable headers={['Candidate', 'Vacancy', 'Status', 'Gate']}>
+                {applications.slice(0, 5).map((app, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="font-medium text-kaya-navy-900">{app.jobseekers?.user_profiles?.full_name || 'Candidate'}</TableCell>
+                    <TableCell>{app.vacancies?.title || '—'}</TableCell>
+                    <TableCell><StatusBadge status={app.status?.includes('passed') ? 'passed' : app.status?.includes('selected') ? 'selected' : app.status?.includes('stopped') ? 'stopped' : 'pending'} size="sm" /></TableCell>
+                    <TableCell className="text-kaya-navy-900 font-medium">{app.current_gate || 1}</TableCell>
+                  </TableRow>
+                ))}
+              </DataTable>
+            </Card>
           )}
+        </div>
+      )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Link href="/employer" className="p-4 bg-white rounded-xl border text-center hover:shadow-md transition-all" style={{ borderColor: '#E2E8F0' }}>
-              <div className="text-sm font-medium" style={{ color: '#334E68' }}>Create Vacancy</div>
-              <div className="text-xs mt-1" style={{ color: '#829AB1' }}>AI-assisted JD builder</div>
-            </Link>
-            <Link href="/reviewer" className="p-4 bg-white rounded-xl border text-center hover:shadow-md transition-all" style={{ borderColor: '#E2E8F0' }}>
-              <div className="text-sm font-medium" style={{ color: '#334E68' }}>Review Pipeline</div>
-              <div className="text-xs mt-1" style={{ color: '#829AB1' }}>Approve at each gate</div>
-            </Link>
-            <Link href="/psychologist" className="p-4 bg-white rounded-xl border text-center hover:shadow-md transition-all" style={{ borderColor: '#E2E8F0' }}>
-              <div className="text-sm font-medium" style={{ color: '#334E68' }}>Psych Validation</div>
-              <div className="text-xs mt-1" style={{ color: '#829AB1' }}>Professional sign-off</div>
-            </Link>
-          </div>
-        </div>)}
-
-        {/* VACANCIES */}
-        {activeTab === 'vacancies' && (<div className="space-y-4">
+      {/* ═══════════ VACANCIES ═══════════ */}
+      {activeTab === 'vacancies' && (
+        <div className="space-y-4">
           {vacancies.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border" style={{ borderColor: '#E2E8F0' }}>
-              <p className="text-sm mb-3" style={{ color: '#829AB1' }}>No vacancies yet</p>
-              <Link href="/employer" className="inline-block px-5 py-2.5 rounded-lg text-sm font-medium text-white" style={{ background: '#102A43' }}>Create Your First Vacancy →</Link>
-            </div>
-          ) : vacancies.map(v => {
-            const vc = getPipelineCounts(v.id);
-            const apps = getAppsForVacancy(v.id);
-            const dt = v.created_at ? new Date(v.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-            return (
-              <div key={v.id} className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-                <div className="flex items-start justify-between mb-4">
+            <EmptyState title="No vacancies yet" description="Create your first vacancy to start receiving applications." action={<Link href="/employer"><Button>Create vacancy</Button></Link>} />
+          ) : (
+            vacancies.map((v, i) => (
+              <Card key={i}>
+                <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-base font-semibold" style={{ color: '#102A43' }}>{v.title}</h3>
-                    <p className="text-xs mt-1" style={{ color: '#829AB1' }}>{v.description?.substring(0, 100) || 'No description'}{dt && ` · ${dt}`}</p>
+                    <h3 className="text-h2 text-kaya-navy-900">{v.title}</h3>
+                    <p className="text-body text-kaya-stone-600 mt-1 line-clamp-2">{v.description?.substring(0, 200)}</p>
                   </div>
-                  <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: v.status === 'published' ? '#F0FFF4' : '#F0F4F8', color: v.status === 'published' ? '#48BB78' : '#829AB1' }}>
-                    {v.status === 'published' ? 'Active' : v.status || 'Draft'}
-                  </span>
+                  <StatusBadge status="active" size="sm" />
                 </div>
-                <div className="flex items-center gap-1.5 mb-4">
-                  {[
-                    { l: 'Applied', c: vc.applied, col: '#486581', bg: '#F0F4F8' },
-                    { l: 'G1', c: vc.gate1, col: '#2E86C1', bg: '#EBF5FB' },
-                    { l: 'G2', c: vc.gate2, col: '#27AE60', bg: '#E8F8F5' },
-                    { l: 'G3', c: vc.gate3, col: '#8E44AD', bg: '#F4ECF7' },
-                    { l: 'Selected', c: vc.selected, col: '#48BB78', bg: '#F0FFF4' },
-                  ].map((s, i) => (
-                    <div key={i} className="flex items-center gap-1.5">
-                      <div className="rounded-lg px-3 py-2 text-center min-w-[56px]" style={{ background: s.bg }}>
-                        <div className="text-lg font-bold" style={{ color: s.col }}>{s.c}</div>
-                        <div className="text-[9px] font-medium" style={{ color: s.col, opacity: 0.7 }}>{s.l}</div>
-                      </div>
-                      {i < 4 && <span style={{ color: '#D9E2EC' }}>›</span>}
-                    </div>
-                  ))}
-                </div>
-                {apps.length > 0 && (
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {apps.map((a, ai) => (
-                      <span key={ai} className="text-xs px-2.5 py-1 rounded-full" style={{ background: '#F0F4F8', color: '#486581' }}>{a.candidate_name || `Applicant ${ai + 1}`}</span>
+                {v.competency_blueprint?.human_centric_skills && (
+                  <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-kaya-stone-200">
+                    {v.competency_blueprint.human_centric_skills.slice(0, 6).map((s: any, j: number) => (
+                      <span key={j} className="text-caption px-2 py-0.5 rounded-kaya-sm bg-kaya-navy-50 text-kaya-navy-600 font-medium">
+                        {typeof s === 'string' ? s : s.skill}
+                      </span>
                     ))}
                   </div>
                 )}
-                <div className="flex gap-4 pt-3" style={{ borderTop: '1px solid #F0F4F8' }}>
-                  <Link href="/reviewer" className="text-xs font-medium" style={{ color: '#2E86C1' }}>Review Pipeline →</Link>
-                  <Link href="/employer" className="text-xs" style={{ color: '#829AB1' }}>Edit Vacancy →</Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>)}
+              </Card>
+            ))
+          )}
+        </div>
+      )}
 
-        {/* TALENT MATCHES */}
-        {activeTab === 'talent' && (<div>
-          <p className="text-sm mb-4" style={{ color: '#627D98' }}>Candidates with extracted skills, matched against your vacancies.</p>
+      {/* ═══════════ TALENT POOL ═══════════ */}
+      {activeTab === 'talent' && (
+        <div>
           {talentMatches.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border" style={{ borderColor: '#E2E8F0' }}>
-              <p className="text-sm" style={{ color: '#829AB1' }}>No candidates with extracted skills yet</p>
-            </div>
+            <EmptyState title="No assessed candidates yet" description="Candidates who complete the Kaya process will appear here with their verified skills." />
           ) : (
             <div className="space-y-3">
-              {talentMatches.map((ext: any, i: number) => {
-                const skills = ext.skills_profile || [];
-                const name = ext.candidate_name || `Candidate ${i + 1}`;
-                const avgConf = skills.length > 0 ? Math.round((skills.reduce((a: number, s: any) => a + (s.confidence || 0.5), 0) / skills.length) * 100) : 0;
-                const dt = ext.created_at ? new Date(ext.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) : '';
-                const eid = ext.id || `ext-${i}`;
-                const isOpen = expandedCandidate === eid;
-
-                return (
-                  <div key={eid} className="bg-white rounded-xl border overflow-hidden hover:shadow-md transition-shadow" style={{ borderColor: '#E2E8F0' }}>
-                    <div className="p-5 cursor-pointer" onClick={() => setExpandedCandidate(isOpen ? null : eid)}>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white" style={{ background: '#486581' }}>{initials(name)}</div>
-                          <div>
-                            <h3 className="font-semibold" style={{ color: '#102A43' }}>{name}</h3>
-                            <p className="text-xs mt-0.5" style={{ color: '#829AB1' }}>{skills.length} skills · {avgConf}% confidence · {dt}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {ext.validation_status === 'validated' && <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#F0FFF4', color: '#48BB78' }}>Validated</span>}
-                          <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: '#E8F8F5', color: '#27AE60' }}>Skills Ready</span>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#829AB1" strokeWidth="2" style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
-                        </div>
+              {talentMatches.map((t: any, i: number) => (
+                <Card key={i} padding="tight">
+                  <button onClick={() => setExpandedCandidate(expandedCandidate === t.id ? null : t.id)} className="w-full text-left">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-h3 text-kaya-navy-900">{t.candidate_name || `Candidate ${(t.id || '').substring(0, 8)}`}</span>
+                        <span className="text-caption text-kaya-stone-600 ml-2">
+                          {t.skills_profile?.length || 0} skills evidenced
+                        </span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {skills.slice(0, 5).map((s: any, j: number) => (
-                          <span key={j} className="text-[11px] px-2.5 py-1 rounded-full font-medium" style={{
-                            background: s.proficiency?.toLowerCase() === 'advanced' ? '#E8F8F5' : s.proficiency?.toLowerCase() === 'intermediate' ? '#EBF5FB' : '#FEF3E2',
-                            color: s.proficiency?.toLowerCase() === 'advanced' ? '#27AE60' : s.proficiency?.toLowerCase() === 'intermediate' ? '#2E86C1' : '#E67E22',
-                          }}>{s.skill_name} · {s.proficiency}</span>
-                        ))}
-                        {skills.length > 5 && <span className="text-[11px] px-2 py-1" style={{ color: '#829AB1' }}>+{skills.length - 5} more</span>}
-                      </div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B4B2A9" strokeWidth="2" className={`transition-transform ${expandedCandidate === t.id ? 'rotate-180' : ''}`}>
+                        <polyline points="6 9 12 15 18 9"/>
+                      </svg>
                     </div>
-
-                    {isOpen && (
-                      <div className="px-5 pb-5" style={{ borderTop: '1px solid #F0F4F8' }}>
-                        <div className="pt-4 space-y-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {skills.map((s: any, j: number) => (
-                              <div key={j} className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg" style={{ background: '#F8FAFB' }}>
-                                <span className="font-medium" style={{ color: '#334E68' }}>{s.skill_name}</span>
-                                <span style={{ color: s.proficiency?.toLowerCase() === 'advanced' ? '#27AE60' : s.proficiency?.toLowerCase() === 'intermediate' ? '#2E86C1' : '#E67E22' }}>{s.proficiency}</span>
-                                <div className="w-12 h-1.5 rounded-full overflow-hidden" style={{ background: '#E2E8F0' }}>
-                                  <div className="h-full rounded-full" style={{ width: `${Math.round((s.confidence || 0.5) * 100)}%`, background: s.proficiency?.toLowerCase() === 'advanced' ? '#27AE60' : s.proficiency?.toLowerCase() === 'intermediate' ? '#2E86C1' : '#E67E22' }} />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          {ext.narrative_summary && <div className="p-3 rounded-lg text-xs leading-relaxed" style={{ background: '#F8FAFB', color: '#486581' }}>{ext.narrative_summary}</div>}
-                          <div className="flex gap-3 pt-2">
-                            <button onClick={async () => {
-                              const vid = vacancies[0]?.id;
-                              if (!vid) { alert('Create a vacancy first.'); return; }
-                              const res = await fetch('/api/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'apply', vacancy_id: vid, session_id: ext.session_id }) });
-                              if (res.ok) { alert(`${name} added to pipeline!`); loadData(); }
-                            }} className="text-xs font-medium px-4 py-2 rounded-lg text-white" style={{ background: '#48BB78' }}>Add to Pipeline</button>
-                            <Link href="/reviewer" className="text-xs font-medium px-4 py-2 rounded-lg" style={{ background: '#EBF5FB', color: '#2E86C1' }}>View Pipeline →</Link>
+                  </button>
+                  {expandedCandidate === t.id && t.skills_profile && (
+                    <div className="mt-3 pt-3 border-t border-kaya-stone-200 space-y-2">
+                      {t.skills_profile.map((s: any, j: number) => (
+                        <div key={j} className="flex items-center justify-between">
+                          <span className="text-body text-kaya-stone-600">{s.skill_name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-caption px-1.5 py-0.5 rounded-kaya-sm font-medium ${
+                              s.proficiency === 'Advanced' ? 'bg-kaya-green-50 text-kaya-green-400' :
+                              s.proficiency === 'Intermediate' ? 'bg-kaya-navy-50 text-kaya-navy-600' :
+                              'bg-kaya-stone-50 text-kaya-stone-600'
+                            }`}>{s.proficiency}</span>
+                            <div className="w-12 h-1 rounded-full bg-kaya-stone-200">
+                              <div className="h-full rounded-full bg-kaya-navy-600" style={{ width: `${Math.round((s.confidence || 0.5) * 100)}%` }} />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              ))}
             </div>
           )}
-        </div>)}
+        </div>
+      )}
 
-        {/* SCENARIOS — Employer-Specific Assessment Generation */}
-        {activeTab === 'scenarios' && (<div className="space-y-6">
-          {/* Intro */}
-          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#F4ECF7' }}>
-                <span className="text-xl">🎭</span>
-              </div>
-              <div>
-                <h2 className="text-base font-semibold" style={{ color: '#102A43' }}>Custom Assessment Scenarios</h2>
-                <p className="text-sm mt-1" style={{ color: '#627D98' }}>
-                  Generate workplace simulation scenarios tailored to your company. Upload your job descriptions, handbook excerpts, or company information — Kaya will analyse your workplace dynamics and create assessment scenarios that test the skills that actually matter for your roles.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Seed Material Upload */}
-          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-            <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Upload Workplace Context</h3>
-            <p className="text-xs mb-4" style={{ color: '#829AB1' }}>
-              Paste your job descriptions, company handbook excerpts, team structure descriptions, or any information about how your workplace operates. The more context you provide, the more relevant the scenarios will be.
-            </p>
-            <textarea
+      {/* ═══════════ SCENARIOS ═══════════ */}
+      {activeTab === 'scenarios' && (
+        <div className="space-y-6">
+          <Card>
+            <SectionHeader
+              title="Custom assessment scenarios"
+              subtitle="Generate workplace simulation scenarios tailored to your company. Upload job descriptions, handbook excerpts, or company information."
+            />
+            <TextArea
               value={seedText}
-              onChange={e => setSeedText(e.target.value)}
-              placeholder={"Paste your workplace context here. Examples:\n\n• Job descriptions for the roles you're hiring for\n• Company handbook excerpts about team structure\n• Description of common workplace challenges\n• Customer interaction guidelines\n• Information about your industry and customers\n\nMinimum: a few paragraphs. More detail = better scenarios."}
-              rows={10}
-              className="w-full px-4 py-3 border rounded-xl text-sm resize-none outline-none focus:ring-2 focus:ring-purple-200"
-              style={{ borderColor: '#D9E2EC', color: '#334E68' }}
+              onChange={(e: any) => setSeedText(e.target.value)}
+              placeholder={"Paste your workplace context here.\n\nExamples:\n• Job descriptions for the roles you're hiring\n• Company handbook excerpts about team structure\n• Description of common workplace challenges\n• Customer interaction guidelines"}
+              rows={8}
             />
             <div className="flex items-center justify-between mt-3">
-              <span className="text-xs" style={{ color: '#829AB1' }}>
+              <span className="text-caption text-kaya-stone-200">
                 {seedText.length > 0 ? `${seedText.length} characters` : 'Paste or type your company context'}
                 {seedText.length > 0 && seedText.length < 200 && ' — add more detail for better results'}
               </span>
-              <button
+              <Button
+                variant={seedText.length >= 100 ? 'primary' : 'secondary'}
+                disabled={scenarioLoading || seedText.length < 100 || !employer?.id}
                 onClick={async () => {
                   if (!employer?.id || seedText.length < 100) return;
                   setScenarioLoading(true);
                   setScenarioStatus('Analysing your workplace...');
                   try {
                     const res = await fetch('/api/employer-graph', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        action: 'full_pipeline',
-                        employer_id: employer.id,
-                        seed_material: seedText,
-                      }),
+                      method: 'POST', headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ action: 'full_pipeline', employer_id: employer.id, seed_material: seedText }),
                     });
                     const data = await res.json();
                     if (data.success) {
                       setGraphSummary(data.graph_summary);
                       setGeneratedScenarios(data.scenarios || []);
-                      setScenarioStatus(`Done! ${data.scenarios?.length || 0} scenarios generated.`);
+                      setScenarioStatus(`Done — ${data.scenarios?.length || 0} scenarios generated.`);
                     } else {
                       setScenarioStatus('Generation failed: ' + (data.error || 'Unknown error'));
                     }
-                  } catch (e: any) {
-                    setScenarioStatus('Error: ' + e.message);
-                  } finally {
-                    setScenarioLoading(false);
-                  }
-                }}
-                disabled={scenarioLoading || seedText.length < 100 || !employer?.id}
-                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-                style={{
-                  background: scenarioLoading ? '#829AB1' : seedText.length >= 100 ? '#8E44AD' : '#D5D8DC',
-                  cursor: scenarioLoading || seedText.length < 100 ? 'not-allowed' : 'pointer',
+                  } catch (e: any) { setScenarioStatus('Error: ' + e.message); }
+                  finally { setScenarioLoading(false); }
                 }}
               >
-                {scenarioLoading ? 'Generating...' : 'Generate Scenarios'}
-              </button>
+                {scenarioLoading ? 'Generating...' : 'Generate scenarios'}
+              </Button>
             </div>
 
-            {/* Processing Status */}
             {scenarioStatus && (
-              <div className="mt-3 px-4 py-2.5 rounded-lg text-sm" style={{
-                background: scenarioStatus.includes('Done') ? '#E8F8F5' : scenarioStatus.includes('Error') || scenarioStatus.includes('failed') ? '#FDEDEC' : '#EBF5FB',
-                color: scenarioStatus.includes('Done') ? '#1E8449' : scenarioStatus.includes('Error') || scenarioStatus.includes('failed') ? '#C0392B' : '#1A5276',
-              }}>
-                {scenarioLoading && <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-2" style={{ animation: 'spin 1s linear infinite' }} />}
-                {scenarioStatus}
+              <div className="mt-3">
+                <Alert variant={scenarioStatus.includes('Done') ? 'success' : scenarioStatus.includes('Error') || scenarioStatus.includes('failed') ? 'error' : 'info'}>
+                  {scenarioLoading && <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-2 animate-spin" />}
+                  {scenarioStatus}
+                </Alert>
               </div>
             )}
-          </div>
+          </Card>
 
-          {/* Graph Summary */}
+          {/* Graph summary */}
           {graphSummary && (
-            <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Workplace Analysis</h3>
+            <Card>
+              <SectionHeader title="Workplace analysis" />
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                {[
-                  { label: 'Entities Found', value: graphSummary.nodes, color: '#2E86C1' },
-                  { label: 'Relationships', value: graphSummary.edges, color: '#27AE60' },
-                  { label: 'Friction Points', value: graphSummary.friction_points, color: '#E67E22' },
-                  { label: 'Industry', value: graphSummary.industry || 'General', color: '#8E44AD' },
-                ].map((s, i) => (
-                  <div key={i} className="p-3 rounded-lg text-center" style={{ background: `${s.color}10` }}>
-                    <div className="text-lg font-bold" style={{ color: s.color }}>{s.value}</div>
-                    <div className="text-[10px] font-medium" style={{ color: '#627D98' }}>{s.label}</div>
-                  </div>
-                ))}
+                <MetricCard label="Entities found" value={graphSummary.nodes} variant="navy" />
+                <MetricCard label="Relationships" value={graphSummary.edges} />
+                <MetricCard label="Friction points" value={graphSummary.friction_points} />
+                <MetricCard label="Industry" value={graphSummary.industry || 'General'} />
               </div>
               {graphSummary.critical_skills?.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold mb-2" style={{ color: '#486581' }}>Critical Skills Identified</p>
+                  <p className="text-h3 text-kaya-navy-900 mb-2">Critical skills identified</p>
                   <div className="flex flex-wrap gap-1.5">
                     {graphSummary.critical_skills.map((s: string, i: number) => (
-                      <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#F4ECF7', color: '#8E44AD' }}>{s}</span>
+                      <span key={i} className="text-caption px-2 py-0.5 rounded-kaya-sm bg-kaya-navy-50 text-kaya-navy-600 font-medium">{s}</span>
                     ))}
                   </div>
                 </div>
               )}
-            </div>
+            </Card>
           )}
 
-          {/* Generated Scenarios */}
+          {/* Generated scenarios */}
           {generatedScenarios.length > 0 && (
-            <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold" style={{ color: '#102A43' }}>Generated Scenarios ({generatedScenarios.length})</h3>
-                <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: '#E8F8F5', color: '#1E8449' }}>Active — candidates will see these</span>
-              </div>
+            <Card>
+              <SectionHeader
+                title={`Generated scenarios (${generatedScenarios.length})`}
+                action={<StatusBadge status="active" size="sm" />}
+              />
               <div className="space-y-3">
                 {generatedScenarios.map((s: any, i: number) => (
-                  <div key={i} className="p-4 rounded-xl" style={{ background: '#FAFAF9', border: '1px solid #E2E8F0' }}>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold" style={{ color: '#102A43' }}>{s.title}</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#F4ECF7', color: '#8E44AD' }}>
-                            {s.characters?.length || '?'} characters · {s.target_skills?.length || '?'} skills
-                          </span>
-                        </div>
-                        <p className="text-xs" style={{ color: '#627D98' }}>{s.setting}</p>
-                        {s.target_skills && (
-                          <div className="flex gap-1 mt-2">
-                            {s.target_skills.map((sk: string, j: number) => (
-                              <span key={j} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#EBF5FB', color: '#2E86C1' }}>{sk}</span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                  <div key={i} className="p-4 rounded-kaya border border-kaya-stone-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-h3 text-kaya-navy-900">{s.title}</span>
+                      <span className="text-caption px-1.5 py-0.5 rounded-kaya-sm bg-kaya-stone-50 text-kaya-stone-600">
+                        {s.characters?.length || '?'} characters · {s.target_skills?.length || '?'} skills
+                      </span>
                     </div>
+                    <p className="text-body text-kaya-stone-600">{s.setting}</p>
+                    {s.target_skills && (
+                      <div className="flex gap-1 mt-2">
+                        {s.target_skills.map((sk: string, j: number) => (
+                          <span key={j} className="text-caption px-1.5 py-0.5 rounded-kaya-sm bg-kaya-navy-50 text-kaya-navy-600">{sk}</span>
+                        ))}
+                      </div>
+                    )}
                     {s.characters && (
-                      <div className="flex gap-2 mt-3 pt-2" style={{ borderTop: '1px solid #E2E8F0' }}>
+                      <div className="flex gap-2 mt-2 pt-2 border-t border-kaya-stone-200">
                         {s.characters.map((c: any, j: number) => (
-                          <span key={j} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#F0F4F8', color: '#486581' }}>
-                            {c.name} ({c.role})
-                          </span>
+                          <span key={j} className="text-caption px-2 py-0.5 rounded-full bg-kaya-stone-50 text-kaya-stone-600">{c.name} ({c.role})</span>
                         ))}
                       </div>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
 
-          {/* No scenarios yet */}
           {generatedScenarios.length === 0 && !scenarioLoading && !graphSummary && (
-            <div className="text-center py-8">
-              <p className="text-sm" style={{ color: '#829AB1' }}>No custom scenarios yet. Upload your workplace context above to generate them.</p>
-              <p className="text-xs mt-2" style={{ color: '#BCCCDC' }}>Until then, candidates will use Kaya's default assessment scenarios.</p>
-            </div>
+            <EmptyState title="No custom scenarios yet" description="Upload your workplace context above to generate employer-specific assessment scenarios." />
           )}
-        </div>)}
+        </div>
+      )}
 
-        {/* SETTINGS */}
-        {activeTab === 'settings' && (<div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-          <h2 className="text-sm font-semibold mb-4" style={{ color: '#102A43' }}>Company Profile</h2>
+      {/* ═══════════ SETTINGS ═══════════ */}
+      {activeTab === 'settings' && (
+        <Card>
+          <SectionHeader title="Company profile" />
           {employer ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                {[['Organization', employer.organization_name], ['Industry', employer.industry || 'Not set'], ['Location', employer.location || employer.locations?.[0]?.city || 'Not set'], ['Size', employer.company_size || 'Not set']].map(([l, v]) => (
-                  <div key={l} className="text-sm"><span className="font-medium" style={{ color: '#334E68' }}>{l}: </span><span style={{ color: '#486581' }}>{v}</span></div>
+                {[
+                  ['Organisation', employer.organization_name],
+                  ['Industry', employer.industry || 'Not set'],
+                  ['Location', employer.location || employer.locations?.[0]?.city || 'Not set'],
+                  ['Size', employer.company_size || 'Not set'],
+                ].map(([l, v]) => (
+                  <div key={l as string}>
+                    <span className="text-h3 text-kaya-navy-900">{l}: </span>
+                    <span className="text-body text-kaya-stone-600">{v}</span>
+                  </div>
                 ))}
               </div>
-              {employer.accessibility_features && <div className="text-sm pt-3" style={{ borderTop: '1px solid #E2E8F0' }}><span className="font-medium" style={{ color: '#334E68' }}>Accessibility: </span><span style={{ color: '#486581' }}>{employer.accessibility_features}</span></div>}
-              <div className="pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
-                <p className="text-xs font-semibold mb-3" style={{ color: '#334E68' }}>Three-Gate Reviewer Assignments</p>
+              {employer.accessibility_features && (
+                <>
+                  <Divider />
+                  <div>
+                    <span className="text-h3 text-kaya-navy-900">Accessibility: </span>
+                    <span className="text-body text-kaya-stone-600">{employer.accessibility_features}</span>
+                  </div>
+                </>
+              )}
+              <Divider />
+              <div>
+                <p className="text-h3 text-kaya-navy-900 mb-3">Three-gate reviewer assignments</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {GATES.map(g => (
-                    <div key={g.num} className="p-3 rounded-xl" style={{ background: g.bg }}>
-                      <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: g.color }}>Gate {g.num} — {g.label}</div>
-                      <div className="text-sm font-medium mt-1" style={{ color: '#334E68' }}>{employer.reviewer_assignments?.[`gate${g.num}_${g.reviewer.toLowerCase().replace(' ', '_')}`] || g.reviewer}</div>
+                  {([
+                    { gate: 1 as const, label: 'Alignment', role: 'Recruiter' },
+                    { gate: 2 as const, label: 'Evidence', role: 'Hiring manager' },
+                    { gate: 3 as const, label: 'Predictability', role: 'Final approver' },
+                  ]).map(g => (
+                    <div key={g.gate} className="p-3 rounded-kaya border border-kaya-stone-200">
+                      <GateIndicator gate={g.gate} status="pending" />
+                      <p className="text-body text-kaya-stone-600 mt-2">
+                        {employer.reviewer_assignments?.[`gate${g.gate}_${g.role.toLowerCase().replace(' ', '_')}`] || g.role}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           ) : (
-            <form onSubmit={async (e) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); try { const res = await fetch('/api/gate1', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create_employer', organization_name: fd.get('org_name'), industry: fd.get('industry'), locations: [{ city: fd.get('location'), country: 'Philippines' }], company_size: fd.get('company_size'), benefits: fd.get('benefits'), accessibility_features: fd.get('accessibility'), reviewer_assignments: { gate1_recruiter: fd.get('g1') || 'Recruiter', gate2_hiring_manager: fd.get('g2') || 'Hiring Manager', gate3_final_approver: fd.get('g3') || 'Final Approver' }, work_arrangements: { remote: true, onsite: true, hybrid: true } }) }); if (res.ok) window.location.reload(); } catch (err) { console.error(err); } }} className="space-y-4">
-              <p className="text-sm mb-2" style={{ color: '#829AB1' }}>Set up your organisation to start posting vacancies.</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Organisation *</label><input name="org_name" required placeholder="e.g. Cebuana Lhuillier" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>
-                <div><label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Industry</label><input name="industry" placeholder="e.g. Financial Services" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>
-                <div><label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Location</label><input name="location" placeholder="e.g. Manila" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>
-                <div><label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Size</label><select name="company_size" className="w-full px-3 py-2 border rounded-lg text-sm bg-white" style={{ borderColor: '#D9E2EC' }}><option value="">Select</option><option value="1-50">1-50</option><option value="51-200">51-200</option><option value="201-1000">201-1000</option><option value="1000+">1000+</option></select></div>
-              </div>
-              <div><label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Accessibility</label><input name="accessibility" placeholder="e.g. Wheelchair ramp, screen reader" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>
-              <div><label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Benefits</label><input name="benefits" placeholder="e.g. HMO, flexible hours" className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>
-              <div className="pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
-                <p className="text-xs font-semibold mb-3" style={{ color: '#334E68' }}>Gate Reviewers</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {GATES.map(g => (<div key={g.num}><label className="block text-[10px] font-medium mb-1" style={{ color: g.color }}>Gate {g.num} — {g.label}</label><input name={`g${g.num}`} placeholder={g.reviewer} className="w-full px-3 py-2 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC' }} /></div>))}
+            <div className="space-y-4">
+              <p className="text-body text-kaya-stone-600">Set up your organisation to start posting vacancies.</p>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const fd = new FormData(e.target as HTMLFormElement);
+                try {
+                  const res = await fetch('/api/gate1', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      action: 'create_employer', organization_name: fd.get('org_name'),
+                      industry: fd.get('industry'), locations: [{ city: fd.get('location'), country: 'Philippines' }],
+                      company_size: fd.get('company_size'), benefits: fd.get('benefits'),
+                      accessibility_features: fd.get('accessibility'),
+                      reviewer_assignments: { gate1_recruiter: fd.get('g1') || 'Recruiter', gate2_hiring_manager: fd.get('g2') || 'Hiring Manager', gate3_final_approver: fd.get('g3') || 'Final Approver' },
+                      work_arrangements: { remote: true, onsite: true, hybrid: true }
+                    })
+                  });
+                  if (res.ok) window.location.reload();
+                } catch (err) { console.error(err); }
+              }} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Input label="Organisation *" name="org_name" required placeholder="e.g. Accenture Philippines" />
+                  <Input label="Industry" name="industry" placeholder="e.g. Financial services" />
+                  <Input label="Location" name="location" placeholder="e.g. Manila" />
+                  <div>
+                    <label className="block text-h3 text-kaya-navy-900 mb-1">Size</label>
+                    <select name="company_size" className="w-full px-3 py-2.5 text-body text-kaya-navy-900 bg-white border border-kaya-stone-200 rounded-kaya outline-none focus:border-kaya-navy-600">
+                      <option value="">Select</option>
+                      <option value="1-50">1–50</option>
+                      <option value="51-200">51–200</option>
+                      <option value="201-1000">201–1,000</option>
+                      <option value="1000+">1,000+</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <button type="submit" className="w-full py-3 rounded-lg text-sm font-semibold text-white" style={{ background: '#102A43' }}>Create Employer Profile</button>
-            </form>
+                <Input label="Accessibility features" name="accessibility" placeholder="e.g. Wheelchair ramp, screen reader support" />
+                <Input label="Benefits" name="benefits" placeholder="e.g. HMO, flexible hours" />
+                <Divider />
+                <p className="text-h3 text-kaya-navy-900">Gate reviewers</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <Input label="Gate 1 — Alignment" name="g1" placeholder="Recruiter" />
+                  <Input label="Gate 2 — Evidence" name="g2" placeholder="Hiring manager" />
+                  <Input label="Gate 3 — Predictability" name="g3" placeholder="Final approver" />
+                </div>
+                <Button type="submit" className="w-full">Create employer profile</Button>
+              </form>
+            </div>
           )}
-        </div>)}
-      </div>
-    </div>
+        </Card>
+      )}
+    </PageShell>
   );
 }
