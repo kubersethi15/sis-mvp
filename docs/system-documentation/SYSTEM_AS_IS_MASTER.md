@@ -716,6 +716,56 @@ sis-mvp/
 
 ---
 
+## O2. Resilience and Graceful Degradation
+
+The system is designed to continue operating in a degraded state when individual services fail, rather than failing completely.
+
+### Service Dependency Chain
+
+| Service | If it fails | Fallback | User impact | Implementation |
+|---|---|---|---|---|
+| **Claude API** | Gemini kicks in automatically | `callLLM()` in `src/lib/llm.ts` tries Claude → catches 429/500/502/503/timeout → retries with Gemini 2.0 Flash | Lower quality responses but functional | ✅ Built |
+| **Gemini API** | Only matters if Claude already failed | Error returned to user with "try again" message | Conversation pauses, transcript saved | ✅ Built |
+| **OpenAI Whisper (STT)** | Voice transcription fails | Text input always visible, user types instead | Voice input unavailable, text works | ✅ Built |
+| **OpenAI TTS** | Aya can't speak via API | `browserSpeak()` uses browser SpeechSynthesis API | Lower quality voice, may sound robotic | ✅ Built |
+| **Hume AI** | Paralinguistic analysis unavailable | Fire-and-forget pattern — `.catch(() => {})` | Extraction runs without voice confidence adjustments (±0.20 cap lost) | ✅ Built |
+| **Supabase** | Database down | No fallback | **Hard failure** — nothing works | ⬜ Single point of failure |
+| **Supabase Auth** | Auth down | Demo mode with auto-created user | Can demo but not real sessions | ✅ Built |
+| **Vercel** | Platform down | No fallback | Everything down | ⬜ Expected for MVP |
+
+### Voice Chat Degradation (implemented in `/chat-voice`)
+
+The voice chat tracks service health in real-time via `serviceHealth` state (`{ stt, tts, hume, llm }`) and displays degradation banners:
+
+- **STT failure** → amber banner: "Voice transcription unavailable — use text input"
+- **TTS failure** → amber banner: "Aya using browser speech — quality may vary"
+- **LLM failure** → red banner: "AI service interrupted — conversation saved, try again"
+- **Hume failure** → silent degradation (no user notification — analysis is supplementary)
+- **Connection lost** → red banner: "Connection lost — voice may not work"
+
+Service health dots appear in the header when any service is degraded, disappear when services recover.
+
+### Extraction Pipeline Degradation
+
+- Voice analysis data is optional: extraction Stage 5 only applies paralinguistic adjustments `if (voiceAnalysis && voiceAnalysis.length > 0)`
+- If a mid-pipeline stage fails, the extraction returns partial results with lower confidence
+- JSON parsing includes repair logic for truncated responses (unclosed braces/brackets)
+- Model routing per stage allows Sonnet for lighter stages, Opus for critical ones — Gemini fallback for all
+
+### Simulation Degradation
+
+- Standalone mode: simulation works without `application_id` — results stored locally only
+- Scenario fallback: if no employer-generated scenarios → static scenarios used
+- Voice in simulation: if TTS fails, character messages show as text (already default)
+
+### What is NOT resilient
+
+- **Supabase outage** = total system failure (no sessions, no storage, no auth)
+- **All LLM providers down simultaneously** = conversation stops (extremely rare)
+- **Browser without MediaRecorder** = voice mode unavailable (text always works)
+
+---
+
 ## P. Known Gaps, Risks, and Technical Debt
 
 ### Critical Gaps

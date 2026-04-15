@@ -343,3 +343,20 @@ See LAYER2_BUILD_TRACKER.md for full details.
 
 **Verdict: Ready after MVP-1 through MVP-4 (3-4 days build) + validation tasks.**
 
+
+---
+
+## RESILIENCE & GRACEFUL DEGRADATION (Completed April 15, 2026)
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| R1 | Claude → Gemini LLM fallback | ✅ Done | `callLLM()` auto-retries on 429/500/502/503/timeout |
+| R2 | OpenAI TTS → browser speech fallback | ✅ Done | `browserSpeak()` uses SpeechSynthesis API |
+| R3 | Hume AI fire-and-forget pattern | ✅ Done | Non-blocking, extraction skips if no data |
+| R4 | Voice chat service health tracking | ✅ Done | `serviceHealth` state tracks STT/TTS/Hume/LLM |
+| R5 | Degradation banners in voice chat | ✅ Done | Amber/red banners for each degraded service |
+| R6 | Service health indicator dots | ✅ Done | Shows in header only when services degraded |
+| R7 | Standalone simulation mode | ✅ Done | "Practice sim" link on dashboard, no app_id required |
+| R8 | Simulation practice vs pipeline mode | ✅ Done | Different intro text based on context |
+| R9 | LLM recovery detection | ✅ Done | Health resets to true on next successful call |
+| R10 | JSON repair for truncated LLM responses | ✅ Done | Auto-closes brackets/braces in `callLLMForJSON` |
