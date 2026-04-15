@@ -340,7 +340,7 @@ export default function EmployerDashboard() {
                     i === 0 ? 'bg-kaya-navy-50 text-kaya-navy-600' :
                     i === 1 ? 'bg-kaya-green-50 text-kaya-green-400' :
                     i === 2 ? 'bg-kaya-navy-50 text-purple-700' :
-                    'bg-yellow-100 text-yellow-700'
+                    'bg-kaya-amber-50 text-yellow-700'
                   }`}>
                     {stage}
                   </div>
@@ -445,7 +445,7 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
             <input type="text" value={shareData.share_url} readOnly
               className="flex-1 px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 rounded-lg text-kaya-stone-600" />
             <button onClick={copyLink}
-              className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              className="px-3 py-1.5 text-xs bg-kaya-navy-600 text-white rounded-lg hover:bg-kaya-navy-800 transition-colors">
               {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>

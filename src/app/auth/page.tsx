@@ -122,11 +122,11 @@ export default function AuthPage() {
           {/* Toggle */}
           <div className="flex gap-1 bg-kaya-stone-100 rounded-xl p-1 mb-6">
             <button onClick={() => setMode('signin')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signin' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-stone-400'}`}>
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signin' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-kaya-stone-400'}`}>
               Sign In
             </button>
             <button onClick={() => setMode('signup')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signup' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-stone-400'}`}>
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signup' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-kaya-stone-400'}`}>
               Create Account
             </button>
           </div>
@@ -137,7 +137,7 @@ export default function AuthPage() {
                 <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Full Name</label>
                 <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} required
                   placeholder="Juan dela Cruz"
-                  className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
+                  className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-kaya-amber-400/30 outline-none bg-white" />
               </div>
             )}
 
@@ -145,14 +145,14 @@ export default function AuthPage() {
               <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
                 placeholder="you@email.com"
-                className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
+                className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-kaya-amber-400/30 outline-none bg-white" />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Password</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
                 placeholder="At least 6 characters"
-                className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
+                className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-kaya-amber-400/30 outline-none bg-white" />
               {mode === 'signin' && (
                 <button type="button" onClick={async () => {
                   if (!email) { setError('Enter your email first'); return; }

@@ -173,7 +173,7 @@ export default function VacancyPage() {
               {matchData?.jobseeker && (
                 <div className="p-3 bg-kaya-amber-50 rounded-lg border border-kaya-amber-400/20 mb-2">
                   <p className="text-xs font-medium text-kaya-amber-400">Matched for: {matchData.jobseeker.name}</p>
-                  <p className="text-[10px] text-amber-500">{matchData.jobseeker.has_leee ? `${matchData.jobseeker.skills_count} skills evidenced` : 'Chat with Aya to improve matches'}</p>
+                  <p className="text-[10px] text-kaya-amber-400">{matchData.jobseeker.has_leee ? `${matchData.jobseeker.skills_count} skills evidenced` : 'Chat with Aya to improve matches'}</p>
                 </div>
               )}
               {vacancies.map((v: any) => (
@@ -229,7 +229,7 @@ export default function VacancyPage() {
                       <h3 className="text-xs font-semibold text-kaya-stone-600 mb-2">SKILLS WE VALUE</h3>
                       <div className="flex flex-wrap gap-2">
                         {selected.competency_blueprint.human_centric_skills.map((s: any, i: number) => (
-                          <span key={i} className="text-xs bg-purple-50 text-kaya-navy-600 px-2 py-1 rounded-full">{s.skill}</span>
+                          <span key={i} className="text-xs bg-kaya-navy-50 text-kaya-navy-600 px-2 py-1 rounded-full">{s.skill}</span>
                         ))}
                       </div>
                     </div>
@@ -259,7 +259,7 @@ export default function VacancyPage() {
 
                 {/* Alignment Result */}
                 {alignment && (
-                  <div className={`rounded-lg border p-4 ${alignment.alignment_score >= 70 ? 'bg-kaya-green-50 border-green-200' : alignment.alignment_score >= 40 ? 'bg-yellow-50 border-yellow-200' : 'bg-kaya-red-50 border-red-200'}`}>
+                  <div className={`rounded-lg border p-4 ${alignment.alignment_score >= 70 ? 'bg-kaya-green-50 border-kaya-green-100' : alignment.alignment_score >= 40 ? 'bg-kaya-amber-50 border-kaya-amber-400/20' : 'bg-kaya-red-50 border-kaya-red-400/20'}`}>
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-sm font-semibold text-kaya-navy-900">Your alignment score</h3>
                       <span className={`text-2xl font-bold ${alignment.alignment_score >= 70 ? 'text-kaya-green-400' : alignment.alignment_score >= 40 ? 'text-kaya-amber-400' : 'text-kaya-red-400'}`}>
@@ -277,7 +277,7 @@ export default function VacancyPage() {
                     {alignment.gaps?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
                         {alignment.gaps.map((g: any, i: number) => (
-                          <span key={i} className="text-xs bg-orange-100 text-kaya-amber-400 px-2 py-0.5 rounded">Gap: {g.area || g}</span>
+                          <span key={i} className="text-xs bg-kaya-amber-50 text-kaya-amber-400 px-2 py-0.5 rounded">Gap: {g.area || g}</span>
                         ))}
                       </div>
                     )}
@@ -292,7 +292,7 @@ export default function VacancyPage() {
                       <p className="text-xs text-kaya-stone-400">Ask any question about this role — compensation, schedule, requirements, team, anything.</p>
                     )}
                     {qaMessages.map((m, i) => (
-                      <div key={i} className={`text-sm p-2 rounded-lg ${m.role === 'user' ? 'bg-kaya-navy-50 text-blue-800 ml-8' : 'bg-kaya-stone-50 text-kaya-navy-900 mr-8'}`}>
+                      <div key={i} className={`text-sm p-2 rounded-lg ${m.role === 'user' ? 'bg-kaya-navy-50 text-kaya-navy-600 ml-8' : 'bg-kaya-stone-50 text-kaya-navy-900 mr-8'}`}>
                         {m.content}
                       </div>
                     ))}
