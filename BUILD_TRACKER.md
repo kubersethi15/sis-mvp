@@ -312,10 +312,10 @@ See LAYER2_BUILD_TRACKER.md for full details.
 
 | # | Task | Status | Type | Effort | Owner |
 |---|------|--------|------|--------|-------|
-| MVP-1 | Skills Passport export (PDF/JSON download from /skills) | ⬜ Todo | Engineering | 2-3 days | Kuber |
+| MVP-1 | Skills Passport export (PDF/JSON download from /skills) | ✅ Done | Engineering | 2-3 days | Kuber |
 | MVP-2 | Email notifications for reference invitations (SendGrid/Resend) | ⬜ Todo | Engineering + Ops | 1 day | Kuber |
 | MVP-3 | Reviewer guidance text at each gate ("At this gate, you're checking...") | ✅ Done | Content/UX | 1 hour | Kuber + Ryan |
-| MVP-4 | Reference page intro text ("What is Kaya and why you're being asked") | ⬜ Todo | Content | 30 min | Kuber + Ryan |
+| MVP-4 | Reference page intro text ("What is Kaya and why you're being asked") | ✅ Done | Content | 30 min | Kuber + Ryan |
 
 **Non-build blockers (need stakeholder input):**
 
@@ -341,7 +341,7 @@ See LAYER2_BUILD_TRACKER.md for full details.
 | VAL-6 | Reference form test with real references | UAT | Virtualahan team |
 | VAL-7 | Test-retest reliability (same transcript 5x) | Validation | Kuber |
 
-**Verdict: Ready after MVP-1 through MVP-4 (3-4 days build) + validation tasks.**
+**Verdict: MVP-1, MVP-3, MVP-4 complete. Only MVP-2 (email notifications) remains as build work. Ready for employer pilot after MVP-2 + validation tasks.**
 
 
 ---

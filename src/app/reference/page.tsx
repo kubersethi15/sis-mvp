@@ -115,6 +115,19 @@ function ReferencePage() {
       </div>
 
       <div className="max-w-lg mx-auto px-6 py-6">
+        {/* What is Kaya — context for references */}
+        <div className="mb-6 p-4 rounded-kaya bg-white border border-kaya-stone-100">
+          <p className="text-body font-semibold text-kaya-navy-900 mb-2">Why you&apos;re being asked</p>
+          <p className="text-caption text-kaya-stone-600 leading-relaxed">
+            Kaya is a skills assessment platform that helps people demonstrate their real capabilities to employers.
+            {candidateName ? ` ${candidateName} has` : ' This candidate has'} completed a skills conversation and workplace simulation.
+            Your independent assessment helps verify their skills from someone who knows them — making the profile more trustworthy for employers.
+          </p>
+          <p className="text-caption text-kaya-stone-400 mt-2">
+            Your responses are confidential and used only for skills assessment. It takes about 5 minutes.
+          </p>
+        </div>
+
         {/* Intro */}
         <div className="mb-6">
           <h1 className="text-lg font-bold mb-2 text-kaya-navy-900">

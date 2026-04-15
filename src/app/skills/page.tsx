@@ -167,28 +167,48 @@ export default function SkillsDashboard() {
   const evidencedNames = skills.map(s => s.skill_name);
   const gaps = ALL_SKILLS.filter(s => !evidencedNames.includes(s));
 
-  // Passport export
+  // Passport export — full evidence trail for downstream systems
   const exportPassport = () => {
     const passport = {
-      version: '1.0', framework: 'PSF-HCD', pqf_aligned: true,
+      schema_version: '1.0',
+      framework: 'PSF-HCD',
+      framework_version: 'Philippines Skills Framework — Human Capital Development v1.0',
+      pqf_aligned: true,
       generated_at: new Date().toISOString(),
+      platform: { name: 'Kaya', version: 'MVP', url: 'kaya.work', operator: 'Virtualahan Inc.' },
       candidate: {
         stories_completed: quality?.stories_completed,
         evidence_density: quality?.evidence_density,
         overall_confidence: quality?.overall_confidence,
+        gaming_flags: extraction.gaming_flags?.length || 0,
+        psychologist_validated: false,
       },
       skills: skills.map(s => ({
-        skill_id: s.skill_id, skill_name: s.skill_name,
+        skill_id: s.skill_id,
+        skill_name: s.skill_name,
         proficiency: s.proficiency?.toLowerCase(),
         pqf_level: PROFICIENCY_CONFIG[(s.proficiency?.toLowerCase() as keyof typeof PROFICIENCY_CONFIG)]?.pqf || '1–2',
-        confidence: s.confidence, evidence_count: s.evidence?.length || 0,
+        confidence: s.confidence,
+        evidence_count: s.evidence?.length || 0,
+        evidence: (s.evidence || []).map(e => ({
+          behavioral_indicator: e.behavioral_indicator,
+          proficiency_justification: e.proficiency_justification,
+          transcript_excerpt: e.transcript_quote?.substring(0, 200),
+        })),
       })),
       narrative: extraction.narrative_summary,
+      episodes: extraction.episodes?.map(e => ({ id: e.episode_id, summary: e.summary })),
       gaps: gaps,
+      methodology: {
+        extraction: 'LEEE 5-Stage Pipeline (Segmentation → STAR+E+R → Skill Mapping → Consistency → Proficiency)',
+        conversation: 'Moth Storytelling Framework with Cultural Intelligence Layer',
+        taxonomy: 'Philippine Skills Framework — 16 Enabling Skills & Competencies',
+        anti_gaming: 'Oblique questioning, cross-story verification, consistency validation',
+      },
     };
     const blob = new Blob([JSON.stringify(passport, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'skills-passport.json'; a.click();
+    const a = document.createElement('a'); a.href = url; a.download = `kaya-skills-passport-${new Date().toISOString().split('T')[0]}.json`; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -486,19 +506,36 @@ export default function SkillsDashboard() {
 
         {/* PASSPORT TAB */}
         {activeTab === 'passport' && (
-          <div>
+          <div id="skills-passport">
             <div className="bg-white rounded-2xl border border-kaya-stone-100 overflow-hidden shadow-sm mb-6">
               {/* Passport header */}
-              <div className="p-6" style={{ background: 'linear-gradient(135deg, #0F0C29, #302B63)' }}>
+              <div className="p-6 bg-kaya-navy-900">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-1">Kaya · Skills Passport</p>
-                    <h2 className="text-lg font-bold text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>Skills Passport</h2>
-                    <p className="text-white/50 text-xs mt-1">Philippine Qualifications Framework Aligned</p>
+                    <p className="text-white/40 text-[10px] uppercase tracking-widest mb-1 font-mono">Kaya · Skills Passport</p>
+                    <h2 className="text-lg font-bold text-kaya-navy-50 font-display">Skills passport</h2>
+                    <p className="text-white/40 text-xs mt-1">Philippine Qualifications Framework aligned · PSF-HCD v1.0</p>
                   </div>
                   <div className="text-right">
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl">🪪</div>
+                    <div className="w-10 h-10 rounded-kaya bg-white/10 flex items-center justify-center">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="2.5" fill="#E6F1FB" />
+                        {[0, 51, 103, 154, 206, 257, 309].map((angle, i) => {
+                          const rad = (angle * Math.PI) / 180;
+                          const x2 = 12 + 8 * Math.cos(rad);
+                          const y2 = 12 + 8 * Math.sin(rad);
+                          return <g key={i}><line x1="12" y1="12" x2={x2} y2={y2} stroke={i >= 5 ? '#1D9E75' : '#185FA5'} strokeWidth="1.5" opacity="0.5" /><circle cx={x2} cy={y2} r="2" fill={i >= 5 ? '#1D9E75' : '#185FA5'} /></g>;
+                        })}
+                      </svg>
+                    </div>
                   </div>
+                </div>
+                {/* Summary stats */}
+                <div className="flex gap-4 mt-4 pt-3 border-t border-white/10">
+                  <div><span className="text-white/40 text-[10px] uppercase tracking-wider">Skills assessed</span><p className="text-white font-bold text-sm">{skills.length}</p></div>
+                  <div><span className="text-white/40 text-[10px] uppercase tracking-wider">Stories</span><p className="text-white font-bold text-sm">{quality?.stories_completed || 0}</p></div>
+                  <div><span className="text-white/40 text-[10px] uppercase tracking-wider">Confidence</span><p className="text-white font-bold text-sm">{Math.round((quality?.overall_confidence || 0) * 100)}%</p></div>
+                  <div><span className="text-white/40 text-[10px] uppercase tracking-wider">Status</span><p className="text-kaya-amber-400 font-bold text-sm">Pending validation</p></div>
                 </div>
               </div>
 
@@ -559,18 +596,21 @@ export default function SkillsDashboard() {
             <div className="flex gap-3">
               <button
                 onClick={exportPassport}
-                className="flex-1 py-3.5 rounded-2xl font-semibold text-white text-sm shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                style={{ background: 'linear-gradient(135deg, #185FA5, #042C53)', fontFamily: "'DM Sans', sans-serif" }}
+                className="flex-1 py-3.5 rounded-kaya font-semibold text-white text-sm shadow-kaya-md transition-all hover:shadow-kaya-lg bg-kaya-navy-900 hover:bg-kaya-navy-800"
               >
-                Export JSON
+                Download JSON passport
               </button>
               <button
                 onClick={() => window.print()}
-                className="px-5 py-3.5 rounded-2xl font-medium text-kaya-stone-600 text-sm border border-kaya-stone-200 bg-white hover:bg-stone-50 transition-all"
+                className="px-5 py-3.5 rounded-kaya font-medium text-kaya-stone-600 text-sm border border-kaya-stone-200 bg-white hover:bg-kaya-stone-50 transition-all"
               >
-                🖨️ Print
+                Print / Save PDF
               </button>
             </div>
+
+            <p className="text-caption text-kaya-stone-400 mt-4 text-center">
+              The JSON format is machine-readable and can be imported into HR systems. Print produces a PDF suitable for sharing with employers.
+            </p>
           </div>
         )}
 
@@ -580,6 +620,15 @@ export default function SkillsDashboard() {
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @media print {
+          body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          nav, header, .no-print, button, [role="tablist"] { display: none !important; }
+          #skills-passport { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+          #skills-passport * { break-inside: avoid; }
+          .bg-kaya-navy-900 { background-color: #042C53 !important; }
+          .text-kaya-navy-50 { color: #E6F1FB !important; }
+          .bg-kaya-stone-50 { background-color: #F1EFE8 !important; }
         }
       `}} />
     </div>
