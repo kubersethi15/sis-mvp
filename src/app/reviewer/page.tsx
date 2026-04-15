@@ -228,7 +228,7 @@ function GateDetail({ gate, data, appId, onAction, skills, sim }: {
               <span className="text-kaya-navy-900">{c.skill_name}</span>
               <div className="flex items-center gap-2">
                 <span className="text-kaya-stone-600">L1: {c.layer1_score}</span>
-                <span className={c.convergent ? 'text-kaya-green-400' : 'text-kaya-warning'}>{c.convergent ? '✓' : '⚠'}</span>
+                <span className={c.convergent ? 'text-kaya-green-400' : 'text-kaya-amber-400'}>{c.convergent ? '✓' : '⚠'}</span>
                 <span className="text-kaya-stone-600">L2: {c.layer2_score}</span>
               </div>
             </div>
@@ -335,10 +335,10 @@ function GateView({ gate, apps, onAction }: { gate: number; apps: AppData[]; onA
                     )}
                     {app.gate1.gaps?.length > 0 && (
                       <div>
-                        <span className="text-caption font-semibold text-kaya-warning">Gaps</span>
+                        <span className="text-caption font-semibold text-kaya-amber-400">Gaps</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {app.gate1.gaps.map((g: any, i: number) => (
-                            <span key={i} className="text-caption px-2 py-0.5 rounded-kaya-sm bg-kaya-warning-bg text-kaya-warning">{typeof g === 'string' ? g : g.skill || g.gap}</span>
+                            <span key={i} className="text-caption px-2 py-0.5 rounded-kaya-sm bg-kaya-amber-50 text-kaya-amber-400">{typeof g === 'string' ? g : g.skill || g.gap}</span>
                           ))}
                         </div>
                       </div>
@@ -374,7 +374,7 @@ function GateView({ gate, apps, onAction }: { gate: number; apps: AppData[]; onA
                           <TableRow key={i}>
                             <TableCell><span className="font-medium text-kaya-navy-900">{c.skill_name}</span></TableCell>
                             <TableCell>{c.layer1_score}</TableCell>
-                            <TableCell><span className={c.convergent ? 'text-kaya-green-400' : 'text-kaya-warning'}>{c.convergent ? '✓ Match' : '⚠ Divergent'}</span></TableCell>
+                            <TableCell><span className={c.convergent ? 'text-kaya-green-400' : 'text-kaya-amber-400'}>{c.convergent ? '✓ Match' : '⚠ Divergent'}</span></TableCell>
                             <TableCell>{c.layer2_score}</TableCell>
                           </TableRow>
                         ))}

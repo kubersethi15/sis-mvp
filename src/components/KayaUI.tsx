@@ -6,7 +6,7 @@
 // Colors: Navy 900 (#042C53), Navy 600 (#185FA5), Navy 50 (#E6F1FB),
 //         Green 400 (#1D9E75), Green 50 (#E1F5EE),
 //         Stone 50 (#F1EFE8), Stone 200 (#B4B2A9), Stone 600 (#5F5E5A)
-// Fonts: Inter (system), Georgia (wordmark/display only)
+// Fonts: DM Serif Display (display/H1), DM Sans (system), JetBrains Mono (code/data)
 // Rules: Stone 50 backgrounds. Green ONLY for verified/success. Sentence case.
 // ═══════════════════════════════════════════════════════════════
 
@@ -178,7 +178,7 @@ export function Button({ children, variant = 'primary', size = 'default', disabl
     secondary: 'bg-white text-kaya-navy-900 border border-kaya-stone-200 hover:bg-kaya-stone-50 active:bg-kaya-navy-50',
     success: 'bg-kaya-green-400 text-white hover:bg-kaya-green-400/90 active:bg-kaya-green-400/80',
     ghost: 'text-kaya-navy-600 hover:bg-kaya-navy-50 active:bg-kaya-navy-50/80',
-    danger: 'bg-kaya-error text-white hover:bg-kaya-error/90',
+    danger: 'bg-kaya-red-400 text-white hover:bg-kaya-red-400/90',
   };
 
   return (
@@ -202,20 +202,21 @@ export function StatusBadge({ status, size = 'default' }: {
   size?: 'sm' | 'default';
 }) {
   const config = {
-    passed:   { bg: 'bg-kaya-green-50', text: 'text-kaya-green-400', label: 'Passed' },
-    selected: { bg: 'bg-kaya-green-50', text: 'text-kaya-green-400', label: 'Selected' },
-    active:   { bg: 'bg-kaya-navy-50', text: 'text-kaya-navy-600', label: 'Active' },
-    pending:  { bg: 'bg-kaya-warning-bg', text: 'text-kaya-warning', label: 'Pending' },
-    held:     { bg: 'bg-kaya-warning-bg', text: 'text-kaya-warning', label: 'Held' },
-    stopped:  { bg: 'bg-kaya-error-bg', text: 'text-kaya-error', label: 'Stopped' },
-    declined: { bg: 'bg-kaya-error-bg', text: 'text-kaya-error', label: 'Declined' },
-    draft:    { bg: 'bg-kaya-stone-50', text: 'text-kaya-stone-600', label: 'Draft' },
+    passed:   { bg: 'bg-kaya-green-50', text: 'text-[#0D5C45]', dot: 'bg-kaya-green-400', label: 'Passed' },
+    selected: { bg: 'bg-kaya-green-50', text: 'text-[#0D5C45]', dot: 'bg-kaya-green-400', label: 'Selected' },
+    active:   { bg: 'bg-kaya-navy-50', text: 'text-kaya-navy-900', dot: 'bg-kaya-navy-600', label: 'Active' },
+    pending:  { bg: 'bg-kaya-amber-50', text: 'text-[#8B6914]', dot: 'bg-kaya-amber-400', label: 'Pending' },
+    held:     { bg: 'bg-kaya-amber-50', text: 'text-[#8B6914]', dot: 'bg-kaya-amber-400', label: 'Held' },
+    stopped:  { bg: 'bg-kaya-red-50', text: 'text-[#A13333]', dot: 'bg-kaya-red-400', label: 'Stopped' },
+    declined: { bg: 'bg-kaya-red-50', text: 'text-[#A13333]', dot: 'bg-kaya-red-400', label: 'Declined' },
+    draft:    { bg: 'bg-kaya-stone-50 border border-kaya-stone-100', text: 'text-kaya-stone-600', dot: 'bg-kaya-stone-400', label: 'Draft' },
   }[status];
 
-  const sizing = size === 'sm' ? 'text-caption px-1.5 py-0.5' : 'text-h3 px-2.5 py-1';
+  const sizing = size === 'sm' ? 'text-caption px-2 py-0.5' : 'text-caption px-3.5 py-1';
 
   return (
-    <span className={`${config.bg} ${config.text} ${sizing} rounded-kaya-sm font-medium inline-block`}>
+    <span className={`${config.bg} ${config.text} ${sizing} rounded-kaya-pill font-semibold inline-flex items-center gap-1.5`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
       {config.label}
     </span>
   );
@@ -440,8 +441,8 @@ export function Alert({ children, variant = 'info' }: {
   const styles = {
     info: 'bg-kaya-navy-50 border-kaya-navy-600 text-kaya-navy-900',
     success: 'bg-kaya-green-50 border-kaya-green-400 text-kaya-navy-900',
-    warning: 'bg-kaya-warning-bg border-kaya-warning text-kaya-navy-900',
-    error: 'bg-kaya-error-bg border-kaya-error text-kaya-navy-900',
+    warning: 'bg-kaya-amber-50 border-kaya-amber-400 text-kaya-navy-900',
+    error: 'bg-kaya-red-50 border-kaya-red-400 text-kaya-navy-900',
   };
 
   return (

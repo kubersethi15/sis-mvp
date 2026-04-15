@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Inter', Arial, 'Helvetica Neue', sans-serif;
+  font-family: 'DM Sans', 'Inter', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

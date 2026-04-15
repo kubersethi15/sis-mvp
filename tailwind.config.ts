@@ -6,56 +6,66 @@ const config: Config = {
     extend: {
       colors: {
         // ═══════════════════════════════════════════════
-        // KAYA BRAND PALETTE — from Kaya_Brand_Guidelines_v1.0
-        // These are the ONLY colors to use in the UI.
+        // KAYA BRAND PALETTE v2.0 — April 2026
         // ═══════════════════════════════════════════════
         kaya: {
           // Navy — authority, trust, depth
           'navy-900': '#042C53',
+          'navy-800': '#0A3D6E',
           'navy-600': '#185FA5',
-          'navy-100': '#B8D4ED',
+          'navy-400': '#3D8BD4',
+          'navy-100': '#C5DDEF',
           'navy-50':  '#E6F1FB',
 
           // Green — proof, success, progress
           // RULE: EXCLUSIVELY for verified/gate-cleared/success. Never decorative.
           'green-400': '#1D9E75',
+          'green-300': '#2FBE8F',
+          'green-100': '#B2E5D4',
           'green-50':  '#E1F5EE',
 
           // Stone — warm neutral
-          'stone-50':  '#F1EFE8',
-          'stone-200': '#B4B2A9',
           'stone-600': '#5F5E5A',
+          'stone-400': '#8A887F',
+          'stone-200': '#B4B2A9',
+          'stone-100': '#E3E1D8',
+          'stone-50':  '#F1EFE8',
 
-          // Functional
-          'error':     '#C0392B',
-          'error-bg':  '#FDEDEC',
-          'warning':   '#D4880F',
-          'warning-bg':'#FEF5E7',
+          // Red — errors, declined, destructive
+          'red-400': '#D94F4F',
+          'red-50':  '#FEF0F0',
+
+          // Amber — warnings, pending, caution
+          'amber-400': '#D4920A',
+          'amber-50':  '#FFF8E6',
         },
       },
       fontFamily: {
-        'display': ['Georgia', 'serif'],
-        'sans': ['Inter', 'Arial', 'Helvetica Neue', 'sans-serif'],
-        'mono': ['Courier New', 'monospace'],
+        'display': ['"DM Serif Display"', 'Georgia', 'serif'],
+        'sans':    ['"DM Sans"', 'Inter', 'Arial', 'sans-serif'],
+        'mono':    ['"JetBrains Mono"', 'Courier New', 'monospace'],
       },
       fontSize: {
-        'display':    ['3rem',      { lineHeight: '1.1', fontWeight: '700' }],
-        'display-sm': ['2.25rem',   { lineHeight: '1.15', fontWeight: '700' }],
-        'h1':         ['1.125rem',  { lineHeight: '1.4', fontWeight: '700' }],
-        'h2':         ['0.875rem',  { lineHeight: '1.4', fontWeight: '700' }],
-        'h3':         ['0.6875rem', { lineHeight: '1.4', fontWeight: '700' }],
-        'body':       ['0.6875rem', { lineHeight: '1.5', fontWeight: '400' }],
-        'caption':    ['0.5625rem', { lineHeight: '1.4', fontWeight: '400' }],
+        // v2 type scale — DM Serif Display for display/H1, DM Sans for H2+
+        'display':    ['3rem',     { lineHeight: '1.15', fontWeight: '400' }],  // 48pt
+        'display-sm': ['2.25rem',  { lineHeight: '1.15', fontWeight: '400' }],  // 36pt
+        'h1':         ['2rem',     { lineHeight: '1.25', fontWeight: '400' }],  // 32pt — DM Serif Display
+        'h2':         ['1.125rem', { lineHeight: '1.4',  fontWeight: '700' }],  // 18pt — DM Sans Bold
+        'h3':         ['0.9375rem',{ lineHeight: '1.4',  fontWeight: '600' }],  // 15pt — DM Sans Semibold
+        'body':       ['0.9375rem',{ lineHeight: '1.65', fontWeight: '400' }],  // 15pt — DM Sans Regular
+        'caption':    ['0.8125rem',{ lineHeight: '1.4',  fontWeight: '400' }],  // 13pt — DM Sans Regular
+        'code':       ['0.875rem', { lineHeight: '1.5',  fontWeight: '400' }],  // 14pt — JetBrains Mono
       },
       borderRadius: {
-        'kaya':    '0.5rem',
-        'kaya-lg': '0.75rem',
-        'kaya-sm': '0.25rem',
+        'kaya':    '0.75rem',   // 12px — cards, containers
+        'kaya-lg': '1rem',      // 16px — large panels
+        'kaya-sm': '0.5rem',    // 8px — buttons, inputs
+        'kaya-pill': '6.25rem', // 100px — status pills
       },
       boxShadow: {
-        'kaya':    '0 1px 3px rgba(4,44,83,0.06), 0 1px 2px rgba(4,44,83,0.04)',
-        'kaya-md': '0 4px 12px rgba(4,44,83,0.08), 0 2px 4px rgba(4,44,83,0.04)',
-        'kaya-lg': '0 8px 24px rgba(4,44,83,0.10), 0 4px 8px rgba(4,44,83,0.06)',
+        'kaya':    '0 1px 3px rgba(4,44,83,0.08)',
+        'kaya-md': '0 4px 16px rgba(4,44,83,0.10)',
+        'kaya-lg': '0 8px 24px rgba(4,44,83,0.12)',
       },
     },
   },
