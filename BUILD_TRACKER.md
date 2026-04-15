@@ -313,7 +313,7 @@ See LAYER2_BUILD_TRACKER.md for full details.
 | # | Task | Status | Type | Effort | Owner |
 |---|------|--------|------|--------|-------|
 | MVP-1 | Skills Passport export (PDF/JSON download from /skills) | ✅ Done | Engineering | 2-3 days | Kuber |
-| MVP-2 | Email notifications for reference invitations (SendGrid/Resend) | ⬜ Todo | Engineering + Ops | 1 day | Kuber |
+| MVP-2 | Email notifications for reference invitations (Resend) | ✅ Done | Engineering + Ops | 1 day | Kuber |
 | MVP-3 | Reviewer guidance text at each gate ("At this gate, you're checking...") | ✅ Done | Content/UX | 1 hour | Kuber + Ryan |
 | MVP-4 | Reference page intro text ("What is Kaya and why you're being asked") | ✅ Done | Content | 30 min | Kuber + Ryan |
 
@@ -326,7 +326,7 @@ See LAYER2_BUILD_TRACKER.md for full details.
 | NB-3 | 8 vs 16 skills taxonomy decision | Ryan |
 | NB-4 | Skills Passport schema for Randy's HR Intelligence System | Randy |
 | NB-5 | Psychometric data format (RIASEC/HIGH5) if MVP-scope | Ryan |
-| NB-6 | Email provider account (SendGrid/Resend) | Kuber |
+| NB-6 | Resend API key — code built, needs account signup at resend.com + RESEND_API_KEY env var | Kuber |
 | NB-7 | Business model decision | Ryan / leadership |
 
 **Validation required before pilot:**
@@ -341,7 +341,7 @@ See LAYER2_BUILD_TRACKER.md for full details.
 | VAL-6 | Reference form test with real references | UAT | Virtualahan team |
 | VAL-7 | Test-retest reliability (same transcript 5x) | Validation | Kuber |
 
-**Verdict: MVP-1, MVP-3, MVP-4 complete. Only MVP-2 (email notifications) remains as build work. Ready for employer pilot after MVP-2 + validation tasks.**
+**Verdict: ALL 4 MVP BUILD ITEMS COMPLETE (MVP-1 through MVP-4). System is ready for employer pilot after: Resend API key setup (NB-6, 5 minutes) + validation tasks (VAL-1 through VAL-7).**
 
 
 ---

@@ -36,14 +36,18 @@ export async function POST(req: NextRequest) {
 // ============================================================
 
 async function handleInvite(body: any) {
-  const { candidate_id, application_id, references } = body;
+  const { candidate_id, application_id, references, candidate_name } = body;
   // references: [{ name, relationship, email?, phone? }]
 
   if (!candidate_id || !references?.length) {
     return NextResponse.json({ error: 'candidate_id and references required' }, { status: 400 });
   }
 
-  const created = [];
+  // Import email utility (dynamic to avoid cold start cost when not sending)
+  const { sendReferenceInvitation } = await import('@/lib/email/send');
+
+  const created: Array<{ id: any; name: string; relationship: string; token: string; link: string; email_sent: boolean }> = [];
+  const emailResults: any[] = [];
   for (const ref of references) {
     const token = generateReferenceToken();
     try {
@@ -59,22 +63,44 @@ async function handleInvite(body: any) {
         invited_at: new Date().toISOString(),
       }).select().single();
 
-      created.push({
+      const refRecord = {
         id: data?.id,
         name: ref.name,
         relationship: ref.relationship,
         token,
         link: `/reference?token=${token}`,
-      });
+        email_sent: false,
+      };
+
+      // Send email invitation if email provided
+      if (ref.email) {
+        const emailResult = await sendReferenceInvitation({
+          referenceName: ref.name,
+          referenceEmail: ref.email,
+          candidateName: candidate_name || 'a Kaya candidate',
+          token,
+          relationship: ref.relationship,
+        });
+        refRecord.email_sent = emailResult.sent;
+        emailResults.push({ name: ref.name, ...emailResult });
+      }
+
+      created.push(refRecord);
     } catch (e) {
       console.error('Failed to create reference:', e);
     }
   }
 
+  const emailsSent = created.filter(r => r.email_sent).length;
+  const emailsSkipped = created.filter(r => !r.email_sent && created.find(c => c.name === r.name)).length;
+
   return NextResponse.json({
     references: created,
     count: created.length,
-    message: `${created.length} reference(s) invited. Share the links with them.`,
+    emails_sent: emailsSent,
+    message: emailsSent > 0
+      ? `${created.length} reference(s) invited. ${emailsSent} email(s) sent.`
+      : `${created.length} reference(s) invited. Share the links with them manually (no email configured).`,
   });
 }
 
