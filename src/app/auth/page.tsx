@@ -179,7 +179,7 @@ export default function AuthPage() {
                     setLoading(false);
                     if (resendErr) setError(resendErr.message);
                     else { setError(''); setSuccess('Confirmation email resent. Check your inbox.'); }
-                  }} className="block mt-2 text-xs font-medium underline text-red-700">
+                  }} className="block mt-2 text-xs font-medium underline text-kaya-red-400">
                     Resend confirmation email
                   </button>
                 )}

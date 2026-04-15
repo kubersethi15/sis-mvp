@@ -156,7 +156,7 @@ export default function EmployerDashboard() {
               className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
                 activeTab === tab.id
                   ? 'bg-white text-kaya-navy-600 border border-kaya-stone-100 border-b-white -mb-px'
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-kaya-stone-600 hover:text-kaya-navy-900'
               }`}
             >
               {tab.label}
@@ -219,11 +219,11 @@ export default function EmployerDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Essential Requirements */}
                   <div>
-                    <h3 className="text-sm font-semibold text-red-700 mb-2">Essential Requirements</h3>
+                    <h3 className="text-sm font-semibold text-kaya-red-400 mb-2">Essential Requirements</h3>
                     <div className="space-y-2">
                       {blueprint.essential_requirements.map((req, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-red-500 mt-0.5">●</span>
+                          <span className="text-kaya-red-400 mt-0.5">●</span>
                           <div>
                             <span className="text-kaya-navy-900">{req.requirement}</span>
                             <span className="ml-2 text-xs bg-kaya-stone-50 text-kaya-stone-600 px-1.5 py-0.5 rounded">{req.type}</span>
@@ -242,7 +242,7 @@ export default function EmployerDashboard() {
                     <div className="space-y-2">
                       {blueprint.trainable_requirements.map((req, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-green-500 mt-0.5">○</span>
+                          <span className="text-kaya-green-400 mt-0.5">○</span>
                           <div>
                             <span className="text-kaya-navy-900">{req.requirement}</span>
                             <span className="ml-2 text-xs bg-kaya-stone-50 text-kaya-stone-600 px-1.5 py-0.5 rounded">{req.type}</span>
@@ -262,9 +262,9 @@ export default function EmployerDashboard() {
                         <span
                           key={i}
                           className={`text-xs px-3 py-1.5 rounded-full font-medium ${
-                            skill.importance === 'critical' ? 'bg-purple-100 text-purple-700' :
-                            skill.importance === 'important' ? 'bg-blue-100 text-blue-700' :
-                            'bg-gray-100 text-gray-600'
+                            skill.importance === 'critical' ? 'bg-kaya-navy-50 text-purple-700' :
+                            skill.importance === 'important' ? 'bg-kaya-navy-50 text-kaya-navy-600' :
+                            'bg-kaya-stone-50 text-kaya-stone-600'
                           }`}
                         >
                           {skill.skill}
@@ -302,12 +302,12 @@ export default function EmployerDashboard() {
                 <div className="space-y-3">
                   {recommendations.map((rec: any, i: number) => (
                     <div key={i} className={`flex items-start gap-3 p-3 rounded-lg ${
-                      rec.priority === 'high' ? 'bg-red-50 border border-red-100' :
-                      rec.priority === 'medium' ? 'bg-amber-50 border border-amber-100' :
-                      'bg-gray-50 border border-gray-100'
+                      rec.priority === 'high' ? 'bg-kaya-red-50 border border-red-100' :
+                      rec.priority === 'medium' ? 'bg-kaya-amber-50 border border-amber-100' :
+                      'bg-kaya-stone-50 border border-kaya-stone-100'
                     }`}>
                       <span className={`text-sm mt-0.5 ${
-                        rec.priority === 'high' ? 'text-red-500' : rec.priority === 'medium' ? 'text-amber-500' : 'text-gray-400'
+                        rec.priority === 'high' ? 'text-kaya-red-400' : rec.priority === 'medium' ? 'text-amber-500' : 'text-kaya-stone-400'
                       }`}>
                         {rec.priority === 'high' ? '🔴' : rec.priority === 'medium' ? '🟡' : '🔵'}
                       </span>
@@ -337,9 +337,9 @@ export default function EmployerDashboard() {
               {['Gate 1: Alignment', 'Gate 2: Evidence', 'Gate 3: Predictability', 'Selected'].map((stage, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                    i === 0 ? 'bg-blue-100 text-blue-700' :
-                    i === 1 ? 'bg-green-100 text-green-700' :
-                    i === 2 ? 'bg-purple-100 text-purple-700' :
+                    i === 0 ? 'bg-kaya-navy-50 text-kaya-navy-600' :
+                    i === 1 ? 'bg-kaya-green-50 text-kaya-green-400' :
+                    i === 2 ? 'bg-kaya-navy-50 text-purple-700' :
                     'bg-yellow-100 text-yellow-700'
                   }`}>
                     {stage}
@@ -454,11 +454,11 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
 
       <div className="flex gap-2">
         <button onClick={printVacancy}
-          className="px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 text-kaya-stone-600 rounded-lg hover:bg-gray-50 transition-colors">
+          className="px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 text-kaya-stone-600 rounded-lg hover:bg-kaya-stone-50 transition-colors">
           🖨️ Print / Save as PDF
         </button>
         <a href={shareData.share_url} target="_blank"
-          className="px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 text-kaya-stone-600 rounded-lg hover:bg-gray-50 transition-colors">
+          className="px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 text-kaya-stone-600 rounded-lg hover:bg-kaya-stone-50 transition-colors">
           🔗 Open Vacancy Page
         </a>
       </div>

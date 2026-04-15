@@ -182,7 +182,7 @@ export default function PsychologistPage() {
                       const topSkills = ext.skills_profile?.slice(0, 3).map(s => s.skill_name).join(', ') || 'None';
 
                       return (
-                        <tr key={ext.id || i} className="border-t hover:bg-stone-50 transition-colors cursor-pointer border-kaya-navy-50"
+                        <tr key={ext.id || i} className="border-t hover:bg-kaya-stone-50 transition-colors cursor-pointer border-kaya-navy-50"
                           onClick={() => { setSelected(ext); setActiveTab('audit'); setSigned(false); setValidationNotes(''); setLicenseNumber(''); }}>
                           <td className="px-6 py-4">
                             <div className="text-sm font-medium text-kaya-navy-900">
@@ -238,7 +238,7 @@ export default function PsychologistPage() {
               ].map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                   className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                    activeTab === tab.id ? 'bg-white text-kaya-amber-400 border border-kaya-stone-100 border-b-white -mb-px' : 'text-gray-500 hover:text-gray-700'
+                    activeTab === tab.id ? 'bg-white text-kaya-amber-400 border border-kaya-stone-100 border-b-white -mb-px' : 'text-kaya-stone-600 hover:text-kaya-navy-900'
                   }`}>{tab.label}</button>
               ))}
             </div>
@@ -305,11 +305,11 @@ export default function PsychologistPage() {
                         {skill.evidence?.map((ev, j) => (
                           <div key={j} className="p-4 border-t border-kaya-stone-100">
                             <div className="flex items-start gap-3">
-                              <div className="w-6 h-6 rounded-full bg-orange-100 text-kaya-amber-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                              <div className="w-6 h-6 rounded-full bg-kaya-amber-50 text-kaya-amber-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
                                 {j + 1}
                               </div>
                               <div className="flex-1">
-                                <p className="text-sm text-kaya-navy-900 italic border-l-2 border-orange-300 pl-3 mb-2">"{ev.transcript_quote}"</p>
+                                <p className="text-sm text-kaya-navy-900 italic border-l-2 border-kaya-amber-400/30 pl-3 mb-2">"{ev.transcript_quote}"</p>
                                 <p className="text-xs text-kaya-stone-600"><span className="font-medium">Behavioral Indicator:</span> {ev.behavioral_indicator}</p>
                                 <p className="text-xs text-kaya-stone-600 mt-1"><span className="font-medium">Proficiency Justification:</span> {ev.proficiency_justification}</p>
                               </div>
@@ -350,12 +350,12 @@ export default function PsychologistPage() {
 
                 {/* Gaming Flags */}
                 {selected.gaming_flags?.length > 0 && (
-                  <div className="bg-white rounded-lg border border-orange-200 p-6">
+                  <div className="bg-white rounded-lg border border-kaya-amber-400/20 p-6">
                     <h2 className="text-sm font-semibold text-kaya-amber-400 mb-3">AUTHENTICITY FLAGS</h2>
                     <div className="space-y-2">
                       {selected.gaming_flags.map((flag, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
-                          <span className={`mt-0.5 ${flag.severity === 'high' ? 'text-red-500' : flag.severity === 'medium' ? 'text-orange-500' : 'text-yellow-500'}`}>●</span>
+                          <span className={`mt-0.5 ${flag.severity === 'high' ? 'text-kaya-red-400' : flag.severity === 'medium' ? 'text-kaya-amber-400' : 'text-kaya-amber-400'}`}>●</span>
                           <div>
                             <span className="font-medium text-kaya-navy-900">{flag.flag_type}:</span>
                             <span className="text-kaya-stone-600 ml-1">{flag.evidence}</span>
@@ -540,7 +540,7 @@ export default function PsychologistPage() {
                       {/* Gaming Flags */}
                       {simData.gaming_flags?.length > 0 && (
                         <div className="bg-white rounded-lg border border-kaya-red-400/20 p-6">
-                          <h3 className="text-sm font-semibold text-red-700 mb-3">⚠ Gaming Detection Flags</h3>
+                          <h3 className="text-sm font-semibold text-kaya-red-400 mb-3">⚠ Gaming Detection Flags</h3>
                           <p className="text-xs text-kaya-stone-600 mb-3">These flags indicate potential gaming behavior. Review the transcript to determine if concerns are valid.</p>
                           <div className="space-y-2">
                             {simData.gaming_flags.map((f: string, i: number) => (
@@ -562,7 +562,7 @@ export default function PsychologistPage() {
 
                       {/* V2.7: Voice Signals / Paralinguistic Analysis */}
                       {(selected as any)?.voice_analysis?.length > 0 && (
-                        <div className="bg-white rounded-lg border border-purple-200 p-6">
+                        <div className="bg-white rounded-lg border border-kaya-navy-100 p-6">
                           <h3 className="text-sm font-semibold mb-3 text-kaya-navy-900">Voice Signals (Paralinguistic Analysis)</h3>
                           <p className="text-xs text-kaya-stone-600 mb-4">
                             Emotional expression detected from voice tone, rhythm, and timbre via Hume AI Expression Measurement.
@@ -623,7 +623,7 @@ export default function PsychologistPage() {
                       {/* Full Transcript */}
                       {simData.transcript && (
                         <details className="bg-white rounded-lg border border-kaya-stone-100 overflow-hidden">
-                          <summary className="px-6 py-3 cursor-pointer text-sm font-medium text-kaya-navy-900 hover:bg-gray-50">
+                          <summary className="px-6 py-3 cursor-pointer text-sm font-medium text-kaya-navy-900 hover:bg-kaya-stone-50">
                             View Full Simulation Transcript
                           </summary>
                           <pre className="px-6 py-4 text-xs whitespace-pre-wrap max-h-96 overflow-y-auto bg-kaya-stone-50 text-kaya-stone-600">
@@ -657,7 +657,7 @@ export default function PsychologistPage() {
                   return (
                     <>
                       {/* Overview */}
-                      <div className="bg-white rounded-lg border border-purple-200 p-6">
+                      <div className="bg-white rounded-lg border border-kaya-navy-100 p-6">
                         <h2 className="text-lg font-semibold mb-2 text-kaya-navy-900">Three-Layer Convergence Analysis</h2>
                         <p className="text-sm text-kaya-stone-600 mb-4">
                           Comparing self-report (Layer 1), behavioral observation (Layer 2), and peer assessment (Layer 3).
@@ -679,7 +679,7 @@ export default function PsychologistPage() {
                             </thead>
                             <tbody>
                               {convergence.map((c: any, i: number) => (
-                                <tr key={i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
+                                <tr key={i} className={i % 2 === 0 ? '' : 'bg-kaya-stone-50'}>
                                   <td className="px-3 py-2 font-medium text-kaya-navy-900">{c.skill_name}</td>
                                   <td className="text-center px-3 py-2">
                                     <span className="text-xs px-2 py-0.5 rounded bg-kaya-navy-50 text-kaya-navy-600">{c.layer1_score}</span>
@@ -815,8 +815,8 @@ export default function PsychologistPage() {
                   </p>
 
                   {/* Summary of what you're signing */}
-                  <div className="bg-orange-50 rounded-lg p-4 mb-6 border border-orange-200">
-                    <h3 className="text-sm font-semibold text-orange-700 mb-2">Skills Profile Summary</h3>
+                  <div className="bg-kaya-amber-50 rounded-lg p-4 mb-6 border border-kaya-amber-400/20">
+                    <h3 className="text-sm font-semibold text-kaya-amber-400 mb-2">Skills Profile Summary</h3>
                     <p className="text-sm text-kaya-navy-900 mb-2">{selected.narrative_summary}</p>
                     <div className="flex flex-wrap gap-2">
                       {selected.skills_profile?.map((s, i) => (
@@ -858,7 +858,7 @@ export default function PsychologistPage() {
                     <div className="pt-4 border-t border-kaya-stone-100">
                       <button onClick={handleSign} disabled={!licenseNumber.trim() || signed}
                         className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
-                          signed ? 'bg-green-500' : 'bg-orange-500 hover:bg-orange-600 shadow-md hover:shadow-lg'
+                          signed ? 'bg-kaya-green-400' : 'bg-kaya-amber-400 hover:bg-kaya-amber-400 shadow-md hover:shadow-lg'
                         } disabled:opacity-50`}>
                         {signed ? 'Signed and Validated' : 'Sign with Professional License'}
                       </button>

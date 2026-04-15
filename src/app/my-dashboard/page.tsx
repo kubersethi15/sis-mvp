@@ -151,7 +151,7 @@ export default function MyDashboard() {
             ].map((s) => (
               <Link key={s.step} href={s.href}
                 className={`p-4 rounded-xl border text-center transition-all hover:shadow-md hover:scale-[1.02] ${
-                  s.done ? 'bg-amber-50 border-amber-200' : 'bg-white border-kaya-stone-200 hover:border-amber-200'
+                  s.done ? 'bg-kaya-amber-50 border-kaya-amber-400/20' : 'bg-white border-kaya-stone-200 hover:border-kaya-amber-400/30'
                 }`}>
                 <div className="text-2xl mb-2">{s.done ? '•' : '○'}</div>
                 <div className="text-xs font-semibold text-kaya-navy-900">{s.label}</div>
@@ -173,7 +173,7 @@ export default function MyDashboard() {
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-kaya-stone-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-kaya-stone-600">YOUR SUPERPOWERS</h2>
-              {hasLEEE && <Link href="/skills" className="text-xs text-kaya-amber-400 hover:text-amber-700">View Full Profile →</Link>}
+              {hasLEEE && <Link href="/skills" className="text-xs text-kaya-amber-400 hover:text-kaya-amber-400">View Full Profile →</Link>}
             </div>
 
             {hasLEEE ? (
@@ -228,7 +228,7 @@ export default function MyDashboard() {
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-kaya-stone-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-kaya-stone-600">YOUR PROFILE</h2>
-              <Link href="/profile" className="text-xs text-kaya-amber-400 hover:text-amber-700">Edit →</Link>
+              <Link href="/profile" className="text-xs text-kaya-amber-400 hover:text-kaya-amber-400">Edit →</Link>
             </div>
 
             {hasProfile ? (
@@ -283,14 +283,14 @@ export default function MyDashboard() {
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-kaya-stone-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-kaya-stone-600">JOBS FOR YOU</h2>
-            <Link href="/vacancy" className="text-xs text-kaya-amber-400 hover:text-amber-700">Browse All →</Link>
+            <Link href="/vacancy" className="text-xs text-kaya-amber-400 hover:text-kaya-amber-400">Browse All →</Link>
           </div>
 
           {data.matches.length > 0 ? (
             <div className="space-y-3">
               {data.matches.map((match: any, i: number) => (
                 <Link key={i} href="/vacancy"
-                  className="flex items-center justify-between p-3 rounded-xl border border-kaya-stone-100 hover:border-amber-200 hover:bg-amber-50/50 transition-all">
+                  className="flex items-center justify-between p-3 rounded-xl border border-kaya-stone-100 hover:border-kaya-amber-400/30 hover:bg-kaya-amber-50/50 transition-all">
                   <div>
                     <div className="text-sm font-medium text-kaya-navy-900">{match.title}</div>
                     <div className="text-xs text-kaya-stone-400">{match.employer} • {match.location || 'Location not set'}</div>
@@ -298,9 +298,9 @@ export default function MyDashboard() {
                   <div className="flex items-center gap-2">
                     {match.accessibility_friendly && <span className="text-[10px] bg-kaya-navy-50 text-kaya-navy-600 px-1.5 py-0.5 rounded">Accessible</span>}
                     <div className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                      match.match_score >= 70 ? 'bg-green-100 text-green-700' :
-                      match.match_score >= 40 ? 'bg-amber-100 text-amber-700' :
-                      'bg-stone-100 text-stone-500'
+                      match.match_score >= 70 ? 'bg-kaya-green-50 text-kaya-green-400' :
+                      match.match_score >= 40 ? 'bg-kaya-amber-50 text-kaya-amber-400' :
+                      'bg-kaya-stone-50 text-kaya-stone-400'
                     }`}>
                       {match.match_score}% match
                     </div>
@@ -335,10 +335,10 @@ export default function MyDashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        isSelected ? 'bg-green-100 text-green-700' :
-                        isPending ? 'bg-amber-100 text-amber-700' :
-                        isDeclined ? 'bg-red-50 text-red-600' :
-                        'bg-stone-100 text-stone-500'
+                        isSelected ? 'bg-kaya-green-50 text-kaya-green-400' :
+                        isPending ? 'bg-kaya-amber-50 text-kaya-amber-400' :
+                        isDeclined ? 'bg-kaya-red-50 text-kaya-red-400' :
+                        'bg-kaya-stone-50 text-kaya-stone-400'
                       }`}>
                         {isSelected ? 'Selected' : isDeclined ? 'Not Selected' : app.status?.replace(/_/g, ' ')}
                       </span>
@@ -367,19 +367,19 @@ export default function MyDashboard() {
 
         {/* QUICK ACTIONS */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
+          <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-amber-400/30 hover:shadow-md transition-all">
             <span className="text-xl font-display text-kaya-green-400">kaya</span>
             <p className="text-xs font-medium text-kaya-navy-900 mt-1">Talk to Aya</p>
           </Link>
-          <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
+          <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-amber-400/30 hover:shadow-md transition-all">
             <span className="text-sm font-semibold text-kaya-green-400">NEW</span>
             <p className="text-xs font-medium text-kaya-navy-900 mt-1">My Skills</p>
           </Link>
-          <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
+          <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-amber-400/30 hover:shadow-md transition-all">
             <span className="text-sm font-semibold text-kaya-stone-600">JOBS</span>
             <p className="text-xs font-medium text-kaya-navy-900 mt-1">Browse Jobs</p>
           </Link>
-          <Link href="/references" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-purple-200 hover:shadow-md transition-all">
+          <Link href="/references" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-navy-100 hover:shadow-md transition-all">
             <span className="text-sm font-semibold text-kaya-navy-600">360°</span>
             <p className="text-xs font-medium text-kaya-navy-900 mt-1">References</p>
           </Link>

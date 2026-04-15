@@ -89,7 +89,7 @@ export default function OnboardingPage() {
           </div>
         ) : (
           <div>
-            <button onClick={() => setSelected(null)} className="text-xs text-kaya-stone-600 mb-4 hover:text-gray-700">← Back to list</button>
+            <button onClick={() => setSelected(null)} className="text-xs text-kaya-stone-600 mb-4 hover:text-kaya-navy-900">← Back to list</button>
 
             <div className="bg-white rounded-xl border border-kaya-stone-100 p-6 mb-6">
               <h2 className="text-lg font-bold text-kaya-navy-900">{selected.candidate_name}</h2>

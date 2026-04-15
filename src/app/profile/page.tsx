@@ -458,7 +458,7 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-kaya-navy-900">Experience {i + 1}</span>
                     {workHistory.length > 1 && (
-                      <button onClick={() => removeWorkEntry(i)} className="text-xs text-kaya-red-400 hover:text-red-600">Remove</button>
+                      <button onClick={() => removeWorkEntry(i)} className="text-xs text-kaya-red-400 hover:text-kaya-red-400">Remove</button>
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -496,7 +496,7 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-kaya-navy-900">Education {i + 1}</span>
                     {education.length > 1 && (
-                      <button onClick={() => removeEduEntry(i)} className="text-xs text-kaya-red-400 hover:text-red-600">Remove</button>
+                      <button onClick={() => removeEduEntry(i)} className="text-xs text-kaya-red-400 hover:text-kaya-red-400">Remove</button>
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -574,7 +574,7 @@ export default function ProfilePage() {
             <button
               onClick={() => setStep(s => Math.max(1, s - 1))}
               disabled={step === 1}
-              className="px-4 py-2 text-sm text-kaya-stone-600 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm text-kaya-stone-600 hover:text-kaya-navy-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               ← Previous
             </button>
@@ -598,7 +598,7 @@ export default function ProfilePage() {
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <a href="/my-dashboard" className="px-4 py-2 text-sm rounded-lg hover:bg-gray-100 transition-colors text-kaya-stone-600">
+                  <a href="/my-dashboard" className="px-4 py-2 text-sm rounded-lg hover:bg-kaya-stone-50 transition-colors text-kaya-stone-600">
                     Dashboard
                   </a>
                   <button
