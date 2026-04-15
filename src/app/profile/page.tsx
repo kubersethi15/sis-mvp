@@ -211,42 +211,41 @@ export default function ProfilePage() {
   const progress = Math.round((step / totalSteps) * 100);
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
       {/* Kaya Nav */}
-      <nav className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+      <nav className="px-4 sm:px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/my-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          {saved && <span className="text-xs font-medium" style={{ color: '#48BB78', whiteSpace: 'nowrap' }}>Saved</span>}
+        <div className="flex flex-row items-center gap-3 flex-wrap">
+          {saved && <span className="text-xs font-medium text-kaya-green-400 whitespace-nowrap">Saved</span>}
           {fullName ? (
             <>
-              <span className="text-xs hidden sm:inline" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>{fullName}</span>
-              <a href="/my-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
+              <span className="text-xs hidden sm:inline text-kaya-stone-400 whitespace-nowrap">{fullName}</span>
+              <a href="/my-dashboard" className="text-xs text-kaya-stone-400 whitespace-nowrap">Dashboard</a>
               <button
                 onClick={() => { localStorage.clear(); window.location.href = '/auth'; }}
-                className="text-xs"
-                style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}
+                className="text-xs text-kaya-stone-400 whitespace-nowrap"
               >Sign Out</button>
             </>
           ) : (
-            <a href="/auth" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Sign In</a>
+            <a href="/auth" className="text-xs text-kaya-stone-400 whitespace-nowrap">Sign In</a>
           )}
         </div>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 pt-6">
         <div className="mb-4">
-          <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Your Profile</h1>
-          <p className="text-sm" style={{ color: '#627D98' }}>Step {step} of {totalSteps} — {['Basic Info', 'Work Experience', 'Education & Training', 'Skills & Goals'][step - 1]}</p>
+          <h1 className="text-xl font-bold text-kaya-navy-900">Your Profile</h1>
+          <p className="text-sm text-kaya-stone-600">Step {step} of {totalSteps} — {['Basic Info', 'Work Experience', 'Education & Training', 'Skills & Goals'][step - 1]}</p>
         </div>
         {/* Progress bar */}
         <div className="mb-6">
-          <div className="w-full rounded-full h-2" style={{ background: '#E2E8F0' }}>
-            <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%`, background: '#48BB78' }} />
+          <div className="w-full rounded-full h-2 bg-kaya-stone-100">
+            <div className="h-2 rounded-full transition-all duration-500 bg-kaya-green-400" style={{ width: `${progress}%` }} />
           </div>
         </div>
       </div>
@@ -263,14 +262,14 @@ export default function ProfilePage() {
               </div>
 
               {/* Resume Upload — AI extraction */}
-              <div className="p-4 rounded-xl" style={{ background: '#F0F7F4', border: '1px solid #D1E7DD' }}>
+              <div className="p-4 rounded-xl bg-kaya-green-50 border border-kaya-green-100">
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <p className="text-sm font-medium" style={{ color: '#102A43' }}>Upload your resume</p>
-                    <p className="text-xs" style={{ color: '#627D98' }}>AI will extract your details and pre-fill the form</p>
-                  <p className="text-xs" style={{ color: '#9FB3C8' }}>Supported: PDF, Word (.docx), or plain text (.txt)</p>
+                    <p className="text-sm font-medium text-kaya-navy-900">Upload your resume</p>
+                    <p className="text-xs text-kaya-stone-600">AI will extract your details and pre-fill the form</p>
+                  <p className="text-xs text-kaya-stone-400">Supported: PDF, Word (.docx), or plain text (.txt)</p>
                   </div>
-                  {resumeUploading && <span className="text-xs" style={{ color: '#48BB78' }}>Extracting...</span>}
+                  {resumeUploading && <span className="text-xs text-kaya-green-400">Extracting...</span>}
                 </div>
                 <input
                   type="file"
@@ -324,7 +323,7 @@ export default function ProfilePage() {
                   }}
                 />
                 {resumeExtracted && (
-                  <p className="text-xs mt-2" style={{ color: '#48BB78' }}>Resume extracted and profile saved. Review below and edit if needed.</p>
+                  <p className="text-xs mt-2 text-kaya-green-400">Resume extracted and profile saved. Review below and edit if needed.</p>
                 )}
               </div>
 
@@ -346,14 +345,14 @@ export default function ProfilePage() {
                   }} placeholder="+63..." maxLength={15}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
                   {phone && phone.length > 0 && phone.length < 10 && (
-                    <p className="text-xs mt-1" style={{ color: '#E53E3E' }}>Phone number seems too short</p>
+                    <p className="text-xs mt-1 text-kaya-red-400">Phone number seems too short</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: '#334E68' }}>Disability Type <span className="font-normal" style={{ color: '#829AB1' }}>(optional — helps us adapt your experience)</span></label>
-                <select value={disabilityType} onChange={e => setDisabilityType(e.target.value)} className="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 outline-none bg-white" style={{ borderColor: '#D9E2EC' }}>
+                <label className="block text-sm font-medium mb-1 text-kaya-navy-900">Disability Type <span className="font-normal text-kaya-stone-400">(optional — helps us adapt your experience)</span></label>
+                <select value={disabilityType} onChange={e => setDisabilityType(e.target.value)} className="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 outline-none bg-white border-kaya-stone-100">
                   <option value="">Prefer not to say</option>
                   <option value="physical">Physical disability</option>
                   <option value="visual">Visual impairment</option>
@@ -366,19 +365,19 @@ export default function ProfilePage() {
                 {disabilityType === 'other' && (
                   <input type="text" placeholder="Please specify your disability type"
                     onChange={e => setDisabilityType('other:' + e.target.value)}
-                    className="w-full mt-2 px-4 py-2 border rounded-lg text-sm focus:ring-2 outline-none bg-white" style={{ borderColor: '#D9E2EC' }} />
+                    className="w-full mt-2 px-4 py-2 border rounded-lg text-sm focus:ring-2 outline-none bg-white border-kaya-stone-100" />
                 )}
               </div>
 
               {/* R2: Disability context — only shown if disability type selected */}
               {disabilityType && (
-                <div className="p-4 rounded-xl space-y-4" style={{ background: '#F0F4F8', border: '1px solid #D9E2EC' }}>
-                  <p className="text-xs" style={{ color: '#627D98' }}>These details help us adapt your conversation experience. All fields are optional and treated with care.</p>
+                <div className="p-4 rounded-xl space-y-4 bg-kaya-navy-50 border border-kaya-navy-100">
+                  <p className="text-xs text-kaya-stone-600">These details help us adapt your conversation experience. All fields are optional and treated with care.</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium mb-1" style={{ color: '#486581' }}>How would you describe the impact?</label>
-                      <select value={disabilitySeverity} onChange={e => setDisabilitySeverity(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white" style={{ borderColor: '#D9E2EC' }}>
+                      <label className="block text-xs font-medium mb-1 text-kaya-stone-600">How would you describe the impact?</label>
+                      <select value={disabilitySeverity} onChange={e => setDisabilitySeverity(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white border-kaya-stone-100">
                         <option value="">Prefer not to say</option>
                         <option value="mild">Mild — I manage most things independently</option>
                         <option value="moderate">Moderate — I need some accommodations</option>
@@ -386,8 +385,8 @@ export default function ProfilePage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium mb-1" style={{ color: '#486581' }}>Does it affect how you communicate?</label>
-                      <select value={communicationImpact} onChange={e => setCommunicationImpact(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white" style={{ borderColor: '#D9E2EC' }}>
+                      <label className="block text-xs font-medium mb-1 text-kaya-stone-600">Does it affect how you communicate?</label>
+                      <select value={communicationImpact} onChange={e => setCommunicationImpact(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white border-kaya-stone-100">
                         <option value="">No impact</option>
                         <option value="speech_variation">Speech patterns may vary</option>
                         <option value="verbal_difficulty">Verbal communication is harder</option>
@@ -399,19 +398,19 @@ export default function ProfilePage() {
 
                   <div className="flex items-center gap-2">
                     <input type="checkbox" id="recentlyDiagnosed" checked={recentlyDiagnosed} onChange={e => setRecentlyDiagnosed(e.target.checked)} className="rounded" />
-                    <label htmlFor="recentlyDiagnosed" className="text-sm" style={{ color: '#486581' }}>This is a recent diagnosis or change (within the last year)</label>
+                    <label htmlFor="recentlyDiagnosed" className="text-sm text-kaya-stone-600">This is a recent diagnosis or change (within the last year)</label>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1" style={{ color: '#486581' }}>Anything else we should know? <span className="font-normal" style={{ color: '#829AB1' }}>(optional)</span></label>
-                    <textarea value={accommodationNotes} onChange={e => setAccommodationNotes(e.target.value)} placeholder="e.g. I work best with shorter questions, I may need extra time to respond..." rows={2} className="w-full px-3 py-2 border rounded-lg text-sm resize-none" style={{ borderColor: '#D9E2EC' }} />
+                    <label className="block text-xs font-medium mb-1 text-kaya-stone-600">Anything else we should know? <span className="font-normal text-kaya-stone-400">(optional)</span></label>
+                    <textarea value={accommodationNotes} onChange={e => setAccommodationNotes(e.target.value)} placeholder="e.g. I work best with shorter questions, I may need extra time to respond..." rows={2} className="w-full px-3 py-2 border rounded-lg text-sm resize-none border-kaya-stone-100" />
                   </div>
                 </div>
               )}
 
               {/* R11: Self-reported challenges */}
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: '#334E68' }}>What challenges do you face in finding work? <span className="font-normal" style={{ color: '#829AB1' }}>(select all that apply)</span></label>
+                <label className="block text-sm font-medium mb-1 text-kaya-navy-900">What challenges do you face in finding work? <span className="font-normal text-kaya-stone-400">(select all that apply)</span></label>
                 <div className="space-y-2">
                   {[
                     'Interview communication — expressing myself professionally',
@@ -433,7 +432,7 @@ export default function ProfilePage() {
                         }}
                         className="rounded mt-0.5"
                       />
-                      <span className="text-sm" style={{ color: '#486581' }}>{challenge}</span>
+                      <span className="text-sm text-kaya-stone-600">{challenge}</span>
                     </label>
                   ))}
                 </div>
@@ -599,7 +598,7 @@ export default function ProfilePage() {
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <a href="/my-dashboard" className="px-4 py-2 text-sm rounded-lg hover:bg-gray-100 transition-colors" style={{ color: '#627D98' }}>
+                  <a href="/my-dashboard" className="px-4 py-2 text-sm rounded-lg hover:bg-gray-100 transition-colors text-kaya-stone-600">
                     Dashboard
                   </a>
                   <button
@@ -621,7 +620,7 @@ export default function ProfilePage() {
         {/* Completion indicator */}
         {profileId && saved && (
           <div className="mt-4 text-center">
-            <p className="text-xs" style={{ color: '#48BB78' }}>Profile saved successfully</p>
+            <p className="text-xs text-kaya-green-400">Profile saved successfully</p>
           </div>
         )}
       </div>

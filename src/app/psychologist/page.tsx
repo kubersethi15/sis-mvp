@@ -134,27 +134,27 @@ export default function PsychologistPage() {
   }, [extractions, loading]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9', color: '#829AB1' }}>Loading extractions...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50 text-kaya-stone-400">Loading extractions...</div>;
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
+      <nav className="px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/psychologist" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <span className="text-xs font-medium" style={{ color: '#F6AD55', whiteSpace: 'nowrap' }}>Psychologist</span>
+        <div className="flex flex-row items-center gap-3 flex-wrap">
+          <span className="text-xs font-medium text-kaya-amber-400 whitespace-nowrap">Psychologist</span>
         </div>
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 pt-6">
         <div className="mb-4">
-          <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Psychologist Validation</h1>
-          <p className="text-sm" style={{ color: '#627D98' }}>
+          <h1 className="text-xl font-bold text-kaya-navy-900">Psychologist Validation</h1>
+          <p className="text-sm text-kaya-stone-600">
             {selected
               ? `Reviewing: ${(selected as any).candidate_name || 'Candidate'} — ${selected.skills_profile?.length || 0} skills extracted`
               : `${extractions.length} candidate${extractions.length !== 1 ? 's' : ''} pending review`
@@ -169,19 +169,19 @@ export default function PsychologistPage() {
           <div>
             {extractions.length === 0 ? (
               <div className="text-center py-16">
-                <p className="text-sm" style={{ color: '#627D98' }}>No completed extractions found.</p>
-                <a href="/chat" className="text-sm mt-2 block" style={{ color: '#48BB78' }}>Complete a conversation with Aya first</a>
+                <p className="text-sm text-kaya-stone-600">No completed extractions found.</p>
+                <a href="/chat" className="text-sm mt-2 block text-kaya-green-400">Complete a conversation with Aya first</a>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
+              <div className="bg-white rounded-xl border overflow-hidden border-kaya-stone-100">
                 <table className="w-full">
                   <thead>
-                    <tr style={{ background: '#F0F4F8' }}>
-                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Candidate</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Skills Found</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Confidence</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Date</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#486581' }}>Status</th>
+                    <tr className="bg-kaya-navy-50">
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-kaya-stone-600">Candidate</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-kaya-stone-600">Skills Found</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-kaya-stone-600">Confidence</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-kaya-stone-600">Date</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-kaya-stone-600">Status</th>
                       <th className="px-6 py-3"></th>
                     </tr>
                   </thead>
@@ -195,34 +195,34 @@ export default function PsychologistPage() {
                       const topSkills = ext.skills_profile?.slice(0, 3).map(s => s.skill_name).join(', ') || 'None';
 
                       return (
-                        <tr key={ext.id || i} className="border-t hover:bg-stone-50 transition-colors cursor-pointer" style={{ borderColor: '#F0F4F8' }}
+                        <tr key={ext.id || i} className="border-t hover:bg-stone-50 transition-colors cursor-pointer border-kaya-navy-50"
                           onClick={() => { setSelected(ext); setActiveTab('audit'); setSigned(false); setValidationNotes(''); setLicenseNumber(''); }}>
                           <td className="px-6 py-4">
-                            <div className="text-sm font-medium" style={{ color: '#102A43' }}>
+                            <div className="text-sm font-medium text-kaya-navy-900">
                               {(ext as any).candidate_name || 'Candidate ' + (i + 1)}
                             </div>
-                            <div className="text-xs mt-0.5" style={{ color: '#829AB1' }}>{topSkills}</div>
+                            <div className="text-xs mt-0.5 text-kaya-stone-400">{topSkills}</div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="text-sm font-semibold" style={{ color: '#102A43' }}>{skillCount}</span>
-                            <span className="text-xs ml-1" style={{ color: '#829AB1' }}>skills</span>
+                            <span className="text-sm font-semibold text-kaya-navy-900">{skillCount}</span>
+                            <span className="text-xs ml-1 text-kaya-stone-400">skills</span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <div className="w-16 h-2 rounded-full" style={{ background: '#E2E8F0' }}>
-                                <div className="h-full rounded-full" style={{ width: `${avgConf}%`, background: avgConf >= 70 ? '#48BB78' : avgConf >= 50 ? '#F6AD55' : '#FC8181' }} />
+                              <div className="w-16 h-2 rounded-full bg-kaya-stone-100">
+                                <div className={`h-full rounded-full ${avgConf >= 70 ? 'bg-kaya-green-400' : avgConf >= 50 ? 'bg-kaya-amber-400' : 'bg-kaya-red-400'}`} style={{ width: `${avgConf}%` }} />
                               </div>
-                              <span className="text-xs font-medium" style={{ color: '#486581' }}>{avgConf}%</span>
+                              <span className="text-xs font-medium text-kaya-stone-600">{avgConf}%</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-xs" style={{ color: '#627D98' }}>{date}</td>
+                          <td className="px-6 py-4 text-xs text-kaya-stone-600">{date}</td>
                           <td className="px-6 py-4">
-                            <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ background: '#FEF3E2', color: '#E67E22' }}>
+                            <span className="text-xs px-2 py-1 rounded-full font-medium bg-kaya-amber-50 text-kaya-amber-400">
                               Pending Review
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <span className="text-xs" style={{ color: '#48BB78' }}>Review →</span>
+                            <span className="text-xs text-kaya-green-400">Review →</span>
                           </td>
                         </tr>
                       );
@@ -235,7 +235,7 @@ export default function PsychologistPage() {
         ) : (
           <>
             {/* BACK TO LIST */}
-            <button onClick={() => setSelected(null)} className="flex items-center gap-1.5 text-sm mb-4 hover:opacity-80 transition-opacity" style={{ color: '#486581' }}>
+            <button onClick={() => setSelected(null)} className="flex items-center gap-1.5 text-sm mb-4 hover:opacity-80 transition-opacity text-kaya-stone-600">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
               Back to candidates
             </button>
@@ -336,21 +336,21 @@ export default function PsychologistPage() {
 
                         {/* Cultural Context Annotation (Sikolohiyang Pilipino) */}
                         {(skill as any).cultural_context?.cultural_annotation && (
-                          <div className="p-4 border-t border-gray-100" style={{ background: '#FFF8F0' }}>
+                          <div className="p-4 border-t border-gray-100 bg-kaya-amber-50">
                             <div className="flex items-start gap-2">
-                              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#FEF3C7', color: '#92400E' }}>SP</span>
+                              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-kaya-amber-50 text-kaya-amber-400">SP</span>
                               <div className="flex-1">
-                                <p className="text-xs font-medium" style={{ color: '#92400E' }}>Cultural Context — Sikolohiyang Pilipino</p>
+                                <p className="text-xs font-medium text-kaya-amber-400">Cultural Context — Sikolohiyang Pilipino</p>
                                 <p className="text-xs text-gray-600 mt-1">{(skill as any).cultural_context.cultural_annotation}</p>
                                 {(skill as any).cultural_context.sp_concepts_detected?.length > 0 && (
                                   <div className="flex gap-1.5 mt-2 flex-wrap">
                                     {(skill as any).cultural_context.sp_concepts_detected.map((c: string, k: number) => (
-                                      <span key={k} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FEF3C7', color: '#92400E' }}>{c}</span>
+                                      <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-kaya-amber-50 text-kaya-amber-400">{c}</span>
                                     ))}
                                   </div>
                                 )}
                                 {(skill as any).cultural_context.cultural_uplift_applied && (
-                                  <p className="text-[10px] mt-1.5" style={{ color: '#B45309' }}>Cultural uplift applied: {(skill as any).cultural_context.cultural_uplift_reason}</p>
+                                  <p className="text-[10px] mt-1.5 text-kaya-amber-400">Cultural uplift applied: {(skill as any).cultural_context.cultural_uplift_reason}</p>
                                 )}
                               </div>
                             </div>
@@ -392,28 +392,28 @@ export default function PsychologistPage() {
                       const singleSource = skills.filter((s: any) => s.evidence_count === 1 && (s.confidence || 0) >= 0.7);
                       return (
                         <>
-                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: selfDepOverrides.length > 0 ? '#FEF3C7' : '#F9FAFB' }}>
+                          <div className={selfDepOverrides.length > 0 ? "bg-kaya-amber-50" : "bg-kaya-stone-50" + " flex items-start gap-3 p-3 rounded-lg"}>
                             <span className="text-lg mt-0.5">{selfDepOverrides.length > 0 ? '⚠' : '○'}</span>
                             <div>
                               <p className="text-sm font-medium text-gray-800">Self-Deprecation Override</p>
                               <p className="text-xs text-gray-500">{selfDepOverrides.length > 0 ? `Applied on ${selfDepOverrides.length} skill(s): ${selfDepOverrides.map((s: any) => s.skill_name).join(', ')}. The candidate minimised their contribution but described competent action.` : 'Not applied — no self-deprecation patterns detected.'}</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: disabilityUplifts.length > 0 ? '#DBEAFE' : '#F9FAFB' }}>
+                          <div className={disabilityUplifts.length > 0 ? "bg-kaya-navy-50" : "bg-kaya-stone-50" + " flex items-start gap-3 p-3 rounded-lg"}>
                             <span className="text-lg mt-0.5">{disabilityUplifts.length > 0 ? '⚠' : '○'}</span>
                             <div>
                               <p className="text-sm font-medium text-gray-800">Disability Experience Uplift</p>
                               <p className="text-xs text-gray-500">{disabilityUplifts.length > 0 ? `Applied on ${disabilityUplifts.length} skill(s): ${disabilityUplifts.map((s: any) => s.skill_name).join(', ')}. Action performed under disability-related constraint demonstrates greater capability.` : 'Not applied — no disability-related constraint in evidence.'}</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: culturalUplifts.length > 0 ? '#FFF7ED' : '#F9FAFB' }}>
+                          <div className={culturalUplifts.length > 0 ? "bg-kaya-amber-50" : "bg-kaya-stone-50" + " flex items-start gap-3 p-3 rounded-lg"}>
                             <span className="text-lg mt-0.5">{culturalUplifts.length > 0 ? '⚠' : '○'}</span>
                             <div>
                               <p className="text-sm font-medium text-gray-800">Cultural Context Uplift (Sikolohiyang Pilipino)</p>
                               <p className="text-xs text-gray-500">{culturalUplifts.length > 0 ? `Applied on ${culturalUplifts.length} skill(s): ${culturalUplifts.map((s: any) => s.skill_name).join(', ')}. Filipino cultural context (kapwa, bayanihan, pakikiramdam) adds significance to evidence.` : 'Not applied — no cultural context uplift triggered.'}</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: singleSource.length > 0 ? '#FEF2F2' : '#F9FAFB' }}>
+                          <div className={`flex items-start gap-3 p-3 rounded-lg ${singleSource.length > 0 ? "bg-kaya-red-50" : "bg-kaya-stone-50"}`}>
                             <span className="text-lg mt-0.5">{singleSource.length > 0 ? '⚠' : '○'}</span>
                             <div>
                               <p className="text-sm font-medium text-gray-800">Single-Source Evidence</p>
@@ -439,17 +439,17 @@ export default function PsychologistPage() {
                     Evidence from this simulation is compared against Layer 1 (conversation) data to establish convergence.
                   </p>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 rounded-lg" style={{ background: '#EBF5FB' }}>
-                      <p className="text-xs font-semibold" style={{ color: '#1A5276' }}>Framework</p>
-                      <p className="text-xs" style={{ color: '#486581' }}>Concordia Game Master + TinyTroupe Personas + Sotopia-Eval (7 dimensions)</p>
+                    <div className="p-3 rounded-lg bg-kaya-navy-50">
+                      <p className="text-xs font-semibold text-kaya-navy-900">Framework</p>
+                      <p className="text-xs text-kaya-stone-600">Concordia Game Master + TinyTroupe Personas + Sotopia-Eval (7 dimensions)</p>
                     </div>
-                    <div className="p-3 rounded-lg" style={{ background: '#E8F8F5' }}>
-                      <p className="text-xs font-semibold" style={{ color: '#1E8449' }}>Evaluation Method</p>
-                      <p className="text-xs" style={{ color: '#486581' }}>Sotopia-Eval dimensions mapped to PSF skills. Per-checkpoint behavioral assessment.</p>
+                    <div className="p-3 rounded-lg bg-kaya-green-50">
+                      <p className="text-xs font-semibold text-kaya-green-400">Evaluation Method</p>
+                      <p className="text-xs text-kaya-stone-600">Sotopia-Eval dimensions mapped to PSF skills. Per-checkpoint behavioral assessment.</p>
                     </div>
-                    <div className="p-3 rounded-lg" style={{ background: '#F4ECF7' }}>
-                      <p className="text-xs font-semibold" style={{ color: '#6C3483' }}>Anti-Gaming</p>
-                      <p className="text-xs" style={{ color: '#486581' }}>Rehearsed response detection, L1/L2 inconsistency checks, pattern analysis, believability scoring.</p>
+                    <div className="p-3 rounded-lg bg-kaya-navy-50">
+                      <p className="text-xs font-semibold text-kaya-navy-900">Anti-Gaming</p>
+                      <p className="text-xs text-kaya-stone-600">Rehearsed response detection, L1/L2 inconsistency checks, pattern analysis, believability scoring.</p>
                     </div>
                   </div>
                 </div>
@@ -463,8 +463,8 @@ export default function PsychologistPage() {
                     return (
                       <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
                         <p className="text-2xl mb-2">🎭</p>
-                        <p className="text-sm" style={{ color: '#627D98' }}>No simulation data available for this candidate yet.</p>
-                        <p className="text-xs mt-1" style={{ color: '#829AB1' }}>The simulation is run during Gate 3. Once complete, evidence will appear here.</p>
+                        <p className="text-sm text-kaya-stone-600">No simulation data available for this candidate yet.</p>
+                        <p className="text-xs mt-1 text-kaya-stone-400">The simulation is run during Gate 3. Once complete, evidence will appear here.</p>
                       </div>
                     );
                   }
@@ -479,22 +479,22 @@ export default function PsychologistPage() {
                         {/* Skills Assessed */}
                         {simData.skill_scores?.length > 0 && (
                           <div className="mb-4">
-                            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#486581' }}>Skills Observed</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider mb-2 text-kaya-stone-600">Skills Observed</p>
                             <div className="space-y-2">
                               {simData.skill_scores.map((s: any, i: number) => (
-                                <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ background: '#F8F9FA' }}>
+                                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-kaya-stone-50">
                                   <div>
-                                    <span className="text-sm font-medium" style={{ color: '#334E68' }}>{s.skill_name}</span>
+                                    <span className="text-sm font-medium text-kaya-navy-900">{s.skill_name}</span>
                                     {s.behavioral_evidence && (
-                                      <p className="text-[10px] mt-0.5" style={{ color: '#829AB1' }}>{s.behavioral_evidence.substring(0, 120)}...</p>
+                                      <p className="text-[10px] mt-0.5 text-kaya-stone-400">{s.behavioral_evidence.substring(0, 120)}...</p>
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{
-                                      background: s.proficiency === 'Advanced' ? '#D4EFDF' : s.proficiency === 'Intermediate' ? '#D4E6F1' : '#FADBD8',
-                                      color: s.proficiency === 'Advanced' ? '#1E8449' : s.proficiency === 'Intermediate' ? '#2471A3' : '#C0392B',
-                                    }}>{s.proficiency}</span>
-                                    <span className="text-[10px]" style={{ color: '#829AB1' }}>{Math.round((s.confidence || 0.5) * 100)}%</span>
+                                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                                      s.proficiency === 'Advanced' ? 'bg-kaya-green-50 text-kaya-green-400' : 
+                                      s.proficiency === 'Intermediate' ? 'bg-kaya-navy-50 text-kaya-navy-600' : 'bg-kaya-red-50 text-kaya-red-400'
+                                    }`}>{s.proficiency}</span>
+                                    <span className="text-[10px] text-kaya-stone-400">{Math.round((s.confidence || 0.5) * 100)}%</span>
                                   </div>
                                 </div>
                               ))}
@@ -505,19 +505,17 @@ export default function PsychologistPage() {
                         {/* Sotopia-Eval Dimension Scores */}
                         {simData.sotopia_scores?.length > 0 && (
                           <div className="mb-4">
-                            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#486581' }}>Sotopia-Eval Dimension Scores</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider mb-2 text-kaya-stone-600">Sotopia-Eval Dimension Scores</p>
                             <div className="grid grid-cols-2 gap-2">
                               {simData.sotopia_scores.map((s: any, i: number) => (
-                                <div key={i} className="flex items-center justify-between p-2 rounded" style={{ background: '#F8F9FA' }}>
-                                  <span className="text-xs" style={{ color: '#334E68' }}>{s.dimension?.replace(/_/g, ' ')}</span>
+                                <div key={i} className="flex items-center justify-between p-2 rounded bg-kaya-stone-50">
+                                  <span className="text-xs text-kaya-navy-900">{s.dimension?.replace(/_/g, ' ')}</span>
                                   <div className="flex items-center gap-1.5">
-                                    <div className="w-16 h-1.5 rounded-full" style={{ background: '#E2E8F0' }}>
-                                      <div className="h-full rounded-full" style={{
-                                        width: `${((s.score || 5) / 10) * 100}%`,
-                                        background: s.score >= 7 ? '#27AE60' : s.score >= 4 ? '#F39C12' : '#E74C3C',
-                                      }} />
+                                    <div className="w-16 h-1.5 rounded-full bg-kaya-stone-100">
+                                      <div className={`h-full rounded-full ${s.score >= 7 ? 'bg-kaya-green-400' : s.score >= 4 ? 'bg-kaya-amber-400' : 'bg-kaya-red-400'}`}
+                                        style={{ width: `${((s.score || 5) / 10) * 100}%` }} />
                                     </div>
-                                    <span className="text-[10px] font-mono" style={{ color: '#627D98' }}>{s.score}/10</span>
+                                    <span className="text-[10px] font-mono text-kaya-stone-600">{s.score}/10</span>
                                   </div>
                                 </div>
                               ))}
@@ -533,19 +531,18 @@ export default function PsychologistPage() {
                           <p className="text-xs text-gray-500 mb-3">Comparing self-reported (conversation) vs observed (simulation) skill levels. Convergence increases confidence; divergence flags for review.</p>
                           <div className="space-y-2">
                             {simData.convergence.map((c: any, i: number) => (
-                              <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{
-                                background: c.convergent ? '#F0FFF4' : '#FFF7ED',
-                                border: `1px solid ${c.convergent ? '#C6F6D5' : '#FEEBC8'}`,
-                              }}>
-                                <span className="text-sm font-medium" style={{ color: '#334E68' }}>{c.skill_name}</span>
+                              <div key={i} className={`flex items-center justify-between p-3 rounded-lg border ${
+                                c.convergent ? 'bg-kaya-green-50 border-kaya-green-100' : 'bg-kaya-amber-50 border-kaya-amber-400/20'
+                              }`}>
+                                <span className="text-sm font-medium text-kaya-navy-900">{c.skill_name}</span>
                                 <div className="flex items-center gap-3 text-xs">
-                                  <span style={{ color: '#627D98' }}>L1: {c.layer1_score}</span>
+                                  <span className="text-kaya-stone-600">L1: {c.layer1_score}</span>
                                   <span className="text-base">{c.convergent ? '✅' : '⚠️'}</span>
-                                  <span style={{ color: '#627D98' }}>L2: {c.layer2_score}</span>
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded" style={{
-                                    background: c.confidence_adjustment > 0 ? '#D4EFDF' : c.confidence_adjustment < 0 ? '#FADBD8' : '#F0F4F8',
-                                    color: c.confidence_adjustment > 0 ? '#1E8449' : c.confidence_adjustment < 0 ? '#C0392B' : '#627D98',
-                                  }}>{c.confidence_adjustment > 0 ? '+' : ''}{c.confidence_adjustment}</span>
+                                  <span className="text-kaya-stone-600">L2: {c.layer2_score}</span>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                    c.confidence_adjustment > 0 ? 'bg-kaya-green-50 text-kaya-green-400' : 
+                                    c.confidence_adjustment < 0 ? 'bg-kaya-red-50 text-kaya-red-400' : 'bg-kaya-navy-50 text-kaya-stone-600'
+                                  }`}>{c.confidence_adjustment > 0 ? '+' : ''}{c.confidence_adjustment}</span>
                                 </div>
                               </div>
                             ))}
@@ -560,7 +557,7 @@ export default function PsychologistPage() {
                           <p className="text-xs text-gray-500 mb-3">These flags indicate potential gaming behavior. Review the transcript to determine if concerns are valid.</p>
                           <div className="space-y-2">
                             {simData.gaming_flags.map((f: string, i: number) => (
-                              <div key={i} className="p-2 rounded text-xs" style={{ background: '#FEF2F2', color: '#922B21' }}>
+                              <div key={i} className="p-2 rounded text-xs bg-kaya-red-50 text-kaya-red-400">
                                 {f}
                               </div>
                             ))}
@@ -579,7 +576,7 @@ export default function PsychologistPage() {
                       {/* V2.7: Voice Signals / Paralinguistic Analysis */}
                       {(selected as any)?.voice_analysis?.length > 0 && (
                         <div className="bg-white rounded-lg border border-purple-200 p-6">
-                          <h3 className="text-sm font-semibold mb-3" style={{ color: '#6C3483' }}>Voice Signals (Paralinguistic Analysis)</h3>
+                          <h3 className="text-sm font-semibold mb-3 text-kaya-navy-900">Voice Signals (Paralinguistic Analysis)</h3>
                           <p className="text-xs text-gray-500 mb-4">
                             Emotional expression detected from voice tone, rhythm, and timbre via Hume AI Expression Measurement.
                             {(selected as any).voice_analysis.length} audio segment(s) analyzed.
@@ -588,22 +585,22 @@ export default function PsychologistPage() {
                           {/* Emotion timeline */}
                           <div className="space-y-2 mb-4">
                             {(selected as any).voice_analysis.map((va: any, idx: number) => (
-                              <div key={idx} className="flex items-center gap-3 p-2 rounded" style={{ background: '#F5F3FF' }}>
-                                <span className="text-[10px] font-mono" style={{ color: '#7C3AED' }}>Msg {va.message_index || idx + 1}</span>
+                              <div key={idx} className="flex items-center gap-3 p-2 rounded bg-kaya-navy-50">
+                                <span className="text-[10px] font-mono text-kaya-navy-600">Msg {va.message_index || idx + 1}</span>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
                                     {(va.dominant_emotions || []).map((e: string, i: number) => (
-                                      <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.1)', color: '#7C3AED' }}>{e}</span>
+                                      <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-full bg-kaya-navy-50 text-kaya-navy-600">{e}</span>
                                     ))}
                                   </div>
                                   <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[9px]" style={{ color: '#9CA3AF' }}>
+                                    <span className="text-[9px] text-kaya-stone-400">
                                       Intensity: {Math.round((va.emotional_intensity || 0) * 100)}%
                                     </span>
                                     {va.authenticity?.genuine_laughter && <span className="text-[9px]">😂 Laughter</span>}
                                     {va.authenticity?.thoughtful_pauses && <span className="text-[9px]">🤔 Thoughtful</span>}
                                     {va.authenticity?.voice_tremor && <span className="text-[9px]">💧 Genuine emotion</span>}
-                                    {va.authenticity?.flat_affect && <span className="text-[9px]" style={{ color: '#DC2626' }}>⚠ Flat</span>}
+                                    {va.authenticity?.flat_affect && <span className="text-[9px] text-kaya-red-400">⚠ Flat</span>}
                                   </div>
                                 </div>
                               </div>
@@ -616,16 +613,16 @@ export default function PsychologistPage() {
                             if (allAdj.length === 0) return null;
                             return (
                               <div className="mb-3">
-                                <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#6C3483' }}>Confidence Adjustments from Voice</p>
+                                <p className="text-[10px] font-semibold uppercase mb-2 text-kaya-navy-900">Confidence Adjustments from Voice</p>
                                 <div className="space-y-1">
                                   {allAdj.map((adj: any, i: number) => (
-                                    <div key={i} className="flex items-center justify-between text-xs p-1.5 rounded" style={{ background: adj.adjustment > 0 ? '#F0FFF4' : '#FEF2F2' }}>
-                                      <span style={{ color: '#334E68' }}>{adj.skill_name === '_all' ? 'All skills' : adj.skill_name}</span>
+                                    <div key={i} className={adj.adjustment > 0 ? 'bg-kaya-green-50' : 'bg-kaya-red-50' + " flex items-center justify-between text-xs p-1.5 rounded"}>
+                                      <span className="text-kaya-navy-900">{adj.skill_name === '_all' ? 'All skills' : adj.skill_name}</span>
                                       <div className="flex items-center gap-2">
-                                        <span className="text-[10px]" style={{ color: adj.adjustment > 0 ? '#1E8449' : '#C0392B' }}>
+                                        <span className={adj.adjustment > 0 ? 'text-kaya-green-400' : 'text-kaya-red-400' + " text-[10px]"}>
                                           {adj.adjustment > 0 ? '+' : ''}{(adj.adjustment * 100).toFixed(0)}%
                                         </span>
-                                        <span className="text-[9px]" style={{ color: '#9CA3AF' }}>{adj.reason?.substring(0, 60)}</span>
+                                        <span className="text-[9px] text-kaya-stone-400">{adj.reason?.substring(0, 60)}</span>
                                       </div>
                                     </div>
                                   ))}
@@ -642,7 +639,7 @@ export default function PsychologistPage() {
                           <summary className="px-6 py-3 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50">
                             View Full Simulation Transcript
                           </summary>
-                          <pre className="px-6 py-4 text-xs whitespace-pre-wrap max-h-96 overflow-y-auto" style={{ background: '#F8F9FA', color: '#486581' }}>
+                          <pre className="px-6 py-4 text-xs whitespace-pre-wrap max-h-96 overflow-y-auto bg-kaya-stone-50 text-kaya-stone-600">
                             {simData.transcript}
                           </pre>
                         </details>
@@ -674,7 +671,7 @@ export default function PsychologistPage() {
                     <>
                       {/* Overview */}
                       <div className="bg-white rounded-lg border border-purple-200 p-6">
-                        <h2 className="text-lg font-semibold mb-2" style={{ color: '#6C3483' }}>Three-Layer Convergence Analysis</h2>
+                        <h2 className="text-lg font-semibold mb-2 text-kaya-navy-900">Three-Layer Convergence Analysis</h2>
                         <p className="text-sm text-gray-500 mb-4">
                           Comparing self-report (Layer 1), behavioral observation (Layer 2), and peer assessment (Layer 3).
                           {peerCount} reference(s) submitted. Weighting: L1 (25%) + L2 (40%) + L3 (35%).
@@ -684,13 +681,13 @@ export default function PsychologistPage() {
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
                             <thead>
-                              <tr style={{ background: '#F4ECF7' }}>
-                                <th className="text-left px-3 py-2 text-xs font-semibold" style={{ color: '#6C3483' }}>Skill</th>
-                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#2471A3' }}>L1 Self</th>
-                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#1E8449' }}>L2 Simulation</th>
-                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#8E44AD' }}>L3 Peers</th>
-                                <th className="text-center px-3 py-2 text-xs font-semibold" style={{ color: '#102A43' }}>Combined</th>
-                                <th className="text-left px-3 py-2 text-xs font-semibold" style={{ color: '#627D98' }}>Pattern</th>
+                              <tr className="bg-kaya-navy-50">
+                                <th className="text-left px-3 py-2 text-xs font-semibold text-kaya-navy-900">Skill</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold text-kaya-navy-600">L1 Self</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold text-kaya-green-400">L2 Simulation</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold text-kaya-navy-600">L3 Peers</th>
+                                <th className="text-center px-3 py-2 text-xs font-semibold text-kaya-navy-900">Combined</th>
+                                <th className="text-left px-3 py-2 text-xs font-semibold text-kaya-stone-600">Pattern</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -698,28 +695,25 @@ export default function PsychologistPage() {
                                 <tr key={i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
                                   <td className="px-3 py-2 font-medium text-gray-700">{c.skill_name}</td>
                                   <td className="text-center px-3 py-2">
-                                    <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#EBF5FB', color: '#2471A3' }}>{c.layer1_score}</span>
+                                    <span className="text-xs px-2 py-0.5 rounded bg-kaya-navy-50 text-kaya-navy-600">{c.layer1_score}</span>
                                   </td>
                                   <td className="text-center px-3 py-2">
-                                    <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#E8F8F5', color: '#1E8449' }}>{c.layer2_score}</span>
+                                    <span className="text-xs px-2 py-0.5 rounded bg-kaya-green-50 text-kaya-green-400">{c.layer2_score}</span>
                                   </td>
                                   <td className="text-center px-3 py-2">
-                                    <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#F4ECF7', color: '#8E44AD' }}>
+                                    <span className="text-xs px-2 py-0.5 rounded bg-kaya-navy-50 text-kaya-navy-600">
                                       {c.layer3_score} <span className="text-[9px]">({c.layer3_peer_count})</span>
                                     </span>
                                   </td>
                                   <td className="text-center px-3 py-2">
-                                    <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: '#102A43', color: 'white' }}>{c.combined_score}</span>
+                                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-kaya-navy-900 text-white">{c.combined_score}</span>
                                   </td>
                                   <td className="px-3 py-2">
-                                    <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
-                                      background: c.convergence_type === 'full_agreement' ? '#D4EFDF' :
-                                                  c.convergence_type === 'undersell' ? '#D4E6F1' :
-                                                  c.convergence_type === 'overclaim' ? '#FADBD8' : '#FCF3CF',
-                                      color: c.convergence_type === 'full_agreement' ? '#1E8449' :
-                                             c.convergence_type === 'undersell' ? '#2471A3' :
-                                             c.convergence_type === 'overclaim' ? '#C0392B' : '#7D6608',
-                                    }}>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                                      c.convergence_type === 'full_agreement' ? 'bg-kaya-green-50 text-kaya-green-400' :
+                                      c.convergence_type === 'undersell' ? 'bg-kaya-navy-50 text-kaya-navy-600' :
+                                      c.convergence_type === 'overclaim' ? 'bg-kaya-red-50 text-kaya-red-400' : 'bg-kaya-amber-50 text-kaya-amber-400'
+                                    }`}>
                                       {c.convergence_type === 'full_agreement' ? '✓ All agree' :
                                        c.convergence_type === 'undersell' ? '↑ Undersells' :
                                        c.convergence_type === 'overclaim' ? '↓ Overclaim' :
@@ -739,8 +733,8 @@ export default function PsychologistPage() {
                         <div className="space-y-2">
                           {convergence.filter((c: any) => c.note).map((c: any, i: number) => (
                             <div key={i} className="flex items-start gap-2 text-xs">
-                              <span className="font-medium" style={{ color: '#334E68', minWidth: '120px' }}>{c.skill_name}:</span>
-                              <span style={{ color: '#627D98' }}>{c.note}</span>
+                              <span className="font-medium text-kaya-navy-900 min-w-[120px]">{c.skill_name}:</span>
+                              <span className="text-kaya-stone-600">{c.note}</span>
                             </div>
                           ))}
                         </div>
@@ -751,14 +745,14 @@ export default function PsychologistPage() {
                         <div className="bg-white rounded-lg border border-gray-200 p-6">
                           <h3 className="text-sm font-semibold text-gray-900 mb-3">Reference Independence Verification</h3>
                           {independence.independent ? (
-                            <div className="p-3 rounded-lg" style={{ background: '#D4EFDF' }}>
-                              <p className="text-sm" style={{ color: '#1E8449' }}>✓ All references appear to be independent. No red flags detected.</p>
+                            <div className="p-3 rounded-lg bg-kaya-green-50">
+                              <p className="text-sm text-kaya-green-400">✓ All references appear to be independent. No red flags detected.</p>
                             </div>
                           ) : (
                             <div className="space-y-2">
                               {independence.flags.map((f: string, i: number) => (
-                                <div key={i} className="p-2 rounded-lg" style={{ background: '#FDEDEC' }}>
-                                  <p className="text-sm" style={{ color: '#C0392B' }}>⚠ {f}</p>
+                                <div key={i} className="p-2 rounded-lg bg-kaya-red-50">
+                                  <p className="text-sm text-kaya-red-400">⚠ {f}</p>
                                 </div>
                               ))}
                             </div>

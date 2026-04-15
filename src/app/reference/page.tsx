@@ -79,37 +79,37 @@ function ReferencePage() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}>
-      <p className="text-sm" style={{ color: '#829AB1' }}>Loading assessment...</p>
+    <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50">
+      <p className="text-sm text-kaya-stone-400">Loading assessment...</p>
     </div>
   );
 
   if (submitted) return (
-    <div className="min-h-screen flex items-center justify-center px-6" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen flex items-center justify-center px-6 bg-kaya-stone-50">
       <div className="max-w-sm text-center">
-        <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: '#E8F8F5' }}>
+        <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-kaya-green-50">
           <span className="text-3xl">✅</span>
         </div>
-        <h1 className="text-xl font-bold mb-2" style={{ color: '#102A43' }}>Thank You!</h1>
-        <p className="text-sm" style={{ color: '#627D98' }}>
+        <h1 className="text-xl font-bold mb-2 text-kaya-navy-900">Thank You!</h1>
+        <p className="text-sm text-kaya-stone-600">
           Your assessment of {candidateName} has been submitted. Your input helps build an accurate picture of their capabilities and supports their career journey.
         </p>
-        <p className="text-xs mt-4" style={{ color: '#BCCCDC' }}>You can close this page now.</p>
+        <p className="text-xs mt-4 text-kaya-stone-200">You can close this page now.</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
       {/* Header */}
-      <div className="px-6 py-4" style={{ background: '#102A43' }}>
+      <div className="px-6 py-4 bg-kaya-navy-900">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
           <div>
-            <span className="text-lg" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
-            <p className="text-[10px]" style={{ color: '#829AB1' }}>Peer Assessment</p>
+            <span className="text-lg font-display text-kaya-navy-50">kaya</span>
+            <p className="text-[10px] text-kaya-stone-400">Peer Assessment</p>
           </div>
         </div>
       </div>
@@ -117,20 +117,20 @@ function ReferencePage() {
       <div className="max-w-lg mx-auto px-6 py-6">
         {/* Intro */}
         <div className="mb-6">
-          <h1 className="text-lg font-bold mb-2" style={{ color: '#102A43' }}>
+          <h1 className="text-lg font-bold mb-2 text-kaya-navy-900">
             Assessment for {candidateName}
           </h1>
           {refInfo && (
-            <p className="text-xs mb-2" style={{ color: '#829AB1' }}>
+            <p className="text-xs mb-2 text-kaya-stone-400">
               You're providing this as: {refInfo.name} ({refInfo.relationship})
             </p>
           )}
-          <p className="text-sm leading-relaxed" style={{ color: '#627D98' }}>{instructions}</p>
+          <p className="text-sm leading-relaxed text-kaya-stone-600">{instructions}</p>
         </div>
 
         {/* Relationship context */}
-        <div className="mb-6 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E2E8F0' }}>
-          <label className="block text-sm font-medium mb-2" style={{ color: '#334E68' }}>
+        <div className="mb-6 p-4 rounded-xl bg-white border border-kaya-stone-100">
+          <label className="block text-sm font-medium mb-2 text-kaya-navy-900">
             How well do you know {candidateName}?
           </label>
           <textarea
@@ -138,34 +138,32 @@ function ReferencePage() {
             onChange={e => setContext(e.target.value)}
             placeholder={`e.g. "We worked together for 2 years at the same company" or "I was their trainer in the Virtualahan program"`}
             rows={2}
-            className="w-full px-3 py-2 border rounded-lg text-sm outline-none resize-none"
-            style={{ borderColor: '#D9E2EC', color: '#334E68' }}
+            className="w-full px-3 py-2 border rounded-lg text-sm outline-none resize-none border-kaya-stone-100 text-kaya-navy-900"
           />
         </div>
 
         {/* Skill ratings */}
         <div className="space-y-4 mb-6">
           {rubric.map((q, i) => (
-            <div key={q.skill_name} className="p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E2E8F0' }}>
-              <p className="text-sm font-semibold mb-1" style={{ color: '#102A43' }}>{q.question}</p>
-              <p className="text-xs mb-3" style={{ color: '#829AB1' }}>{q.description}</p>
+            <div key={q.skill_name} className="p-4 rounded-xl bg-white border border-kaya-stone-100">
+              <p className="text-sm font-semibold mb-1 text-kaya-navy-900">{q.question}</p>
+              <p className="text-xs mb-3 text-kaya-stone-400">{q.description}</p>
 
               {/* Rating scale */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px]" style={{ color: '#BCCCDC' }}>{q.low_anchor}</span>
-                <span className="text-[10px]" style={{ color: '#BCCCDC' }}>{q.high_anchor}</span>
+                <span className="text-[10px] text-kaya-stone-200">{q.low_anchor}</span>
+                <span className="text-[10px] text-kaya-stone-200">{q.high_anchor}</span>
               </div>
               <div className="flex gap-2 mb-3">
                 {[1, 2, 3, 4, 5].map(n => (
                   <button
                     key={n}
                     onClick={() => setRatings(prev => ({ ...prev, [q.skill_name]: { ...prev[q.skill_name], rating: n } }))}
-                    className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                    style={{
-                      background: ratings[q.skill_name]?.rating === n ? '#48BB78' : '#F0F4F8',
-                      color: ratings[q.skill_name]?.rating === n ? 'white' : '#627D98',
-                      border: ratings[q.skill_name]?.rating === n ? '2px solid #38A169' : '2px solid transparent',
-                    }}
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all border-2 ${
+                      ratings[q.skill_name]?.rating === n 
+                        ? 'bg-kaya-green-400 text-white border-kaya-green-400' 
+                        : 'bg-kaya-navy-50 text-kaya-stone-600 border-transparent'
+                    }`}
                   >
                     {n}
                   </button>
@@ -178,16 +176,15 @@ function ReferencePage() {
                 value={ratings[q.skill_name]?.example || ''}
                 onChange={e => setRatings(prev => ({ ...prev, [q.skill_name]: { ...prev[q.skill_name], example: e.target.value } }))}
                 placeholder="Optional: give a specific example you've seen"
-                className="w-full px-3 py-2 border rounded-lg text-xs outline-none"
-                style={{ borderColor: '#E2E8F0', color: '#486581' }}
+                className="w-full px-3 py-2 border rounded-lg text-xs outline-none border-kaya-stone-100 text-kaya-stone-600"
               />
             </div>
           ))}
         </div>
 
         {/* Overall impression */}
-        <div className="mb-6 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E2E8F0' }}>
-          <label className="block text-sm font-medium mb-2" style={{ color: '#334E68' }}>
+        <div className="mb-6 p-4 rounded-xl bg-white border border-kaya-stone-100">
+          <label className="block text-sm font-medium mb-2 text-kaya-navy-900">
             Overall, what stands out about {candidateName}?
           </label>
           <textarea
@@ -195,14 +192,13 @@ function ReferencePage() {
             onChange={e => setOverall(e.target.value)}
             placeholder="What would you want an employer to know about this person? What are they great at?"
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg text-sm outline-none resize-none"
-            style={{ borderColor: '#D9E2EC', color: '#334E68' }}
+            className="w-full px-3 py-2 border rounded-lg text-sm outline-none resize-none border-kaya-stone-100 text-kaya-navy-900"
           />
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{ background: '#FDEDEC', color: '#C0392B' }}>
+          <div className="mb-4 px-4 py-2 rounded-lg text-sm bg-kaya-red-50 text-kaya-red-400">
             {error}
           </div>
         )}
@@ -211,12 +207,11 @@ function ReferencePage() {
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full py-3.5 rounded-xl text-sm font-semibold text-white transition-all"
-          style={{ background: submitting ? '#829AB1' : '#48BB78' }}
+          className={`w-full py-3.5 rounded-xl text-sm font-semibold text-white transition-all ${submitting ? 'bg-kaya-stone-400' : 'bg-kaya-green-400 hover:bg-kaya-green-300'}`}
         >
           {submitting ? 'Submitting...' : 'Submit Assessment'}
         </button>
-        <p className="text-[10px] text-center mt-3" style={{ color: '#BCCCDC' }}>
+        <p className="text-[10px] text-center mt-3 text-kaya-stone-200">
           Your responses are confidential and used only for skills assessment purposes.
         </p>
       </div>
@@ -226,7 +221,7 @@ function ReferencePage() {
 
 export default function ReferencePageWrapper() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}><p className="text-sm" style={{ color: '#829AB1' }}>Loading...</p></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-kaya-stone-50"><p className="text-sm text-kaya-stone-400">Loading...</p></div>}>
       <ReferencePage />
     </Suspense>
   );

@@ -139,27 +139,27 @@ export default function VacancyPage() {
     } catch (e) { console.error(e); }
   }, [selected]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9', color: '#829AB1' }}>Loading vacancies...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50 text-kaya-stone-400">Loading vacancies...</div>;
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
+      <nav className="px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/my-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
         <div className="flex items-center gap-4">
-          <a href="/my-dashboard" className="text-xs font-medium hover:opacity-80" style={{ color: '#BCCCDC' }}>My Dashboard</a>
-          <span className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#243B53', color: '#BCCCDC' }}>Vacancies</span>
+          <a href="/my-dashboard" className="text-xs font-medium hover:opacity-80 text-kaya-stone-200">My Dashboard</a>
+          <span className="text-xs font-medium px-2 py-1 rounded bg-kaya-navy-800 text-kaya-stone-200">Vacancies</span>
         </div>
       </nav>
 
       <div className="max-w-5xl mx-auto px-6 pt-6">
         <div className="mb-4">
-          <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Job Vacancies</h1>
-          <p className="text-sm" style={{ color: '#627D98' }}>Browse opportunities matched to your skills</p>
+          <h1 className="text-xl font-bold text-kaya-navy-900">Job Vacancies</h1>
+          <p className="text-sm text-kaya-stone-600">Browse opportunities matched to your skills</p>
         </div>
         {vacancies.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
@@ -251,7 +251,7 @@ export default function VacancyPage() {
                         <span className="px-4 py-2 text-sm bg-green-50 text-green-600 rounded-lg border border-green-200 font-medium">
                           Applied ✓
                         </span>
-                        <span className="text-xs" style={{ color: '#829AB1' }}>Gate 1 alignment assessment running...</span>
+                        <span className="text-xs text-kaya-stone-400">Gate 1 alignment assessment running...</span>
                       </div>
                     )}
                   </div>
@@ -261,8 +261,8 @@ export default function VacancyPage() {
                 {alignment && (
                   <div className={`rounded-lg border p-4 ${alignment.alignment_score >= 70 ? 'bg-green-50 border-green-200' : alignment.alignment_score >= 40 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-semibold text-gray-900">Your Alignment Score</h3>
-                      <span className="text-2xl font-bold" style={{ color: alignment.alignment_score >= 70 ? '#27AE60' : alignment.alignment_score >= 40 ? '#F39C12' : '#E74C3C' }}>
+                      <h3 className="text-sm font-semibold text-kaya-navy-900">Your alignment score</h3>
+                      <span className={`text-2xl font-bold ${alignment.alignment_score >= 70 ? 'text-kaya-green-400' : alignment.alignment_score >= 40 ? 'text-kaya-amber-400' : 'text-kaya-red-400'}`}>
                         {alignment.alignment_score}/100
                       </span>
                     </div>

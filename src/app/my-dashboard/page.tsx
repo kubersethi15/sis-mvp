@@ -95,25 +95,25 @@ export default function MyDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}>
-        <div style={{ color: '#829AB1' }}>Loading your dashboard...</div>
+      <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50">
+        <div className="text-kaya-stone-400">Loading your dashboard...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
       {/* Kaya Nav */}
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+      <nav className="px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/my-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <Link href="/profile" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Edit Profile</Link>
-          <Link href="/faq" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Help</Link>
+        <div className="flex flex-row items-center gap-3 flex-wrap">
+          <Link href="/profile" className="text-xs text-kaya-stone-400 whitespace-nowrap">Edit Profile</Link>
+          <Link href="/faq" className="text-xs text-kaya-stone-400 whitespace-nowrap">Help</Link>
           <button
             onClick={async () => {
               try {
@@ -124,18 +124,17 @@ export default function MyDashboard() {
               localStorage.clear();
               window.location.href = '/auth';
             }}
-            className="text-xs"
-            style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}
+            className="text-xs text-kaya-stone-400 whitespace-nowrap"
           >Sign Out</button>
         </div>
       </nav>
 
       {/* Greeting */}
       <div className="max-w-5xl mx-auto px-6 pt-6 pb-2">
-        <h1 className="text-lg font-bold" style={{ color: '#102A43' }}>
+        <h1 className="text-lg font-bold text-kaya-navy-900">
           {data.user?.name ? `Kumusta, ${data.user.name.split(' ')[0]}!` : 'My Dashboard'}
         </h1>
-        <p className="text-xs" style={{ color: '#627D98' }}>Show what you can do — your stories become evidence</p>
+        <p className="text-xs text-kaya-stone-600">Show what you can do — your stories become evidence</p>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-4 space-y-6">
@@ -162,8 +161,8 @@ export default function MyDashboard() {
           </div>
 
           {/* Progress bar */}
-          <div className="mt-4 h-2 bg-stone-100 rounded-full overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-1000"
+          <div className="mt-4 h-2 bg-kaya-stone-100 rounded-full overflow-hidden">
+            <div className="h-full rounded-full bg-kaya-navy-600 transition-all duration-1000"
               style={{ width: `${[hasProfile, hasLEEE, data.matches.length > 0, data.applications.length > 0].filter(Boolean).length * 25}%` }} />
           </div>
         </div>
@@ -203,20 +202,19 @@ export default function MyDashboard() {
                 )}
 
                 {/* Continue with Aya — start new session */}
-                <div className="pt-3 mt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
+                <div className="pt-3 mt-3 border-t border-kaya-stone-100">
                   <Link href="/chat?new=1"
-                    className="block text-center px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:shadow-md"
-                    style={{ background: '#102A43', color: '#F0F4F8' }}>
+                    className="block text-center px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:shadow-md bg-kaya-navy-900 text-kaya-navy-50">
                     Continue with Aya — discover more skills
                   </Link>
-                  <p className="text-[10px] text-center mt-1.5" style={{ color: '#829AB1' }}>
+                  <p className="text-[10px] text-center mt-1.5 text-kaya-stone-400">
                     {data.extraction.skills_profile?.length || 0} of 16 PSF skills evidenced
                   </p>
                 </div>
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-sm mb-2" style={{ color: "#829AB1" }}>No skills extracted yet</p>
+                <p className="text-sm mb-2 text-kaya-stone-400">No skills extracted yet</p>
                 <p className="text-sm text-stone-500 mb-3">Your superpowers haven't been discovered yet</p>
                 <Link href="/chat"
                   className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
@@ -250,7 +248,7 @@ export default function MyDashboard() {
                 </div>
 
                 {/* Quick facts */}
-                <div className="space-y-2 text-xs" style={{ color: '#486581' }}>
+                <div className="space-y-2 text-xs text-kaya-stone-600">
                   {data.profile.preferred_location && (
                     <div className="flex items-center gap-2">Location: {data.profile.preferred_location}</div>
                   )}
@@ -345,17 +343,17 @@ export default function MyDashboard() {
                         {isSelected ? 'Selected' : isDeclined ? 'Not Selected' : app.status?.replace(/_/g, ' ')}
                       </span>
                       {isGate3 && !isSelected && !isDeclined && (
-                        <Link href={`/simulation?app=${app.id}`} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: '#48BB78' }}>
+                        <Link href={`/simulation?app=${app.id}`} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white bg-kaya-green-400">
                           Start Simulation →
                         </Link>
                       )}
                       {isDeclined && (
-                        <Link href="/feedback" className="text-xs font-medium px-2 py-1 rounded-lg" style={{ background: '#F0F4F8', color: '#2E86C1' }}>
+                        <Link href="/feedback" className="text-xs font-medium px-2 py-1 rounded-lg bg-kaya-navy-50 text-kaya-navy-600">
                           View Feedback
                         </Link>
                       )}
                       {isSelected && (
-                        <Link href="/onboarding" className="text-xs font-medium px-2 py-1 rounded-lg" style={{ background: '#E8F8F5', color: '#27AE60' }}>
+                        <Link href="/onboarding" className="text-xs font-medium px-2 py-1 rounded-lg bg-kaya-green-50 text-kaya-green-400">
                           Onboarding
                         </Link>
                       )}
@@ -370,19 +368,19 @@ export default function MyDashboard() {
         {/* QUICK ACTIONS */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
-            <span className="text-xl" style={{ fontFamily: "Georgia, serif", color: "#48BB78" }}>kaya</span>
+            <span className="text-xl font-display text-kaya-green-400">kaya</span>
             <p className="text-xs font-medium text-stone-700 mt-1">Talk to Aya</p>
           </Link>
           <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
-            <span className="text-sm font-semibold" style={{ color: '#48BB78' }}>NEW</span>
+            <span className="text-sm font-semibold text-kaya-green-400">NEW</span>
             <p className="text-xs font-medium text-stone-700 mt-1">My Skills</p>
           </Link>
           <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-amber-200 hover:shadow-md transition-all">
-            <span className="text-sm font-semibold" style={{ color: '#486581' }}>JOBS</span>
+            <span className="text-sm font-semibold text-kaya-stone-600">JOBS</span>
             <p className="text-xs font-medium text-stone-700 mt-1">Browse Jobs</p>
           </Link>
           <Link href="/references" className="p-4 bg-white/80 rounded-xl border border-stone-200 text-center hover:border-purple-200 hover:shadow-md transition-all">
-            <span className="text-sm font-semibold" style={{ color: '#8E44AD' }}>360°</span>
+            <span className="text-sm font-semibold text-kaya-navy-600">360°</span>
             <p className="text-xs font-medium text-stone-700 mt-1">References</p>
           </Link>
         </div>

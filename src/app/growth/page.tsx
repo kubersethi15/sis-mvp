@@ -88,37 +88,36 @@ export default function GrowthDashboard() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
       {/* Header */}
-      <div className="px-6 py-4" style={{ background: '#102A43' }}>
+      <div className="px-6 py-4 bg-kaya-navy-900">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/employer-dashboard" className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#243B53' }}>
+            <a href="/employer-dashboard" className="w-8 h-8 rounded-full flex items-center justify-center bg-kaya-navy-800">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#829AB1" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
             </a>
             <div>
-              <h1 className="text-lg font-bold" style={{ color: '#F0F4F8' }}>Training Impact Dashboard</h1>
-              <p className="text-[10px]" style={{ color: '#829AB1' }}>Skills Velocity · Growth Tracking · Cohort Analytics</p>
+              <h1 className="text-lg font-bold text-kaya-navy-50">Training Impact Dashboard</h1>
+              <p className="text-[10px] text-kaya-stone-400">Skills Velocity · Growth Tracking · Cohort Analytics</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full" style={{ background: '#48BB78' }} />
-            <span className="text-xs" style={{ color: '#829AB1' }}>Kaya Growth Engine</span>
+            <div className="w-2 h-2 rounded-full bg-kaya-green-400" />
+            <span className="text-xs text-kaya-stone-400">Kaya Growth Engine</span>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="max-w-5xl mx-auto px-6 pt-4">
-        <div className="flex gap-1" style={{ borderBottom: '1px solid #E2E8F0' }}>
+        <div className="flex gap-1 border-b border-kaya-stone-100">
           {([
             { id: 'individual' as const, label: 'Individual Trajectory' },
             { id: 'cohort' as const, label: 'Cohort Analytics' },
             { id: 'create' as const, label: 'Create Cohort' },
           ]).map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className="px-4 py-2.5 text-sm font-medium transition-colors"
-              style={{ color: activeTab === tab.id ? '#102A43' : '#829AB1', borderBottom: activeTab === tab.id ? '2px solid #102A43' : '2px solid transparent' }}>
+              className={`${activeTab === tab.id ? "text-kaya-navy-900 border-b-2 border-kaya-navy-900" : "text-kaya-stone-400 border-b-2 border-transparent" + " px-4 py-2.5 text-sm font-medium transition-colors"}`}>
               {tab.label}
             </button>
           ))}
@@ -131,14 +130,12 @@ export default function GrowthDashboard() {
         {activeTab === 'individual' && (
           <div className="space-y-6">
             {/* Search */}
-            <div className="bg-white rounded-xl border p-4" style={{ borderColor: '#E2E8F0' }}>
+            <div className="bg-white rounded-xl border p-4 border-kaya-stone-100">
               <div className="flex gap-3">
                 <input value={userId} onChange={e => setUserId(e.target.value)}
-                  placeholder="Enter candidate user ID..." className="flex-1 px-4 py-2.5 border rounded-lg text-sm"
-                  style={{ borderColor: '#D9E2EC', color: '#334E68' }} />
+                  placeholder="Enter candidate user ID..." className="flex-1 px-4 py-2.5 border rounded-lg text-sm border-kaya-stone-100 text-kaya-navy-900" />
                 <button onClick={loadTrajectory} disabled={loading || !userId.trim()}
-                  className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white"
-                  style={{ background: loading ? '#829AB1' : '#102A43' }}>
+                  className={loading ? "bg-kaya-stone-400" : "bg-kaya-navy-900" + " px-6 py-2.5 rounded-lg text-sm font-semibold text-white"}>
                   {loading ? 'Loading...' : 'Load Trajectory'}
                 </button>
               </div>
@@ -147,42 +144,42 @@ export default function GrowthDashboard() {
             {trajectory && (
               <>
                 {/* Summary */}
-                <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-                  <h2 className="text-base font-semibold mb-3" style={{ color: '#102A43' }}>Growth Summary</h2>
-                  <p className="text-sm mb-4" style={{ color: '#627D98' }}>{trajectory.summary}</p>
+                <div className="bg-white rounded-xl border p-6 border-kaya-stone-100">
+                  <h2 className="text-base font-semibold mb-3 text-kaya-navy-900">Growth Summary</h2>
+                  <p className="text-sm mb-4 text-kaya-stone-600">{trajectory.summary}</p>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 rounded-lg text-center" style={{ background: '#E8F8F5' }}>
-                      <div className="text-2xl font-bold" style={{ color: '#1E8449' }}>{trajectory.sessions.length}</div>
-                      <div className="text-[10px]" style={{ color: '#627D98' }}>Sessions</div>
+                    <div className="p-3 rounded-lg text-center bg-kaya-green-50">
+                      <div className="text-2xl font-bold text-kaya-green-400">{trajectory.sessions.length}</div>
+                      <div className="text-[10px] text-kaya-stone-600">Sessions</div>
                     </div>
-                    <div className="p-3 rounded-lg text-center" style={{ background: trajectory.overall_improvement > 0 ? '#E8F8F5' : '#FDEDEC' }}>
-                      <div className="text-2xl font-bold" style={{ color: trajectory.overall_improvement > 0 ? '#1E8449' : '#C0392B' }}>
+                    <div className={trajectory.overall_improvement > 0 ? "bg-kaya-green-50" : "bg-kaya-red-50" + " p-3 rounded-lg text-center"}>
+                      <div className={trajectory.overall_improvement > 0 ? "text-kaya-green-400" : "text-kaya-red-400" + " text-2xl font-bold"}>
                         {trajectory.overall_improvement > 0 ? '+' : ''}{trajectory.overall_improvement}
                       </div>
-                      <div className="text-[10px]" style={{ color: '#627D98' }}>Avg Level Change</div>
+                      <div className="text-[10px] text-kaya-stone-600">Avg Level Change</div>
                     </div>
-                    <div className="p-3 rounded-lg text-center" style={{ background: '#EBF5FB' }}>
-                      <div className="text-2xl font-bold" style={{ color: '#2471A3' }}>{trajectory.deltas.filter(d => d.direction === 'improved').length}</div>
-                      <div className="text-[10px]" style={{ color: '#627D98' }}>Skills Improved</div>
+                    <div className="p-3 rounded-lg text-center bg-kaya-navy-50">
+                      <div className="text-2xl font-bold text-kaya-navy-600">{trajectory.deltas.filter(d => d.direction === 'improved').length}</div>
+                      <div className="text-[10px] text-kaya-stone-600">Skills Improved</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Skill Deltas */}
                 {trajectory.deltas.length > 0 && (
-                  <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-                    <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Skill Changes</h3>
+                  <div className="bg-white rounded-xl border p-6 border-kaya-stone-100">
+                    <h3 className="text-sm font-semibold mb-3 text-kaya-navy-900">Skill Changes</h3>
                     <div className="space-y-2">
                       {trajectory.deltas.map((d, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#FAFAF9' }}>
-                          <span className="text-sm font-medium" style={{ color: '#334E68' }}>{d.skill_name}</span>
+                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-kaya-stone-50">
+                          <span className="text-sm font-medium text-kaya-navy-900">{d.skill_name}</span>
                           <div className="flex items-center gap-3">
                             <span className="text-xs px-2 py-0.5 rounded" style={PROF_COLOR[d.from_proficiency] || { background: '#F0F4F8', color: '#627D98' }}>{d.from_proficiency}</span>
-                            <span className="text-xs" style={{ color: d.direction === 'improved' ? '#1E8449' : d.direction === 'declined' ? '#C0392B' : '#829AB1' }}>
+                            <span className={d.direction === 'improved' ? 'text-kaya-green-400' : d.direction === 'declined' ? 'text-kaya-red-400' : 'text-kaya-stone-400' + " text-xs"}>
                               {d.direction === 'improved' ? '→ ↑' : d.direction === 'declined' ? '→ ↓' : '→ ='}
                             </span>
                             <span className="text-xs px-2 py-0.5 rounded" style={PROF_COLOR[d.to_proficiency] || { background: '#F0F4F8', color: '#627D98' }}>{d.to_proficiency}</span>
-                            <span className="text-[10px]" style={{ color: '#BCCCDC' }}>{d.time_between_days}d</span>
+                            <span className="text-[10px] text-kaya-stone-200">{d.time_between_days}d</span>
                           </div>
                         </div>
                       ))}
@@ -192,21 +189,21 @@ export default function GrowthDashboard() {
 
                 {/* Velocity */}
                 {trajectory.velocity.length > 0 && (
-                  <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-                    <h3 className="text-sm font-semibold mb-1" style={{ color: '#102A43' }}>Skills Velocity</h3>
-                    <p className="text-xs mb-3" style={{ color: '#829AB1' }}>Improvement rate per week. Benchmark: 0.1-0.3 standard, 0.3+ rapid.</p>
+                  <div className="bg-white rounded-xl border p-6 border-kaya-stone-100">
+                    <h3 className="text-sm font-semibold mb-1 text-kaya-navy-900">Skills Velocity</h3>
+                    <p className="text-xs mb-3 text-kaya-stone-400">Improvement rate per week. Benchmark: 0.1-0.3 standard, 0.3+ rapid.</p>
                     <div className="space-y-2">
                       {trajectory.velocity.map((v, i) => (
-                        <div key={i} className="flex items-center justify-between p-2 rounded" style={{ background: '#FAFAF9' }}>
-                          <span className="text-sm" style={{ color: '#334E68' }}>{v.skill_name}</span>
+                        <div key={i} className="flex items-center justify-between p-2 rounded bg-kaya-stone-50">
+                          <span className="text-sm text-kaya-navy-900">{v.skill_name}</span>
                           <div className="flex items-center gap-2">
-                            <div className="w-20 h-2 rounded-full" style={{ background: '#E2E8F0' }}>
+                            <div className="w-20 h-2 rounded-full bg-kaya-stone-100">
                               <div className="h-full rounded-full" style={{
                                 width: `${Math.min(100, Math.abs(v.velocity) * 300)}%`,
                                 background: v.velocity > 0.3 ? '#27AE60' : v.velocity > 0.1 ? '#2E86C1' : v.velocity > 0 ? '#F39C12' : '#E74C3C',
                               }} />
                             </div>
-                            <span className="text-xs font-mono" style={{ color: '#627D98', minWidth: '45px' }}>{v.velocity}/wk</span>
+                            <span className="text-xs font-mono text-kaya-stone-600 min-w-[45px]">{v.velocity}/wk</span>
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{
                               background: v.classification === 'rapid' ? '#D4EFDF' : v.classification === 'standard' ? '#D4E6F1' : v.classification === 'declining' ? '#FADBD8' : '#FCF3CF',
                               color: v.classification === 'rapid' ? '#1E8449' : v.classification === 'standard' ? '#2471A3' : v.classification === 'declining' ? '#C0392B' : '#7D6608',
@@ -222,7 +219,7 @@ export default function GrowthDashboard() {
 
             {!trajectory && !loading && userId && (
               <div className="text-center py-8">
-                <p className="text-sm" style={{ color: '#829AB1' }}>No growth data found. The candidate needs at least 2 completed sessions.</p>
+                <p className="text-sm text-kaya-stone-400">No growth data found. The candidate needs at least 2 completed sessions.</p>
               </div>
             )}
           </div>
@@ -231,14 +228,12 @@ export default function GrowthDashboard() {
         {/* COHORT ANALYTICS */}
         {activeTab === 'cohort' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-xl border p-4" style={{ borderColor: '#E2E8F0' }}>
+            <div className="bg-white rounded-xl border p-4 border-kaya-stone-100">
               <div className="flex gap-3">
                 <input value={cohortId} onChange={e => setCohortId(e.target.value)}
-                  placeholder="Enter cohort ID..." className="flex-1 px-4 py-2.5 border rounded-lg text-sm"
-                  style={{ borderColor: '#D9E2EC', color: '#334E68' }} />
+                  placeholder="Enter cohort ID..." className="flex-1 px-4 py-2.5 border rounded-lg text-sm border-kaya-stone-100 text-kaya-navy-900" />
                 <button onClick={loadCohort} disabled={loading || !cohortId.trim()}
-                  className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white"
-                  style={{ background: loading ? '#829AB1' : '#8E44AD' }}>
+                  className={loading ? "bg-kaya-stone-400" : "bg-kaya-navy-600" + " px-6 py-2.5 rounded-lg text-sm font-semibold text-white"}>
                   {loading ? 'Loading...' : 'Load Cohort'}
                 </button>
               </div>
@@ -246,9 +241,9 @@ export default function GrowthDashboard() {
 
             {cohortSummary && (
               <>
-                <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
+                <div className="bg-white rounded-xl border p-6 border-kaya-stone-100">
                   <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-base font-semibold" style={{ color: '#102A43' }}>{cohortSummary.cohort_name}</h2>
+                    <h2 className="text-base font-semibold text-kaya-navy-900">{cohortSummary.cohort_name}</h2>
                     <div className="flex gap-2">
                       <button
                         onClick={async () => {
@@ -265,8 +260,7 @@ export default function GrowthDashboard() {
                             a.click(); URL.revokeObjectURL(url);
                           } catch {}
                         }}
-                        className="text-[10px] px-3 py-1.5 rounded-lg font-medium"
-                        style={{ background: '#EBF5FB', color: '#2471A3' }}>
+                        className="text-[10px] px-3 py-1.5 rounded-lg font-medium bg-kaya-navy-50 text-kaya-navy-600">
                         Export Report
                       </button>
                       <button
@@ -284,49 +278,48 @@ export default function GrowthDashboard() {
                             a.click(); URL.revokeObjectURL(url);
                           } catch {}
                         }}
-                        className="text-[10px] px-3 py-1.5 rounded-lg font-medium"
-                        style={{ background: '#F4ECF7', color: '#8E44AD' }}>
+                        className="text-[10px] px-3 py-1.5 rounded-lg font-medium bg-kaya-navy-50 text-kaya-navy-600">
                         Funder Report
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm mb-4" style={{ color: '#627D98' }}>{cohortSummary.summary}</p>
+                  <p className="text-sm mb-4 text-kaya-stone-600">{cohortSummary.summary}</p>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 rounded-lg text-center" style={{ background: '#F4ECF7' }}>
-                      <div className="text-2xl font-bold" style={{ color: '#8E44AD' }}>{cohortSummary.candidate_count}</div>
-                      <div className="text-[10px]" style={{ color: '#627D98' }}>Participants</div>
+                    <div className="p-3 rounded-lg text-center bg-kaya-navy-50">
+                      <div className="text-2xl font-bold text-kaya-navy-600">{cohortSummary.candidate_count}</div>
+                      <div className="text-[10px] text-kaya-stone-600">Participants</div>
                     </div>
-                    <div className="p-3 rounded-lg text-center" style={{ background: '#E8F8F5' }}>
-                      <div className="text-2xl font-bold" style={{ color: '#1E8449' }}>
+                    <div className="p-3 rounded-lg text-center bg-kaya-green-50">
+                      <div className="text-2xl font-bold text-kaya-green-400">
                         {cohortSummary.avg_improvement > 0 ? '+' : ''}{cohortSummary.avg_improvement}
                       </div>
-                      <div className="text-[10px]" style={{ color: '#627D98' }}>Avg Improvement</div>
+                      <div className="text-[10px] text-kaya-stone-600">Avg Improvement</div>
                     </div>
-                    <div className="p-3 rounded-lg text-center" style={{ background: '#EBF5FB' }}>
-                      <div className="text-2xl font-bold" style={{ color: '#2471A3' }}>
+                    <div className="p-3 rounded-lg text-center bg-kaya-navy-50">
+                      <div className="text-2xl font-bold text-kaya-navy-600">
                         {Object.values(cohortSummary.skill_improvements || {}).filter((s: any) => s.avg_delta > 0).length}
                       </div>
-                      <div className="text-[10px]" style={{ color: '#627D98' }}>Skills Improved</div>
+                      <div className="text-[10px] text-kaya-stone-600">Skills Improved</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Per-skill breakdown */}
                 {Object.keys(cohortSummary.skill_improvements || {}).length > 0 && (
-                  <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-                    <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Skills Breakdown</h3>
+                  <div className="bg-white rounded-xl border p-6 border-kaya-stone-100">
+                    <h3 className="text-sm font-semibold mb-3 text-kaya-navy-900">Skills Breakdown</h3>
                     <div className="space-y-2">
                       {Object.entries(cohortSummary.skill_improvements).map(([skill, data]: [string, any], i) => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#FAFAF9' }}>
-                          <span className="text-sm font-medium" style={{ color: '#334E68' }}>{skill}</span>
+                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-kaya-stone-50">
+                          <span className="text-sm font-medium text-kaya-navy-900">{skill}</span>
                           <div className="flex items-center gap-3">
-                            <span className="text-xs" style={{ color: data.avg_delta > 0 ? '#1E8449' : data.avg_delta < 0 ? '#C0392B' : '#829AB1' }}>
+                            <span className={data.avg_delta > 0 ? 'text-kaya-green-400' : data.avg_delta < 0 ? 'text-kaya-red-400' : 'text-kaya-stone-400' + " text-xs"}>
                               {data.avg_delta > 0 ? '+' : ''}{data.avg_delta} avg
                             </span>
-                            <span className="text-[10px]" style={{ color: '#829AB1' }}>
+                            <span className="text-[10px] text-kaya-stone-400">
                               {data.improved_count}/{data.total_count} improved
                             </span>
-                            <div className="w-16 h-2 rounded-full" style={{ background: '#E2E8F0' }}>
+                            <div className="w-16 h-2 rounded-full bg-kaya-stone-100">
                               <div className="h-full rounded-full" style={{
                                 width: `${Math.round((data.improved_count / Math.max(1, data.total_count)) * 100)}%`,
                                 background: data.avg_delta > 0 ? '#27AE60' : '#E74C3C',
@@ -341,13 +334,13 @@ export default function GrowthDashboard() {
 
                 {/* Top movers */}
                 {cohortSummary.top_movers?.length > 0 && (
-                  <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-                    <h3 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>Top Movers</h3>
+                  <div className="bg-white rounded-xl border p-6 border-kaya-stone-100">
+                    <h3 className="text-sm font-semibold mb-3 text-kaya-navy-900">Top Movers</h3>
                     <div className="space-y-1.5">
                       {cohortSummary.top_movers.map((m: any, i: number) => (
-                        <div key={i} className="flex items-center justify-between text-sm p-2 rounded" style={{ background: i === 0 ? '#E8F8F5' : '#FAFAF9' }}>
-                          <span style={{ color: '#334E68' }}>{i + 1}. {m.candidate_id.substring(0, 12)}...</span>
-                          <span className="font-semibold" style={{ color: '#1E8449' }}>+{m.improvement} levels</span>
+                        <div key={i} className={i === 0 ? 'bg-kaya-green-50' : 'bg-kaya-stone-50' + " flex items-center justify-between text-sm p-2 rounded"}>
+                          <span className="text-kaya-navy-900">{i + 1}. {m.candidate_id.substring(0, 12)}...</span>
+                          <span className="font-semibold text-kaya-green-400">+{m.improvement} levels</span>
                         </div>
                       ))}
                     </div>
@@ -360,27 +353,26 @@ export default function GrowthDashboard() {
 
         {/* CREATE COHORT */}
         {activeTab === 'create' && (
-          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#E2E8F0' }}>
-            <h2 className="text-base font-semibold mb-4" style={{ color: '#102A43' }}>Create Training Cohort</h2>
-            <p className="text-sm mb-4" style={{ color: '#627D98' }}>
+          <div className="bg-white rounded-xl border p-6 border-kaya-stone-100">
+            <h2 className="text-base font-semibold mb-4 text-kaya-navy-900">Create Training Cohort</h2>
+            <p className="text-sm mb-4 text-kaya-stone-600">
               Group candidates by training program to measure collective impact. Tag their sessions as &ldquo;baseline&rdquo; before training starts and &ldquo;post-program&rdquo; after.
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Cohort Name *</label>
+                <label className="block text-xs font-medium mb-1 text-kaya-navy-900">Cohort Name *</label>
                 <input value={newCohortName} onChange={e => setNewCohortName(e.target.value)}
                   placeholder="e.g. Accenture Digital Skills Q2 2026"
-                  className="w-full px-4 py-2.5 border rounded-lg text-sm" style={{ borderColor: '#D9E2EC', color: '#334E68' }} />
+                  className="w-full px-4 py-2.5 border rounded-lg text-sm border-kaya-stone-100 text-kaya-navy-900" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#334E68' }}>Candidate User IDs (comma-separated)</label>
+                <label className="block text-xs font-medium mb-1 text-kaya-navy-900">Candidate User IDs (comma-separated)</label>
                 <textarea value={newCohortCandidates} onChange={e => setNewCohortCandidates(e.target.value)}
                   placeholder="user-id-1, user-id-2, user-id-3"
-                  rows={3} className="w-full px-4 py-2.5 border rounded-lg text-sm resize-none" style={{ borderColor: '#D9E2EC', color: '#334E68' }} />
+                  rows={3} className="w-full px-4 py-2.5 border rounded-lg text-sm resize-none border-kaya-stone-100 text-kaya-navy-900" />
               </div>
               <button onClick={createCohort} disabled={loading || !newCohortName.trim()}
-                className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white"
-                style={{ background: loading ? '#829AB1' : '#8E44AD' }}>
+                className={loading ? "bg-kaya-stone-400" : "bg-kaya-navy-600" + " px-6 py-2.5 rounded-lg text-sm font-semibold text-white"}>
                 {loading ? 'Creating...' : 'Create Cohort'}
               </button>
             </div>

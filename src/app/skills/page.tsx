@@ -145,13 +145,13 @@ export default function SkillsDashboard() {
 
   if (!extraction) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #FFF8F0, #FEF3E2, #F0F7F4)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #F1EFE8, #E6F1FB, #E1F5EE)' }}>
         <div className="text-center max-w-sm px-6">
-          <p className="text-2xl font-bold mb-5" style={{ fontFamily: "Georgia, serif", color: "#48BB78" }}>kaya</p>
-          <h1 className="text-2xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>No Skills Profile Yet</h1>
+          <p className="text-2xl font-bold mb-5" style={{ fontFamily: 'DM Serif Display, Georgia, serif', color: '#1D9E75' }}>kaya</p>
+          <h1 className="text-2xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>No Skills Profile Yet</h1>
           <p className="text-stone-500 mb-8 text-[15px] leading-relaxed">Complete a conversation with Aya to discover the skills hidden in your lived experience.</p>
           <a href="/chat" className="inline-block px-8 py-3.5 rounded-2xl font-semibold text-white shadow-lg transition-all hover:scale-[1.02]"
-            style={{ background: 'linear-gradient(135deg, #F4A261, #E76F51)', fontFamily: "'Nunito', sans-serif" }}>
+            style={{ background: 'linear-gradient(135deg, #185FA5, #042C53)', fontFamily: "'DM Sans', sans-serif" }}>
             Talk to Aya →
           </a>
         </div>
@@ -193,7 +193,7 @@ export default function SkillsDashboard() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(170deg, #FFF8F0 0%, #FEF3E2 20%, #F0F7F4 60%, #EDF6F9 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(170deg, #F1EFE8 0%, #E6F1FB 20%, #E1F5EE 60%, #E6F1FB 100%)' }}>
 
       {/* ── HERO HEADER ── */}
       <div style={{ background: 'linear-gradient(160deg, #0F0C29 0%, #302B63 60%, #24243e 100%)' }}>
@@ -206,7 +206,7 @@ export default function SkillsDashboard() {
               Dashboard
             </a>
             <div className="flex items-center gap-3">
-              <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: 'rgba(255,255,255,0.7)' }}>kaya</span>
+              <span className="text-xl tracking-tight" style={{ fontFamily: 'DM Serif Display, Georgia, serif', color: 'rgba(230,241,251,0.7)' }}>kaya</span>
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-white/50 text-xs">PSF-HCD Aligned</span>
             </div>
@@ -216,7 +216,7 @@ export default function SkillsDashboard() {
           <div className="flex items-start gap-4 mb-8">
             <div>
               <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Kaya · Virtualahan</p>
-              <h1 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              <h1 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 Your Skills Profile
               </h1>
               {extraction.narrative_summary && (
@@ -233,7 +233,7 @@ export default function SkillsDashboard() {
               { value: quality?.stories_completed || 0, label: 'Stories Shared' },
             ].map((stat, i) => (
               <div key={i} className="rounded-2xl p-4 text-center" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <div className="text-2xl font-bold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>{stat.value}</div>
+                <div className="text-2xl font-bold text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>{stat.value}</div>
                 <div className="text-white/40 text-[11px] mt-1">{stat.label}</div>
               </div>
             ))}
@@ -280,7 +280,7 @@ export default function SkillsDashboard() {
           <div className="space-y-3">
             {skills.length === 0 && (
               <div className="text-center py-16 text-stone-400">
-                <p className="text-sm font-medium" style={{ color: '#627D98' }}>No data yet</p>
+                <p className="text-sm font-medium text-kaya-stone-600">No data yet</p>
                 <p>No skills extracted yet. Complete a conversation with Aya first.</p>
               </div>
             )}
@@ -434,7 +434,7 @@ export default function SkillsDashboard() {
             </div>
             {gaps.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-sm font-medium" style={{ color: '#48BB78' }}>All skills mapped</p>
+                <p className="text-sm font-medium text-kaya-green-400">All skills mapped</p>
                 <p className="text-emerald-600 font-semibold">All core skills were demonstrated!</p>
                 <p className="text-stone-500 text-sm mt-1">Excellent coverage across the PSF framework.</p>
               </div>
@@ -452,8 +452,7 @@ export default function SkillsDashboard() {
                         <p className="text-xs text-stone-400 mt-0.5">Not yet evidenced — share a story about this next time</p>
                       </div>
                       <a href="/chat"
-                        className="text-xs px-3 py-1.5 rounded-xl font-medium transition-all hover:scale-[1.02]"
-                        style={{ background: '#FEF3E2', color: '#E67E22' }}>
+                        className="text-xs px-3 py-1.5 rounded-xl font-medium transition-all hover:scale-[1.02] bg-kaya-amber-50 text-kaya-amber-400">
                         Tell a story
                       </a>
                     </div>
@@ -494,7 +493,7 @@ export default function SkillsDashboard() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-white/50 text-[10px] uppercase tracking-widest mb-1">Kaya · Skills Passport</p>
-                    <h2 className="text-lg font-bold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>Skills Passport</h2>
+                    <h2 className="text-lg font-bold text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>Skills Passport</h2>
                     <p className="text-white/50 text-xs mt-1">Philippine Qualifications Framework Aligned</p>
                   </div>
                   <div className="text-right">
@@ -561,7 +560,7 @@ export default function SkillsDashboard() {
               <button
                 onClick={exportPassport}
                 className="flex-1 py-3.5 rounded-2xl font-semibold text-white text-sm shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                style={{ background: 'linear-gradient(135deg, #F4A261, #E76F51)', fontFamily: "'Nunito', sans-serif" }}
+                style={{ background: 'linear-gradient(135deg, #185FA5, #042C53)', fontFamily: "'DM Sans', sans-serif" }}
               >
                 Export JSON
               </button>
