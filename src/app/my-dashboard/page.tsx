@@ -366,20 +366,24 @@ export default function MyDashboard() {
         )}
 
         {/* QUICK ACTIONS */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-amber-400/30 hover:shadow-md transition-all">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <Link href="/chat" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-100 text-center hover:border-kaya-navy-100 hover:shadow-md transition-all">
             <span className="text-xl font-display text-kaya-green-400">kaya</span>
             <p className="text-xs font-medium text-kaya-navy-900 mt-1">Talk to Aya</p>
           </Link>
-          <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-amber-400/30 hover:shadow-md transition-all">
+          <Link href="/skills" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-100 text-center hover:border-kaya-navy-100 hover:shadow-md transition-all">
             <span className="text-sm font-semibold text-kaya-green-400">NEW</span>
-            <p className="text-xs font-medium text-kaya-navy-900 mt-1">My Skills</p>
+            <p className="text-xs font-medium text-kaya-navy-900 mt-1">My skills</p>
           </Link>
-          <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-amber-400/30 hover:shadow-md transition-all">
+          <Link href="/simulation" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-100 text-center hover:border-kaya-navy-100 hover:shadow-md transition-all">
+            <span className="text-sm font-semibold text-kaya-navy-600">SIM</span>
+            <p className="text-xs font-medium text-kaya-navy-900 mt-1">Practice sim</p>
+          </Link>
+          <Link href="/vacancy" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-100 text-center hover:border-kaya-navy-100 hover:shadow-md transition-all">
             <span className="text-sm font-semibold text-kaya-stone-600">JOBS</span>
-            <p className="text-xs font-medium text-kaya-navy-900 mt-1">Browse Jobs</p>
+            <p className="text-xs font-medium text-kaya-navy-900 mt-1">Browse jobs</p>
           </Link>
-          <Link href="/references" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-200 text-center hover:border-kaya-navy-100 hover:shadow-md transition-all">
+          <Link href="/references" className="p-4 bg-white/80 rounded-xl border border-kaya-stone-100 text-center hover:border-kaya-navy-100 hover:shadow-md transition-all">
             <span className="text-sm font-semibold text-kaya-navy-600">360°</span>
             <p className="text-xs font-medium text-kaya-navy-900 mt-1">References</p>
           </Link>

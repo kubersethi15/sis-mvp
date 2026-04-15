@@ -39,6 +39,7 @@ export default function VoiceChatPage() {
   const [sessionCost, setSessionCost] = useState({ stt: 0, tts: 0, llm: 0 });
   const [pendingScenario, setPendingScenario] = useState<any>(null);
   const [scenarioCount, setScenarioCount] = useState(0);
+  const [serviceHealth, setServiceHealth] = useState({ stt: true, tts: true, hume: true, llm: true });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -124,8 +125,10 @@ export default function VoiceChatPage() {
         return;
       }
       // Fallback
+      setServiceHealth(h => ({ ...h, tts: false }));
       browserSpeak(text);
     } catch {
+      setServiceHealth(h => ({ ...h, tts: false }));
       browserSpeak(text);
     }
   }, [voiceEnabled]);
@@ -221,13 +224,17 @@ export default function VoiceChatPage() {
               .then(data => {
                 if (data.profile) {
                   console.log('[Hume] Voice analysis:', data.summary);
-                  trackCost('stt', 5); // Track Hume cost (~$0.064/min, ~5s per message)
+                  setServiceHealth(h => ({ ...h, hume: true }));
+                  trackCost('stt', 5);
+                } else if (data.fallback) {
+                  setServiceHealth(h => ({ ...h, hume: false }));
                 }
               })
-              .catch(() => {}); // Non-fatal
+              .catch(() => { setServiceHealth(h => ({ ...h, hume: false })); });
 
             const res = await fetch('/api/stt', { method: 'POST', body: form });
             const data = await res.json();
+            setServiceHealth(h => ({ ...h, stt: true }));
             trackCost('stt', 5); // Track Whisper cost
             if (data.text?.trim()) {
               setTranscript(data.text);
@@ -236,6 +243,7 @@ export default function VoiceChatPage() {
               setTranscript(''); setStatus('idle');
             }
           } catch {
+            setServiceHealth(h => ({ ...h, stt: false }));
             setTranscript(''); setStatus('idle');
           }
         };
@@ -325,7 +333,8 @@ export default function VoiceChatPage() {
       });
       const data = await res.json();
       setAyaThinking('');
-      trackCost('llm'); // Track Claude API call cost
+      setServiceHealth(h => ({ ...h, llm: true })); // Reset on success
+      trackCost('llm');
 
       // Handle distress escalation (V3 Wellbeing Protocol)
       if (data.distress_level >= 3) {
@@ -407,7 +416,8 @@ export default function VoiceChatPage() {
       else setStatus('idle');
     } catch {
       setAyaThinking('');
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: 'Sorry, connection issue. Try again?', timestamp: new Date() }]);
+      setServiceHealth(h => ({ ...h, llm: false }));
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: 'Sorry, connection issue. Try again — or switch to text input below.', timestamp: new Date() }]);
       setStatus('idle');
     } finally { setIsLoading(false); }
   }, [sessionId, isLoading, speak, voiceEnabled]);
@@ -519,6 +529,23 @@ export default function VoiceChatPage() {
         </div>
       )}
 
+      {/* Service degradation banners */}
+      {consentGiven && !serviceHealth.stt && (
+        <div className="px-4 py-2 text-center text-xs" style={{ background: 'rgba(212,146,10,0.15)', color: '#FCD34D' }}>
+          Voice transcription unavailable — please use the text input below.
+        </div>
+      )}
+      {consentGiven && !serviceHealth.tts && (
+        <div className="px-4 py-2 text-center text-xs" style={{ background: 'rgba(212,146,10,0.15)', color: '#FCD34D' }}>
+          Aya&apos;s voice is using browser speech — quality may vary.
+        </div>
+      )}
+      {consentGiven && !serviceHealth.llm && (
+        <div className="px-4 py-2 text-center text-xs" style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5' }}>
+          AI service interrupted — your conversation is saved. Try sending your message again.
+        </div>
+      )}
+
       {/* Main UI — only show after consent */}
       {consentGiven && (
       <>
@@ -550,6 +577,21 @@ export default function VoiceChatPage() {
             )}
           </div>
         </div>
+        {/* Service health indicator — tiny dots showing active services */}
+        {isStarted && (!serviceHealth.stt || !serviceHealth.tts || !serviceHealth.hume) && (
+          <div className="flex items-center justify-center gap-3 py-1">
+            {[
+              { key: 'stt', label: 'Mic', ok: serviceHealth.stt },
+              { key: 'tts', label: 'Voice', ok: serviceHealth.tts },
+              { key: 'hume', label: 'Emotion', ok: serviceHealth.hume },
+            ].filter(s => !s.ok).map(s => (
+              <span key={s.key} className="flex items-center gap-1 text-[10px]" style={{ color: 'rgba(252,211,77,0.6)' }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#D4920A' }} />
+                {s.label} limited
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Transcript */}

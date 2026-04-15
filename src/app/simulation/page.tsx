@@ -364,11 +364,16 @@ function SimulationPage() {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(72,187,120,0.15)', border: '1px solid rgba(72,187,120,0.2)' }}>
               <div className="w-2 h-2 rounded-full" style={{ background: '#48BB78' }} />
-              <span className="text-xs font-medium" style={{ color: '#48BB78' }}>Layer 2: Workplace Simulation</span>
+              <span className="text-xs font-medium" style={{ color: '#48BB78' }}>
+                {applicationId ? 'Layer 2: Workplace Simulation' : 'Practice Mode: Workplace Simulation'}
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: '#F0F4F8' }}>Show what you can do</h1>
             <p className="text-sm leading-relaxed" style={{ color: '#829AB1' }}>
-              You'll enter a realistic workplace scenario with AI characters. Respond naturally — there are no right or wrong answers. We're observing how you handle the situation.
+              {applicationId
+                ? "You'll enter a realistic workplace scenario with AI characters. Respond naturally — there are no right or wrong answers. We're observing how you handle the situation."
+                : "Practice your skills in a realistic workplace scenario with AI characters. This is a safe space to build confidence — results stay on your profile and help strengthen your skills evidence."
+              }
             </p>
           </div>
 
