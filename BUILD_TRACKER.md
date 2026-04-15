@@ -297,7 +297,7 @@ See LAYER2_BUILD_TRACKER.md for full details.
 | UX Polish | 8 | 3 | 1 | 4 |
 | Testing & Validation | 9 | 2 | 0 | 7 |
 | Ryan v2 Context Injection | 16 | 8 | 3 | 5 |
-| Kaya Branding | 8 | 7 | 1 | 0 |
+| Kaya Branding | 8 | 8 | 0 | 0 |
 | 5-Stage Pipeline (Brain Behind Brain) | 8 | 8 | 0 | 0 |
 | Joy Anne Simulation | 2 | 0 | 0 | 2 |
 | **TOTAL** | **148** | **123** | **6** | **16** | **3 blocked** |
@@ -314,7 +314,7 @@ See LAYER2_BUILD_TRACKER.md for full details.
 |---|------|--------|------|--------|-------|
 | MVP-1 | Skills Passport export (PDF/JSON download from /skills) | ⬜ Todo | Engineering | 2-3 days | Kuber |
 | MVP-2 | Email notifications for reference invitations (SendGrid/Resend) | ⬜ Todo | Engineering + Ops | 1 day | Kuber |
-| MVP-3 | Reviewer guidance text at each gate ("At this gate, you're checking...") | ⬜ Todo | Content/UX | 1 hour | Kuber + Ryan |
+| MVP-3 | Reviewer guidance text at each gate ("At this gate, you're checking...") | ✅ Done | Content/UX | 1 hour | Kuber + Ryan |
 | MVP-4 | Reference page intro text ("What is Kaya and why you're being asked") | ⬜ Todo | Content | 30 min | Kuber + Ryan |
 
 **Non-build blockers (need stakeholder input):**
