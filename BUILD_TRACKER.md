@@ -306,23 +306,40 @@ See LAYER2_BUILD_TRACKER.md for full details.
 
 ---
 
-## PRIORITY ORDER FOR NEXT STEPS
+## MVP CLOSURE ITEMS (from MVP_CLOSURE_AUDIT.md)
 
-1. **SIM1-SIM2 — Joy Anne pipeline validation** — test the 5-stage pipeline with Ryan's known-good transcript
-2. **S10 — Vercel deploy** — live URL for demo
-3. **T1 — Test with Ryan's 10 transcripts** — validate extraction across diverse stories
-4. **T3 — Test-retest reliability** — same transcript 5x, scores within ±5%
-5. **T5 — Taglish conversation test** — full session in Taglish
-6. **T9 — User acceptance testing** — Ryan's team does full sessions
-7. **T2 — Test with 7 real profiles** — verify fair scoring across diverse backgrounds
-8. **T4 — Anti-gaming test** — fabricated stories, system flags 50%+
-9. **R4 + R5 — Psychometric injection** — blocked on X7 (Ryan provides data)
-10. **T6 — Accessibility test** — screen reader on core functions
-3. **R2 + R15 — Extended disability fields** — after Ryan confirms field spec
-4. **R10 — Experience snapshot synthesis** — "most relevant role + notable achievement" in context
-5. **R11 + R16 — Self-reported challenges** — schema + profile form
-6. **R4 + R5 — Psychometric injection** — blocked on X7 (Ryan provides data)
-7. **U1 — Mobile responsive** — PH users are mobile-first
-8. **T1-T9 — Testing with real data**
-9. **R14 — Session timer + pace enforcement**
-10. **BR8 — Bloom mark SVG from design team**
+**Remaining build work before employer pilot:**
+
+| # | Task | Status | Type | Effort | Owner |
+|---|------|--------|------|--------|-------|
+| MVP-1 | Skills Passport export (PDF/JSON download from /skills) | ⬜ Todo | Engineering | 2-3 days | Kuber |
+| MVP-2 | Email notifications for reference invitations (SendGrid/Resend) | ⬜ Todo | Engineering + Ops | 1 day | Kuber |
+| MVP-3 | Reviewer guidance text at each gate ("At this gate, you're checking...") | ⬜ Todo | Content/UX | 1 hour | Kuber + Ryan |
+| MVP-4 | Reference page intro text ("What is Kaya and why you're being asked") | ⬜ Todo | Content | 30 min | Kuber + Ryan |
+
+**Non-build blockers (need stakeholder input):**
+
+| # | Blocker | Owner |
+|---|---------|-------|
+| NB-1 | Psychologist review of methodology — no PRC psychologist has seen the system | Ryan |
+| NB-2 | Real employer data for scenario generation testing | Ryan / employer |
+| NB-3 | 8 vs 16 skills taxonomy decision | Ryan |
+| NB-4 | Skills Passport schema for Randy's HR Intelligence System | Randy |
+| NB-5 | Psychometric data format (RIASEC/HIGH5) if MVP-scope | Ryan |
+| NB-6 | Email provider account (SendGrid/Resend) | Kuber |
+| NB-7 | Business model decision | Ryan / leadership |
+
+**Validation required before pilot:**
+
+| # | Task | Type | Who |
+|---|------|------|-----|
+| VAL-1 | Psychologist walkthrough + extraction review | Validation | Ryan + psychologist |
+| VAL-2 | Real candidate dry run (3-5 PWD candidates) | UAT | Virtualahan team |
+| VAL-3 | Reviewer walkthrough with demo data | UAT | Ryan + employer contact |
+| VAL-4 | Voice browser testing (Chrome Android, Safari iOS) | Testing | Kuber |
+| VAL-5 | Mobile network testing (PH mobile data) | Testing | Kuber / Virtualahan |
+| VAL-6 | Reference form test with real references | UAT | Virtualahan team |
+| VAL-7 | Test-retest reliability (same transcript 5x) | Validation | Kuber |
+
+**Verdict: Ready after MVP-1 through MVP-4 (3-4 days build) + validation tasks.**
+
