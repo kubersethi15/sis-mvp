@@ -114,27 +114,27 @@ export default function FAQPage() {
   const [openIdx, setOpenIdx] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
       {/* Nav */}
-      <nav className="px-4 sm:px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+      <nav className="px-4 sm:px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/my-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
-        <a href="/my-dashboard" className="text-xs" style={{ color: '#9FB3C8' }}>← Back to Dashboard</a>
+        <a href="/my-dashboard" className="text-xs text-kaya-stone-400">← Back to Dashboard</a>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-bold mb-2" style={{ color: '#102A43' }}>Frequently Asked Questions</h1>
-        <p className="text-sm mb-8" style={{ color: '#627D98' }}>
-          Everything you need to know about using Kaya. Can't find your answer? Email <a href="mailto:support@virtualahan.com" className="underline" style={{ color: '#48BB78' }}>support@virtualahan.com</a>
+        <h1 className="text-2xl font-bold mb-2 text-kaya-navy-900">Frequently Asked Questions</h1>
+        <p className="text-sm mb-8 text-kaya-stone-600">
+          Everything you need to know about using Kaya. Can't find your answer? Email <a href="mailto:support@virtualahan.com" className="underline text-kaya-green-400">support@virtualahan.com</a>
         </p>
 
         {faqs.map((section) => (
           <div key={section.category} className="mb-8">
-            <h2 className="text-sm font-semibold uppercase tracking-wider mb-3" style={{ color: '#829AB1' }}>
+            <h2 className="text-sm font-semibold uppercase tracking-wider mb-3 text-kaya-stone-400">
               {section.category}
             </h2>
             <div className="space-y-2">
@@ -147,12 +147,12 @@ export default function FAQPage() {
                       onClick={() => setOpenIdx(isOpen ? null : key)}
                       className="w-full text-left px-5 py-4 flex items-center justify-between"
                     >
-                      <span className="text-sm font-medium pr-4" style={{ color: '#102A43' }}>{item.q}</span>
-                      <span className="text-lg flex-none" style={{ color: '#829AB1', transform: isOpen ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s' }}>+</span>
+                      <span className="text-sm font-medium pr-4 text-kaya-navy-900">{item.q}</span>
+                      <span className="text-lg flex-none text-kaya-stone-400 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(45deg)' : 'none' }}>+</span>
                     </button>
                     {isOpen && (
                       <div className="px-5 pb-4">
-                        <p className="text-sm leading-relaxed" style={{ color: '#486581' }}>{item.a}</p>
+                        <p className="text-sm leading-relaxed text-kaya-stone-600">{item.a}</p>
                       </div>
                     )}
                   </div>

@@ -46,25 +46,25 @@ export default function OnboardingPage() {
   const developing = skills.filter((s: any) => (s.confidence || 0) >= 0.4 && (s.confidence || 0) < 0.7);
   const gaps = skills.filter((s: any) => (s.confidence || 0) < 0.4);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}><p className="text-gray-400">Loading...</p></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50"><p className="text-gray-400">Loading...</p></div>;
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
+      <nav className="px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/employer-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <a href="/employer-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
+        <div className="flex flex-row items-center gap-3 flex-wrap">
+          <a href="/employer-dashboard" className="text-xs text-kaya-stone-400 whitespace-nowrap">Dashboard</a>
         </div>
       </nav>
 
       <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
-        <h1 className="text-xl font-bold mb-1" style={{ color: '#102A43' }}>Onboarding — Skills-Informed Placement</h1>
-        <p className="text-sm mb-6" style={{ color: '#627D98' }}>Use evidence-based skills profiles to inform team placement and development plans.</p>
+        <h1 className="text-xl font-bold mb-1 text-kaya-navy-900">Onboarding — Skills-Informed Placement</h1>
+        <p className="text-sm mb-6 text-kaya-stone-600">Use evidence-based skills profiles to inform team placement and development plans.</p>
 
         {candidates.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
@@ -80,7 +80,7 @@ export default function OnboardingPage() {
                     <p className="text-sm font-semibold text-gray-800">{c.candidate_name}</p>
                     <p className="text-xs text-gray-500">{c.vacancies?.title} at {c.vacancies?.employer_name}</p>
                   </div>
-                  <div className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: '#F0FFF4', color: '#276749' }}>
+                  <div className="text-xs px-3 py-1 rounded-full font-medium bg-kaya-green-50 text-kaya-green-400">
                     {c.extraction?.skills_profile?.length || 0} skills mapped
                   </div>
                 </div>

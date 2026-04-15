@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { PageShell, TabBar, Card, SectionHeader, Button, LoadingState, EmptyState } from '@/components/KayaUI';
 
 // ============================================================
 // GROWTH DASHBOARD — Training Impact Measurement
@@ -82,49 +83,27 @@ export default function GrowthDashboard() {
   };
 
   const PROF_COLOR: Record<string, { background: string; color: string }> = {
-    'Advanced': { background: '#D4EFDF', color: '#1E8449' },
-    'Intermediate': { background: '#D4E6F1', color: '#2471A3' },
-    'Basic': { background: '#FADBD8', color: '#C0392B' },
+    'Advanced': { background: '#E1F5EE', color: '#1D9E75' },
+    'Intermediate': { background: '#E6F1FB', color: '#185FA5' },
+    'Basic': { background: '#FEF0F0', color: '#D94F4F' },
   };
 
   return (
-    <div className="min-h-screen bg-kaya-stone-50">
-      {/* Header */}
-      <div className="px-6 py-4 bg-kaya-navy-900">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <a href="/employer-dashboard" className="w-8 h-8 rounded-full flex items-center justify-center bg-kaya-navy-800">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#829AB1" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
-            </a>
-            <div>
-              <h1 className="text-lg font-bold text-kaya-navy-50">Training Impact Dashboard</h1>
-              <p className="text-[10px] text-kaya-stone-400">Skills Velocity · Growth Tracking · Cohort Analytics</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full bg-kaya-green-400" />
-            <span className="text-xs text-kaya-stone-400">Kaya Growth Engine</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="max-w-5xl mx-auto px-6 pt-4">
-        <div className="flex gap-1 border-b border-kaya-stone-100">
-          {([
-            { id: 'individual' as const, label: 'Individual Trajectory' },
-            { id: 'cohort' as const, label: 'Cohort Analytics' },
-            { id: 'create' as const, label: 'Create Cohort' },
-          ]).map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`${activeTab === tab.id ? "text-kaya-navy-900 border-b-2 border-kaya-navy-900" : "text-kaya-stone-400 border-b-2 border-transparent" + " px-4 py-2.5 text-sm font-medium transition-colors"}`}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto px-6 py-6">
+    <PageShell
+      title="Training impact dashboard"
+      subtitle="Skills velocity · Growth tracking · Cohort analytics"
+      backHref="/employer-dashboard"
+      actions={<span className="text-xs text-kaya-stone-400 flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-kaya-green-400" />Kaya Growth Engine</span>}
+    >
+      <TabBar
+        tabs={[
+          { id: 'individual' as const, label: 'Individual trajectory' },
+          { id: 'cohort' as const, label: 'Cohort analytics' },
+          { id: 'create' as const, label: 'Create cohort' },
+        ]}
+        active={activeTab}
+        onChange={(id) => setActiveTab(id as any)}
+      />
 
         {/* INDIVIDUAL TRAJECTORY */}
         {activeTab === 'individual' && (
@@ -135,7 +114,7 @@ export default function GrowthDashboard() {
                 <input value={userId} onChange={e => setUserId(e.target.value)}
                   placeholder="Enter candidate user ID..." className="flex-1 px-4 py-2.5 border rounded-lg text-sm border-kaya-stone-100 text-kaya-navy-900" />
                 <button onClick={loadTrajectory} disabled={loading || !userId.trim()}
-                  className={loading ? "bg-kaya-stone-400" : "bg-kaya-navy-900" + " px-6 py-2.5 rounded-lg text-sm font-semibold text-white"}>
+                  className={`${loading ? "bg-kaya-stone-400" : "bg-kaya-navy-900"} px-6 py-2.5 rounded-lg text-sm font-semibold text-white`}>
                   {loading ? 'Loading...' : 'Load Trajectory'}
                 </button>
               </div>
@@ -378,7 +357,6 @@ export default function GrowthDashboard() {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

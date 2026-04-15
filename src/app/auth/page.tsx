@@ -104,17 +104,17 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50">
       <div className="w-full max-w-md px-6">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center shadow-lg mb-4" style={{ background: '#102A43' }}>
-            <div className="w-5 h-5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center shadow-lg mb-4 bg-kaya-navy-900">
+            <div className="w-5 h-5 rounded-full bg-kaya-green-400" />
           </div>
-          <h1 className="text-3xl font-bold" style={{ fontFamily: 'Georgia, serif', color: '#102A43' }}>
+          <h1 className="text-3xl font-bold font-display text-kaya-navy-900">
             kaya
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#627D98' }}>Show what you can do</p>
+          <p className="text-sm mt-1 text-kaya-stone-600">Show what you can do</p>
         </div>
 
         {/* Auth Card */}
@@ -163,7 +163,7 @@ export default function AuthPage() {
                   setLoading(false);
                   if (resetErr) setError(resetErr.message);
                   else setSuccess('Password reset email sent. Check your inbox.');
-                }} className="text-xs mt-1.5 hover:underline" style={{ color: '#627D98' }}>
+                }} className="text-xs mt-1.5 hover:underline text-kaya-stone-600">
                   Forgot password?
                 </button>
               )}
@@ -190,27 +190,24 @@ export default function AuthPage() {
             )}
 
             <button type="submit" disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
-              style={{ fontFamily: "'Nunito', sans-serif" }}>
+              className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 font-sans">
               {loading ? 'Please wait...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
             </button>
           </form>
 
           {/* Role-based entry */}
           <div className="mt-5 pt-5 border-t border-stone-100">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-center mb-3" style={{ color: '#829AB1' }}>Other portals</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-center mb-3 text-kaya-stone-400">Other portals</p>
             <div className="grid grid-cols-2 gap-2">
               <a href="/employer-dashboard"
-                className="p-3 rounded-xl border text-center hover:shadow-md transition-all"
-                style={{ borderColor: '#E2E8F0', background: 'white' }}>
-                <div className="text-xs font-semibold" style={{ color: '#102A43' }}>Employer</div>
-                <div className="text-[10px] mt-0.5" style={{ color: '#829AB1' }}>Vacancies & pipeline</div>
+                className="p-3 rounded-xl border text-center hover:shadow-md transition-all border-kaya-stone-100 bg-white">
+                <div className="text-xs font-semibold text-kaya-navy-900">Employer</div>
+                <div className="text-[10px] mt-0.5 text-kaya-stone-400">Vacancies & pipeline</div>
               </a>
               <a href="/psychologist"
-                className="p-3 rounded-xl border text-center hover:shadow-md transition-all"
-                style={{ borderColor: '#E2E8F0', background: 'white' }}>
-                <div className="text-xs font-semibold" style={{ color: '#102A43' }}>Psychologist</div>
-                <div className="text-[10px] mt-0.5" style={{ color: '#829AB1' }}>Validate & sign-off</div>
+                className="p-3 rounded-xl border text-center hover:shadow-md transition-all border-kaya-stone-100 bg-white">
+                <div className="text-xs font-semibold text-kaya-navy-900">Psychologist</div>
+                <div className="text-[10px] mt-0.5 text-kaya-stone-400">Validate & sign-off</div>
               </a>
             </div>
           </div>

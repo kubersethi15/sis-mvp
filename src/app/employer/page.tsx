@@ -125,24 +125,24 @@ export default function EmployerDashboard() {
   }, [jdText, employer, setupEmployer]);
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
       {/* Kaya Nav */}
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+      <nav className="px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/employer-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <a href="/employer-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
+        <div className="flex flex-row items-center gap-3 flex-wrap">
+          <a href="/employer-dashboard" className="text-xs text-kaya-stone-400 whitespace-nowrap">Dashboard</a>
         </div>
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 pt-6">
         <div className="mb-4">
-          <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Vacancy Design & Alignment</h1>
-          <p className="text-sm" style={{ color: '#627D98' }}>Upload a job description → AI creates a competency blueprint → match candidates</p>
+          <h1 className="text-xl font-bold text-kaya-navy-900">Vacancy Design & Alignment</h1>
+          <p className="text-sm text-kaya-stone-600">Upload a job description → AI creates a competency blueprint → match candidates</p>
         </div>
         <div className="flex gap-1 border-b border-gray-200">
           {[
@@ -188,7 +188,7 @@ export default function EmployerDashboard() {
                 </div>
               )}
               {employer && (
-                <p className="text-xs mb-3" style={{ color: '#48BB78' }}>Employer: {employer.organization_name}</p>
+                <p className="text-xs mb-3 text-kaya-green-400">Employer: {employer.organization_name}</p>
               )}
 
               <textarea
@@ -201,8 +201,7 @@ export default function EmployerDashboard() {
                 <button
                   onClick={handleParseJD}
                   disabled={!jdText.trim() || isProcessing}
-                  className="px-6 py-2 text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  style={{ background: '#102A43' }}
+                  className="px-6 py-2 text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-kaya-navy-900"
                 >
                   {isProcessing ? 'Analysing...' : 'Analyse & Create Vacancy'}
                 </button>

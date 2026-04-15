@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { PageShell, LoadingState } from '@/components/KayaUI';
 
 // ============================================================
 // PSYCHOLOGIST VALIDATION PAGE
@@ -134,36 +135,22 @@ export default function PsychologistPage() {
   }, [extractions, loading]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50 text-kaya-stone-400">Loading extractions...</div>;
+    return (
+      <PageShell title="Psychologist validation" subtitle="Loading extractions...">
+        <LoadingState message="Loading candidate data..." />
+      </PageShell>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-kaya-stone-50">
-      <nav className="px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
-        <a href="/psychologist" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
-            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
-          </div>
-          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
-        </a>
-        <div className="flex flex-row items-center gap-3 flex-wrap">
-          <span className="text-xs font-medium text-kaya-amber-400 whitespace-nowrap">Psychologist</span>
-        </div>
-      </nav>
-
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <div className="mb-4">
-          <h1 className="text-xl font-bold text-kaya-navy-900">Psychologist Validation</h1>
-          <p className="text-sm text-kaya-stone-600">
-            {selected
-              ? `Reviewing: ${(selected as any).candidate_name || 'Candidate'} — ${selected.skills_profile?.length || 0} skills extracted`
-              : `${extractions.length} candidate${extractions.length !== 1 ? 's' : ''} pending review`
-            }
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 py-6">
+    <PageShell
+      title="Psychologist validation"
+      subtitle={selected
+        ? `Reviewing: ${(selected as any).candidate_name || 'Candidate'} — ${selected.skills_profile?.length || 0} skills extracted`
+        : `${extractions.length} candidate${extractions.length !== 1 ? 's' : ''} pending review`
+      }
+      actions={<span className="text-xs font-semibold text-kaya-amber-400">Psychologist</span>}
+    >
         {/* CANDIDATES TABLE — shown when no candidate is selected */}
         {!selected ? (
           <div>
@@ -886,7 +873,6 @@ export default function PsychologistPage() {
             )}
           </>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

@@ -47,27 +47,27 @@ export default function FeedbackPage() {
   const allPsf = ['Communication', 'Collaboration', 'Problem Solving', 'Adaptability', 'Self-Management', 'Learning Agility', 'Decision Making', 'Influence', 'Customer Orientation', 'Developing People', 'Digital Fluency', 'Creative Thinking', 'Building Inclusivity', 'Global Perspective', 'Sense Making', 'Transdisciplinary Thinking'];
   const notAssessed = allPsf.filter(s => !skills.some((sk: any) => sk.skill_name === s));
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF9' }}><p className="text-gray-400">Loading...</p></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50"><p className="text-gray-400">Loading...</p></div>;
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
+    <div className="min-h-screen bg-kaya-stone-50">
+      <nav className="px-6 py-3 flex items-center justify-between bg-kaya-navy-900">
         <a href="/my-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-kaya-stone-600">
+            <div className="w-2.5 h-2.5 rounded-full bg-kaya-green-400" />
           </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
+          <span className="text-xl tracking-tight font-display text-kaya-navy-50">kaya</span>
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <a href="/my-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
-          <a href="/vacancy" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Browse Jobs</a>
+        <div className="flex flex-row items-center gap-3 flex-wrap">
+          <a href="/my-dashboard" className="text-xs text-kaya-stone-400 whitespace-nowrap">Dashboard</a>
+          <a href="/vacancy" className="text-xs text-kaya-stone-400 whitespace-nowrap">Browse Jobs</a>
         </div>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 pt-8 pb-16">
         <div className="mb-8">
-          <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Your Skills Feedback</h1>
-          <p className="text-sm mt-1" style={{ color: '#627D98' }}>
+          <h1 className="text-xl font-bold text-kaya-navy-900">Your Skills Feedback</h1>
+          <p className="text-sm mt-1 text-kaya-stone-600">
             {feedback?.vacancies?.title
               ? `Feedback from your application to ${feedback.vacancies.title} at ${feedback.vacancies.employer_name}`
               : 'Based on your conversations with Aya'}
@@ -75,8 +75,8 @@ export default function FeedbackPage() {
         </div>
 
         {/* Encouragement */}
-        <div className="bg-white rounded-xl border border-green-200 p-6 mb-6" style={{ background: '#F0FFF4' }}>
-          <p className="text-sm font-medium" style={{ color: '#276749' }}>
+        <div className="bg-white rounded-xl border border-green-200 p-6 mb-6 bg-kaya-green-50">
+          <p className="text-sm font-medium text-kaya-green-400">
             Every conversation reveals something valuable about you. Here's what your stories showed — and where you can grow.
           </p>
         </div>
@@ -84,11 +84,11 @@ export default function FeedbackPage() {
         {/* Skills You Demonstrated */}
         {demonstrated.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#102A43' }}>Skills You Demonstrated</h2>
+            <h2 className="text-sm font-semibold mb-4 text-kaya-navy-900">Skills You Demonstrated</h2>
             <p className="text-xs text-gray-500 mb-4">These skills came through clearly in your stories. They are real capabilities backed by evidence.</p>
             <div className="space-y-3">
               {demonstrated.map((s: any, i: number) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#F7FAFC' }}>
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-kaya-stone-50">
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-green-400 to-green-600">
                     {s.skill_name?.substring(0, 2).toUpperCase()}
                   </div>
@@ -105,11 +105,11 @@ export default function FeedbackPage() {
         {/* Skills to Strengthen */}
         {toStrengthen.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#102A43' }}>Skills to Strengthen</h2>
+            <h2 className="text-sm font-semibold mb-4 text-kaya-navy-900">Skills to Strengthen</h2>
             <p className="text-xs text-gray-500 mb-4">We saw early signs of these skills but need more evidence. Continue chatting with Aya to build stronger evidence.</p>
             <div className="space-y-3">
               {toStrengthen.map((s: any, i: number) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#FFFBEB' }}>
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-kaya-amber-50">
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-amber-400 to-amber-600">
                     {s.skill_name?.substring(0, 2).toUpperCase()}
                   </div>
@@ -126,7 +126,7 @@ export default function FeedbackPage() {
         {/* Not Yet Assessed */}
         {notAssessed.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#102A43' }}>Not Yet Assessed</h2>
+            <h2 className="text-sm font-semibold mb-4 text-kaya-navy-900">Not Yet Assessed</h2>
             <p className="text-xs text-gray-500 mb-4">These skills didn't come up in your stories yet. That doesn't mean you don't have them — it means we haven't heard the right story yet.</p>
             <div className="flex flex-wrap gap-2">
               {notAssessed.map((s, i) => (
@@ -138,7 +138,7 @@ export default function FeedbackPage() {
 
         {/* What to do next */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h2 className="text-sm font-semibold mb-3" style={{ color: '#102A43' }}>What You Can Do Next</h2>
+          <h2 className="text-sm font-semibold mb-3 text-kaya-navy-900">What You Can Do Next</h2>
           <div className="space-y-3 text-sm text-gray-600">
             <p>1. <strong>Continue with Aya</strong> — share more stories to discover additional skills and strengthen existing ones.</p>
             <p>2. <strong>Browse other vacancies</strong> — your skills may be a better match for a different role.</p>
@@ -148,12 +148,10 @@ export default function FeedbackPage() {
 
         {/* Action buttons */}
         <div className="flex gap-3">
-          <Link href="/chat?new=1" className="flex-1 text-center py-3 rounded-xl text-sm font-semibold text-white"
-            style={{ background: '#102A43' }}>
+          <Link href="/chat?new=1" className="flex-1 text-center py-3 rounded-xl text-sm font-semibold text-white bg-kaya-navy-900">
             Continue with Aya
           </Link>
-          <Link href="/vacancy" className="flex-1 text-center py-3 rounded-xl text-sm font-semibold border"
-            style={{ color: '#102A43', borderColor: '#D9E2EC' }}>
+          <Link href="/vacancy" className="flex-1 text-center py-3 rounded-xl text-sm font-semibold border text-kaya-navy-900 border-kaya-stone-100">
             Browse Vacancies
           </Link>
         </div>
