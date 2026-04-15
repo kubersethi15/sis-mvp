@@ -148,8 +148,8 @@ export default function SkillsDashboard() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #F1EFE8, #E6F1FB, #E1F5EE)' }}>
         <div className="text-center max-w-sm px-6">
           <p className="text-2xl font-bold mb-5" style={{ fontFamily: 'DM Serif Display, Georgia, serif', color: '#1D9E75' }}>kaya</p>
-          <h1 className="text-2xl font-bold text-stone-800 mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>No Skills Profile Yet</h1>
-          <p className="text-stone-500 mb-8 text-[15px] leading-relaxed">Complete a conversation with Aya to discover the skills hidden in your lived experience.</p>
+          <h1 className="text-2xl font-bold text-kaya-navy-900 mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>No Skills Profile Yet</h1>
+          <p className="text-kaya-stone-600 mb-8 text-[15px] leading-relaxed">Complete a conversation with Aya to discover the skills hidden in your lived experience.</p>
           <a href="/chat" className="inline-block px-8 py-3.5 rounded-2xl font-semibold text-white shadow-lg transition-all hover:scale-[1.02]"
             style={{ background: 'linear-gradient(135deg, #185FA5, #042C53)', fontFamily: "'DM Sans', sans-serif" }}>
             Talk to Aya →
@@ -279,7 +279,7 @@ export default function SkillsDashboard() {
         {activeTab === 'skills' && (
           <div className="space-y-3">
             {skills.length === 0 && (
-              <div className="text-center py-16 text-stone-400">
+              <div className="text-center py-16 text-kaya-stone-400">
                 <p className="text-sm font-medium text-kaya-stone-600">No data yet</p>
                 <p>No skills extracted yet. Complete a conversation with Aya first.</p>
               </div>
@@ -315,14 +315,14 @@ export default function SkillsDashboard() {
                     {/* Name + bar */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="font-semibold text-stone-800 text-[15px]">{skill.skill_name}</span>
+                        <span className="font-semibold text-kaya-navy-900 text-[15px]">{skill.skill_name}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${prof.badge}`}>
                           {prof.label}
                         </span>
-                        <span className="text-[10px] text-stone-400 hidden sm:inline">PQF {prof.pqf}</span>
+                        <span className="text-[10px] text-kaya-stone-400 hidden sm:inline">PQF {prof.pqf}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-kaya-stone-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full bg-gradient-to-r ${prof.bar} transition-all duration-1000 ease-out`}
                             style={{ width: animatedBars ? `${skill.confidence * 100}%` : '0%', transitionDelay: `${i * 100 + 200}ms` }}
@@ -347,14 +347,14 @@ export default function SkillsDashboard() {
                   {/* Evidence panel */}
                   {isExpanded && skill.evidence?.length > 0 && (
                     <div className="px-5 pb-5 border-t" style={{ borderColor: cfg.color + '20' }}>
-                      <p className="text-[11px] uppercase tracking-wider text-stone-400 mt-4 mb-3">Evidence from your story</p>
+                      <p className="text-[11px] uppercase tracking-wider text-kaya-stone-400 mt-4 mb-3">Evidence from your story</p>
                       <div className="space-y-3">
                         {skill.evidence.map((ev, j) => (
                           <div key={j} className="pl-4 border-l-2 rounded-r-lg py-1" style={{ borderColor: cfg.color }}>
-                            <p className="text-sm text-stone-700 italic leading-relaxed mb-1">"{ev.transcript_quote}"</p>
-                            <p className="text-xs text-stone-500">{ev.behavioral_indicator}</p>
+                            <p className="text-sm text-kaya-navy-900 italic leading-relaxed mb-1">"{ev.transcript_quote}"</p>
+                            <p className="text-xs text-kaya-stone-600">{ev.behavioral_indicator}</p>
                             {ev.proficiency_justification && (
-                              <p className="text-xs text-stone-400 mt-0.5">{ev.proficiency_justification}</p>
+                              <p className="text-xs text-kaya-stone-400 mt-0.5">{ev.proficiency_justification}</p>
                             )}
                           </div>
                         ))}
@@ -363,7 +363,7 @@ export default function SkillsDashboard() {
                   )}
                   {isExpanded && (!skill.evidence || skill.evidence.length === 0) && (
                     <div className="px-5 pb-4 border-t border-stone-50">
-                      <p className="text-xs text-stone-400 mt-3 italic">No direct quotes available for this skill.</p>
+                      <p className="text-xs text-kaya-stone-400 mt-3 italic">No direct quotes available for this skill.</p>
                     </div>
                   )}
                 </div>
@@ -375,23 +375,23 @@ export default function SkillsDashboard() {
         {/* EVIDENCE TAB */}
         {activeTab === 'evidence' && (
           <div className="space-y-4">
-            <p className="text-sm text-stone-500 mb-6">Every skill claim is traceable to a direct quote from your conversation — the audit trail for psychologist review.</p>
+            <p className="text-sm text-kaya-stone-600 mb-6">Every skill claim is traceable to a direct quote from your conversation — the audit trail for psychologist review.</p>
             {skills.map(skill => {
               const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
               if (!skill.evidence?.length) return null;
               return (
-                <div key={skill.skill_id} className="bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm">
+                <div key={skill.skill_id} className="bg-white rounded-2xl border border-kaya-stone-100 overflow-hidden shadow-sm">
                   <div className="flex items-center gap-3 p-4 border-b border-stone-50" style={{ background: cfg.bgColor + '60' }}>
                     <span className="text-xl">{cfg.icon}</span>
-                    <span className="font-semibold text-stone-800 text-sm">{skill.skill_name}</span>
-                    <span className="text-xs text-stone-400 ml-auto">{skill.evidence.length} quote{skill.evidence.length > 1 ? 's' : ''}</span>
+                    <span className="font-semibold text-kaya-navy-900 text-sm">{skill.skill_name}</span>
+                    <span className="text-xs text-kaya-stone-400 ml-auto">{skill.evidence.length} quote{skill.evidence.length > 1 ? 's' : ''}</span>
                   </div>
                   <div className="divide-y divide-stone-50">
                     {skill.evidence.map((ev, j) => (
                       <div key={j} className="p-4">
-                        <p className="text-sm text-stone-700 italic leading-relaxed mb-2">"{ev.transcript_quote}"</p>
+                        <p className="text-sm text-kaya-navy-900 italic leading-relaxed mb-2">"{ev.transcript_quote}"</p>
                         <div className="flex flex-wrap gap-2">
-                          <span className="text-[11px] px-2 py-1 rounded-lg text-stone-500 bg-stone-50 border border-stone-100">
+                          <span className="text-[11px] px-2 py-1 rounded-lg text-kaya-stone-600 bg-kaya-stone-50 border border-kaya-stone-100">
                             {ev.behavioral_indicator}
                           </span>
                         </div>
@@ -413,8 +413,8 @@ export default function SkillsDashboard() {
                     <div key={i} className="p-4 flex items-start gap-3">
                       <span className={`mt-0.5 text-lg ${flag.severity === 'high' ? 'text-red-500' : flag.severity === 'medium' ? 'text-orange-500' : 'text-yellow-500'}`}>●</span>
                       <div>
-                        <span className="font-medium text-stone-700 text-sm">{flag.flag_type}</span>
-                        <p className="text-xs text-stone-500 mt-0.5">{flag.evidence}</p>
+                        <span className="font-medium text-kaya-navy-900 text-sm">{flag.flag_type}</span>
+                        <p className="text-xs text-kaya-stone-600 mt-0.5">{flag.evidence}</p>
                       </div>
                     </div>
                   ))}
@@ -427,8 +427,8 @@ export default function SkillsDashboard() {
         {/* GAPS TAB */}
         {activeTab === 'gaps' && (
           <div>
-            <div className="bg-white/80 rounded-2xl border border-stone-100 p-5 mb-6 shadow-sm">
-              <p className="text-stone-600 text-sm leading-relaxed">
+            <div className="bg-white/80 rounded-2xl border border-kaya-stone-100 p-5 mb-6 shadow-sm">
+              <p className="text-kaya-stone-600 text-sm leading-relaxed">
                 These skills weren't evidenced in your stories. <strong>This isn't a judgment</strong> — you may simply not have had the chance to show them yet. Share more stories to uncover them.
               </p>
             </div>
@@ -436,20 +436,20 @@ export default function SkillsDashboard() {
               <div className="text-center py-12">
                 <p className="text-sm font-medium text-kaya-green-400">All skills mapped</p>
                 <p className="text-emerald-600 font-semibold">All core skills were demonstrated!</p>
-                <p className="text-stone-500 text-sm mt-1">Excellent coverage across the PSF framework.</p>
+                <p className="text-kaya-stone-600 text-sm mt-1">Excellent coverage across the PSF framework.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {gaps.map((gap, i) => {
                   const cfg = SKILL_CONFIG[gap] || { icon: '??', gradient: 'from-stone-300 to-stone-400', color: '#94a3b8', bgColor: '#f8fafc' };
                   return (
-                    <div key={i} className="bg-white rounded-2xl border border-stone-100 p-4 flex items-center gap-4 shadow-sm opacity-70">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-stone-100 flex-none grayscale">
+                    <div key={i} className="bg-white rounded-2xl border border-kaya-stone-100 p-4 flex items-center gap-4 shadow-sm opacity-70">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-kaya-stone-100 flex-none grayscale">
                         {cfg.icon}
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-stone-600 text-sm">{gap}</p>
-                        <p className="text-xs text-stone-400 mt-0.5">Not yet evidenced — share a story about this next time</p>
+                        <p className="font-medium text-kaya-stone-600 text-sm">{gap}</p>
+                        <p className="text-xs text-kaya-stone-400 mt-0.5">Not yet evidenced — share a story about this next time</p>
                       </div>
                       <a href="/chat"
                         className="text-xs px-3 py-1.5 rounded-xl font-medium transition-all hover:scale-[1.02] bg-kaya-amber-50 text-kaya-amber-400">
@@ -464,11 +464,11 @@ export default function SkillsDashboard() {
             {/* Layer 2 seeds */}
             {extraction.layer2_seeds?.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-sm font-semibold text-stone-500 mb-4 uppercase tracking-wider">Suggested Next Scenarios</h3>
+                <h3 className="text-sm font-semibold text-kaya-stone-600 mb-4 uppercase tracking-wider">Suggested Next Scenarios</h3>
                 <div className="space-y-3">
                   {extraction.layer2_seeds.map((seed, i) => (
-                    <div key={i} className="bg-white rounded-2xl border border-stone-100 p-4 shadow-sm">
-                      <p className="text-sm text-stone-700 mb-2">{seed.scenario}</p>
+                    <div key={i} className="bg-white rounded-2xl border border-kaya-stone-100 p-4 shadow-sm">
+                      <p className="text-sm text-kaya-navy-900 mb-2">{seed.scenario}</p>
                       <div className="flex flex-wrap gap-1.5">
                         {seed.target_skills.map((sk, j) => (
                           <span key={j} className="text-[11px] bg-violet-50 text-violet-600 border border-violet-100 px-2 py-0.5 rounded-full">
@@ -487,7 +487,7 @@ export default function SkillsDashboard() {
         {/* PASSPORT TAB */}
         {activeTab === 'passport' && (
           <div>
-            <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm mb-6">
+            <div className="bg-white rounded-2xl border border-kaya-stone-100 overflow-hidden shadow-sm mb-6">
               {/* Passport header */}
               <div className="p-6" style={{ background: 'linear-gradient(135deg, #0F0C29, #302B63)' }}>
                 <div className="flex items-start justify-between">
@@ -504,7 +504,7 @@ export default function SkillsDashboard() {
 
               {/* Skills table */}
               <div className="divide-y divide-stone-50">
-                <div className="grid grid-cols-4 px-5 py-2.5 text-[11px] font-semibold text-stone-400 uppercase tracking-wider bg-stone-50">
+                <div className="grid grid-cols-4 px-5 py-2.5 text-[11px] font-semibold text-kaya-stone-400 uppercase tracking-wider bg-kaya-stone-50">
                   <span className="col-span-2">Skill</span>
                   <span className="text-center">PQF Level</span>
                   <span className="text-center">Confidence</span>
@@ -518,8 +518,8 @@ export default function SkillsDashboard() {
                       <div className="col-span-2 flex items-center gap-2.5">
                         <span className="text-base">{cfg.icon}</span>
                         <div>
-                          <p className="text-stone-700 text-sm font-medium">{skill.skill_name}</p>
-                          <p className="text-stone-400 text-[11px]">{skill.skill_id}</p>
+                          <p className="text-kaya-navy-900 text-sm font-medium">{skill.skill_name}</p>
+                          <p className="text-kaya-stone-400 text-[11px]">{skill.skill_id}</p>
                         </div>
                       </div>
                       <div className="text-center">
@@ -534,8 +534,8 @@ export default function SkillsDashboard() {
               </div>
 
               {/* Footer */}
-              <div className="px-5 py-4 bg-stone-50 border-t border-stone-100">
-                <div className="flex items-center justify-between text-xs text-stone-400">
+              <div className="px-5 py-4 bg-kaya-stone-50 border-t border-kaya-stone-100">
+                <div className="flex items-center justify-between text-xs text-kaya-stone-400">
                   <span>Generated {new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                   <span>Virtualahan Inc. · PSF-HCD v1.0</span>
                 </div>
@@ -543,12 +543,12 @@ export default function SkillsDashboard() {
             </div>
 
             {/* Validation status */}
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
+            <div className="bg-kaya-amber-50 border border-kaya-amber-400/20 rounded-2xl p-5 mb-6">
               <div className="flex items-start gap-3">
                 <span className="text-xl mt-0.5">🔬</span>
                 <div>
                   <p className="font-semibold text-amber-800 text-sm">Pending Psychologist Validation</p>
-                  <p className="text-amber-700 text-xs mt-1 leading-relaxed">
+                  <p className="text-kaya-amber-400 text-xs mt-1 leading-relaxed">
                     This profile will be reviewed and digitally signed by a licensed psychologist before it can be shared with employers. The audit trail is complete and ready for review.
                   </p>
                 </div>
@@ -566,7 +566,7 @@ export default function SkillsDashboard() {
               </button>
               <button
                 onClick={() => window.print()}
-                className="px-5 py-3.5 rounded-2xl font-medium text-stone-600 text-sm border border-stone-200 bg-white hover:bg-stone-50 transition-all"
+                className="px-5 py-3.5 rounded-2xl font-medium text-kaya-stone-600 text-sm border border-kaya-stone-200 bg-white hover:bg-stone-50 transition-all"
               >
                 🖨️ Print
               </button>

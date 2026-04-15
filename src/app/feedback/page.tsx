@@ -47,7 +47,7 @@ export default function FeedbackPage() {
   const allPsf = ['Communication', 'Collaboration', 'Problem Solving', 'Adaptability', 'Self-Management', 'Learning Agility', 'Decision Making', 'Influence', 'Customer Orientation', 'Developing People', 'Digital Fluency', 'Creative Thinking', 'Building Inclusivity', 'Global Perspective', 'Sense Making', 'Transdisciplinary Thinking'];
   const notAssessed = allPsf.filter(s => !skills.some((sk: any) => sk.skill_name === s));
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50"><p className="text-gray-400">Loading...</p></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-kaya-stone-50"><p className="text-kaya-stone-400">Loading...</p></div>;
 
   return (
     <div className="min-h-screen bg-kaya-stone-50">
@@ -75,7 +75,7 @@ export default function FeedbackPage() {
         </div>
 
         {/* Encouragement */}
-        <div className="bg-white rounded-xl border border-green-200 p-6 mb-6 bg-kaya-green-50">
+        <div className="bg-white rounded-xl border border-kaya-green-100 p-6 mb-6 bg-kaya-green-50">
           <p className="text-sm font-medium text-kaya-green-400">
             Every conversation reveals something valuable about you. Here's what your stories showed — and where you can grow.
           </p>
@@ -83,9 +83,9 @@ export default function FeedbackPage() {
 
         {/* Skills You Demonstrated */}
         {demonstrated.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-xl border border-kaya-stone-100 p-6 mb-6">
             <h2 className="text-sm font-semibold mb-4 text-kaya-navy-900">Skills You Demonstrated</h2>
-            <p className="text-xs text-gray-500 mb-4">These skills came through clearly in your stories. They are real capabilities backed by evidence.</p>
+            <p className="text-xs text-kaya-stone-600 mb-4">These skills came through clearly in your stories. They are real capabilities backed by evidence.</p>
             <div className="space-y-3">
               {demonstrated.map((s: any, i: number) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-kaya-stone-50">
@@ -93,8 +93,8 @@ export default function FeedbackPage() {
                     {s.skill_name?.substring(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800">{s.skill_name}</p>
-                    <p className="text-xs text-gray-500">{s.proficiency} — {Math.round((s.confidence || 0) * 100)}% confidence</p>
+                    <p className="text-sm font-medium text-kaya-navy-900">{s.skill_name}</p>
+                    <p className="text-xs text-kaya-stone-600">{s.proficiency} — {Math.round((s.confidence || 0) * 100)}% confidence</p>
                   </div>
                 </div>
               ))}
@@ -104,9 +104,9 @@ export default function FeedbackPage() {
 
         {/* Skills to Strengthen */}
         {toStrengthen.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-xl border border-kaya-stone-100 p-6 mb-6">
             <h2 className="text-sm font-semibold mb-4 text-kaya-navy-900">Skills to Strengthen</h2>
-            <p className="text-xs text-gray-500 mb-4">We saw early signs of these skills but need more evidence. Continue chatting with Aya to build stronger evidence.</p>
+            <p className="text-xs text-kaya-stone-600 mb-4">We saw early signs of these skills but need more evidence. Continue chatting with Aya to build stronger evidence.</p>
             <div className="space-y-3">
               {toStrengthen.map((s: any, i: number) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-kaya-amber-50">
@@ -114,8 +114,8 @@ export default function FeedbackPage() {
                     {s.skill_name?.substring(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800">{s.skill_name}</p>
-                    <p className="text-xs text-gray-500">{Math.round((s.confidence || 0) * 100)}% — tell more stories to strengthen this</p>
+                    <p className="text-sm font-medium text-kaya-navy-900">{s.skill_name}</p>
+                    <p className="text-xs text-kaya-stone-600">{Math.round((s.confidence || 0) * 100)}% — tell more stories to strengthen this</p>
                   </div>
                 </div>
               ))}
@@ -125,21 +125,21 @@ export default function FeedbackPage() {
 
         {/* Not Yet Assessed */}
         {notAssessed.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-xl border border-kaya-stone-100 p-6 mb-6">
             <h2 className="text-sm font-semibold mb-4 text-kaya-navy-900">Not Yet Assessed</h2>
-            <p className="text-xs text-gray-500 mb-4">These skills didn't come up in your stories yet. That doesn't mean you don't have them — it means we haven't heard the right story yet.</p>
+            <p className="text-xs text-kaya-stone-600 mb-4">These skills didn't come up in your stories yet. That doesn't mean you don't have them — it means we haven't heard the right story yet.</p>
             <div className="flex flex-wrap gap-2">
               {notAssessed.map((s, i) => (
-                <span key={i} className="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-500">{s}</span>
+                <span key={i} className="text-xs px-3 py-1.5 rounded-full bg-kaya-stone-50 text-kaya-stone-600">{s}</span>
               ))}
             </div>
           </div>
         )}
 
         {/* What to do next */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-xl border border-kaya-stone-100 p-6 mb-6">
           <h2 className="text-sm font-semibold mb-3 text-kaya-navy-900">What You Can Do Next</h2>
-          <div className="space-y-3 text-sm text-gray-600">
+          <div className="space-y-3 text-sm text-kaya-stone-600">
             <p>1. <strong>Continue with Aya</strong> — share more stories to discover additional skills and strengthen existing ones.</p>
             <p>2. <strong>Browse other vacancies</strong> — your skills may be a better match for a different role.</p>
             <p>3. <strong>Upskill</strong> — focus on the skills to strengthen. Even small experiences count as evidence.</p>

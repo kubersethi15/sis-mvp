@@ -228,7 +228,7 @@ export default function PsychologistPage() {
             </button>
 
             {/* TABS */}
-            <div className="flex gap-1 border-b border-gray-200 mb-6">
+            <div className="flex gap-1 border-b border-kaya-stone-100 mb-6">
               {[
                 { id: 'audit' as const, label: 'Layer 1: Audit Trail' },
                 { id: 'simulation' as const, label: 'Layer 2: Simulation' },
@@ -238,7 +238,7 @@ export default function PsychologistPage() {
               ].map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                   className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                    activeTab === tab.id ? 'bg-white text-orange-600 border border-gray-200 border-b-white -mb-px' : 'text-gray-500 hover:text-gray-700'
+                    activeTab === tab.id ? 'bg-white text-kaya-amber-400 border border-kaya-stone-100 border-b-white -mb-px' : 'text-gray-500 hover:text-gray-700'
                   }`}>{tab.label}</button>
               ))}
             </div>
@@ -246,10 +246,10 @@ export default function PsychologistPage() {
             {activeTab === 'audit' && (
               <div className="space-y-6">
                 {/* Narrative */}
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-sm font-semibold text-gray-500 mb-2">CANDIDATE NARRATIVE</h2>
-                  <p className="text-gray-800">{selected.narrative_summary}</p>
-                  <div className="flex gap-4 mt-3 text-xs text-gray-400">
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-sm font-semibold text-kaya-stone-600 mb-2">CANDIDATE NARRATIVE</h2>
+                  <p className="text-kaya-navy-900">{selected.narrative_summary}</p>
+                  <div className="flex gap-4 mt-3 text-xs text-kaya-stone-400">
                     <span>Model: {selected.extraction_model}</span>
                     <span>Extracted: {new Date(selected.created_at).toLocaleString()}</span>
                     <span>Quality: {selected.session_quality?.evidence_density || 'N/A'} evidence density</span>
@@ -258,18 +258,18 @@ export default function PsychologistPage() {
 
                 {/* Episodes with STAR+E+R */}
                 {selected.episodes?.length > 0 && (
-                  <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <h2 className="text-sm font-semibold text-gray-500 mb-4">EPISODES (STAR+E+R DECOMPOSITION)</h2>
+                  <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                    <h2 className="text-sm font-semibold text-kaya-stone-600 mb-4">EPISODES (STAR+E+R DECOMPOSITION)</h2>
                     <div className="space-y-4">
                       {selected.episodes.map((ep, i) => (
-                        <div key={i} className="border border-gray-100 rounded-lg p-4">
-                          <h3 className="font-medium text-gray-900 mb-2">Episode {ep.episode_id}: {ep.summary}</h3>
+                        <div key={i} className="border border-kaya-stone-100 rounded-lg p-4">
+                          <h3 className="font-medium text-kaya-navy-900 mb-2">Episode {ep.episode_id}: {ep.summary}</h3>
                           {ep.star_er && (
                             <div className="grid grid-cols-2 gap-2 text-sm">
                               {Object.entries(ep.star_er).map(([key, val]) => (
-                                <div key={key} className="p-2 bg-gray-50 rounded">
-                                  <span className="font-medium text-gray-600 uppercase text-xs">{key}:</span>
-                                  <p className="text-gray-700 mt-0.5">{val as string}</p>
+                                <div key={key} className="p-2 bg-kaya-stone-50 rounded">
+                                  <span className="font-medium text-kaya-stone-600 uppercase text-xs">{key}:</span>
+                                  <p className="text-kaya-navy-900 mt-0.5">{val as string}</p>
                                 </div>
                               ))}
                             </div>
@@ -281,54 +281,54 @@ export default function PsychologistPage() {
                 )}
 
                 {/* Skill-by-Skill Audit */}
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-sm font-semibold text-gray-500 mb-4">SKILL-BY-SKILL AUDIT TRAIL</h2>
-                  <p className="text-xs text-gray-400 mb-4">Each skill claim traces: Transcript Quote → STAR+E+R Tag → PSF Skill Mapping → Proficiency Level → Confidence Score</p>
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-sm font-semibold text-kaya-stone-600 mb-4">SKILL-BY-SKILL AUDIT TRAIL</h2>
+                  <p className="text-xs text-kaya-stone-400 mb-4">Each skill claim traces: Transcript Quote → STAR+E+R Tag → PSF Skill Mapping → Proficiency Level → Confidence Score</p>
 
                   <div className="space-y-4">
                     {selected.skills_profile?.map((skill, i) => (
-                      <div key={i} className="border border-gray-100 rounded-lg overflow-hidden">
-                        <div className="p-4 bg-gray-50 flex items-center justify-between">
+                      <div key={i} className="border border-kaya-stone-100 rounded-lg overflow-hidden">
+                        <div className="p-4 bg-kaya-stone-50 flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <span className="font-semibold text-gray-900">{skill.skill_name}</span>
+                            <span className="font-semibold text-kaya-navy-900">{skill.skill_name}</span>
                             <span className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
                               style={{ backgroundColor: PROFICIENCY_COLORS[skill.proficiency?.toLowerCase()] || '#666' }}>
                               {skill.proficiency}
                             </span>
                           </div>
                           <div className="text-right">
-                            <span className="text-lg font-bold text-gray-700">{Math.round(skill.confidence * 100)}%</span>
-                            <span className="text-xs text-gray-400 ml-1">confidence</span>
+                            <span className="text-lg font-bold text-kaya-navy-900">{Math.round(skill.confidence * 100)}%</span>
+                            <span className="text-xs text-kaya-stone-400 ml-1">confidence</span>
                           </div>
                         </div>
 
                         {skill.evidence?.map((ev, j) => (
-                          <div key={j} className="p-4 border-t border-gray-100">
+                          <div key={j} className="p-4 border-t border-kaya-stone-100">
                             <div className="flex items-start gap-3">
-                              <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                              <div className="w-6 h-6 rounded-full bg-orange-100 text-kaya-amber-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
                                 {j + 1}
                               </div>
                               <div className="flex-1">
-                                <p className="text-sm text-gray-800 italic border-l-2 border-orange-300 pl-3 mb-2">"{ev.transcript_quote}"</p>
-                                <p className="text-xs text-gray-600"><span className="font-medium">Behavioral Indicator:</span> {ev.behavioral_indicator}</p>
-                                <p className="text-xs text-gray-500 mt-1"><span className="font-medium">Proficiency Justification:</span> {ev.proficiency_justification}</p>
+                                <p className="text-sm text-kaya-navy-900 italic border-l-2 border-orange-300 pl-3 mb-2">"{ev.transcript_quote}"</p>
+                                <p className="text-xs text-kaya-stone-600"><span className="font-medium">Behavioral Indicator:</span> {ev.behavioral_indicator}</p>
+                                <p className="text-xs text-kaya-stone-600 mt-1"><span className="font-medium">Proficiency Justification:</span> {ev.proficiency_justification}</p>
                               </div>
                             </div>
                           </div>
                         ))}
 
                         {(!skill.evidence || skill.evidence.length === 0) && (
-                          <div className="p-4 border-t border-gray-100 text-xs text-gray-400">No evidence citations available for this skill.</div>
+                          <div className="p-4 border-t border-kaya-stone-100 text-xs text-kaya-stone-400">No evidence citations available for this skill.</div>
                         )}
 
                         {/* Cultural Context Annotation (Sikolohiyang Pilipino) */}
                         {(skill as any).cultural_context?.cultural_annotation && (
-                          <div className="p-4 border-t border-gray-100 bg-kaya-amber-50">
+                          <div className="p-4 border-t border-kaya-stone-100 bg-kaya-amber-50">
                             <div className="flex items-start gap-2">
                               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-kaya-amber-50 text-kaya-amber-400">SP</span>
                               <div className="flex-1">
                                 <p className="text-xs font-medium text-kaya-amber-400">Cultural Context — Sikolohiyang Pilipino</p>
-                                <p className="text-xs text-gray-600 mt-1">{(skill as any).cultural_context.cultural_annotation}</p>
+                                <p className="text-xs text-kaya-stone-600 mt-1">{(skill as any).cultural_context.cultural_annotation}</p>
                                 {(skill as any).cultural_context.sp_concepts_detected?.length > 0 && (
                                   <div className="flex gap-1.5 mt-2 flex-wrap">
                                     {(skill as any).cultural_context.sp_concepts_detected.map((c: string, k: number) => (
@@ -351,14 +351,14 @@ export default function PsychologistPage() {
                 {/* Gaming Flags */}
                 {selected.gaming_flags?.length > 0 && (
                   <div className="bg-white rounded-lg border border-orange-200 p-6">
-                    <h2 className="text-sm font-semibold text-orange-600 mb-3">AUTHENTICITY FLAGS</h2>
+                    <h2 className="text-sm font-semibold text-kaya-amber-400 mb-3">AUTHENTICITY FLAGS</h2>
                     <div className="space-y-2">
                       {selected.gaming_flags.map((flag, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
                           <span className={`mt-0.5 ${flag.severity === 'high' ? 'text-red-500' : flag.severity === 'medium' ? 'text-orange-500' : 'text-yellow-500'}`}>●</span>
                           <div>
-                            <span className="font-medium text-gray-700">{flag.flag_type}:</span>
-                            <span className="text-gray-500 ml-1">{flag.evidence}</span>
+                            <span className="font-medium text-kaya-navy-900">{flag.flag_type}:</span>
+                            <span className="text-kaya-stone-600 ml-1">{flag.evidence}</span>
                           </div>
                         </div>
                       ))}
@@ -367,9 +367,9 @@ export default function PsychologistPage() {
                 )}
 
                 {/* System Flags Checklist — what the algorithm did */}
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-3">SYSTEM FLAGS — Algorithm Decisions</h2>
-                  <p className="text-xs text-gray-500 mb-4">Review each flag to understand what the AI extraction did and why. These inform your professional judgment.</p>
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-sm font-semibold text-kaya-navy-900 mb-3">SYSTEM FLAGS — Algorithm Decisions</h2>
+                  <p className="text-xs text-kaya-stone-600 mb-4">Review each flag to understand what the AI extraction did and why. These inform your professional judgment.</p>
                   <div className="space-y-3">
                     {(() => {
                       const skills = selected.skills_profile || [];
@@ -382,29 +382,29 @@ export default function PsychologistPage() {
                           <div className={selfDepOverrides.length > 0 ? "bg-kaya-amber-50" : "bg-kaya-stone-50" + " flex items-start gap-3 p-3 rounded-lg"}>
                             <span className="text-lg mt-0.5">{selfDepOverrides.length > 0 ? '⚠' : '○'}</span>
                             <div>
-                              <p className="text-sm font-medium text-gray-800">Self-Deprecation Override</p>
-                              <p className="text-xs text-gray-500">{selfDepOverrides.length > 0 ? `Applied on ${selfDepOverrides.length} skill(s): ${selfDepOverrides.map((s: any) => s.skill_name).join(', ')}. The candidate minimised their contribution but described competent action.` : 'Not applied — no self-deprecation patterns detected.'}</p>
+                              <p className="text-sm font-medium text-kaya-navy-900">Self-Deprecation Override</p>
+                              <p className="text-xs text-kaya-stone-600">{selfDepOverrides.length > 0 ? `Applied on ${selfDepOverrides.length} skill(s): ${selfDepOverrides.map((s: any) => s.skill_name).join(', ')}. The candidate minimised their contribution but described competent action.` : 'Not applied — no self-deprecation patterns detected.'}</p>
                             </div>
                           </div>
                           <div className={disabilityUplifts.length > 0 ? "bg-kaya-navy-50" : "bg-kaya-stone-50" + " flex items-start gap-3 p-3 rounded-lg"}>
                             <span className="text-lg mt-0.5">{disabilityUplifts.length > 0 ? '⚠' : '○'}</span>
                             <div>
-                              <p className="text-sm font-medium text-gray-800">Disability Experience Uplift</p>
-                              <p className="text-xs text-gray-500">{disabilityUplifts.length > 0 ? `Applied on ${disabilityUplifts.length} skill(s): ${disabilityUplifts.map((s: any) => s.skill_name).join(', ')}. Action performed under disability-related constraint demonstrates greater capability.` : 'Not applied — no disability-related constraint in evidence.'}</p>
+                              <p className="text-sm font-medium text-kaya-navy-900">Disability Experience Uplift</p>
+                              <p className="text-xs text-kaya-stone-600">{disabilityUplifts.length > 0 ? `Applied on ${disabilityUplifts.length} skill(s): ${disabilityUplifts.map((s: any) => s.skill_name).join(', ')}. Action performed under disability-related constraint demonstrates greater capability.` : 'Not applied — no disability-related constraint in evidence.'}</p>
                             </div>
                           </div>
                           <div className={culturalUplifts.length > 0 ? "bg-kaya-amber-50" : "bg-kaya-stone-50" + " flex items-start gap-3 p-3 rounded-lg"}>
                             <span className="text-lg mt-0.5">{culturalUplifts.length > 0 ? '⚠' : '○'}</span>
                             <div>
-                              <p className="text-sm font-medium text-gray-800">Cultural Context Uplift (Sikolohiyang Pilipino)</p>
-                              <p className="text-xs text-gray-500">{culturalUplifts.length > 0 ? `Applied on ${culturalUplifts.length} skill(s): ${culturalUplifts.map((s: any) => s.skill_name).join(', ')}. Filipino cultural context (kapwa, bayanihan, pakikiramdam) adds significance to evidence.` : 'Not applied — no cultural context uplift triggered.'}</p>
+                              <p className="text-sm font-medium text-kaya-navy-900">Cultural Context Uplift (Sikolohiyang Pilipino)</p>
+                              <p className="text-xs text-kaya-stone-600">{culturalUplifts.length > 0 ? `Applied on ${culturalUplifts.length} skill(s): ${culturalUplifts.map((s: any) => s.skill_name).join(', ')}. Filipino cultural context (kapwa, bayanihan, pakikiramdam) adds significance to evidence.` : 'Not applied — no cultural context uplift triggered.'}</p>
                             </div>
                           </div>
                           <div className={`flex items-start gap-3 p-3 rounded-lg ${singleSource.length > 0 ? "bg-kaya-red-50" : "bg-kaya-stone-50"}`}>
                             <span className="text-lg mt-0.5">{singleSource.length > 0 ? '⚠' : '○'}</span>
                             <div>
-                              <p className="text-sm font-medium text-gray-800">Single-Source Evidence</p>
-                              <p className="text-xs text-gray-500">{singleSource.length > 0 ? `${singleSource.length} skill(s) with high confidence but only 1 evidence item: ${singleSource.map((s: any) => s.skill_name).join(', ')}. Consider requesting additional evidence.` : 'No single-source high-confidence claims.'}</p>
+                              <p className="text-sm font-medium text-kaya-navy-900">Single-Source Evidence</p>
+                              <p className="text-xs text-kaya-stone-600">{singleSource.length > 0 ? `${singleSource.length} skill(s) with high confidence but only 1 evidence item: ${singleSource.map((s: any) => s.skill_name).join(', ')}. Consider requesting additional evidence.` : 'No single-source high-confidence claims.'}</p>
                             </div>
                           </div>
                         </>
@@ -419,9 +419,9 @@ export default function PsychologistPage() {
             {activeTab === 'simulation' && (
               <div className="space-y-6">
                 {/* Overview */}
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Layer 2: Workplace Simulation Evidence</h2>
-                  <p className="text-sm text-gray-500 mb-4">
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-lg font-semibold text-kaya-navy-900 mb-2">Layer 2: Workplace Simulation Evidence</h2>
+                  <p className="text-sm text-kaya-stone-600 mb-4">
                     Multi-agent behavioral simulation where the candidate interacted with AI characters in a realistic workplace scenario.
                     Evidence from this simulation is compared against Layer 1 (conversation) data to establish convergence.
                   </p>
@@ -448,7 +448,7 @@ export default function PsychologistPage() {
 
                   if (!simData) {
                     return (
-                      <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
+                      <div className="bg-white rounded-lg border border-kaya-stone-100 p-6 text-center">
                         <p className="text-2xl mb-2">🎭</p>
                         <p className="text-sm text-kaya-stone-600">No simulation data available for this candidate yet.</p>
                         <p className="text-xs mt-1 text-kaya-stone-400">The simulation is run during Gate 3. Once complete, evidence will appear here.</p>
@@ -459,9 +459,9 @@ export default function PsychologistPage() {
                   return (
                     <>
                       {/* Scenario Info */}
-                      <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h3 className="text-sm font-semibold text-gray-900 mb-3">Scenario: {simData.scenario_title || 'Workplace Simulation'}</h3>
-                        <p className="text-xs text-gray-500 mb-3">{simData.rounds_completed || '?'} rounds completed</p>
+                      <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                        <h3 className="text-sm font-semibold text-kaya-navy-900 mb-3">Scenario: {simData.scenario_title || 'Workplace Simulation'}</h3>
+                        <p className="text-xs text-kaya-stone-600 mb-3">{simData.rounds_completed || '?'} rounds completed</p>
 
                         {/* Skills Assessed */}
                         {simData.skill_scores?.length > 0 && (
@@ -513,9 +513,9 @@ export default function PsychologistPage() {
 
                       {/* Convergence Analysis */}
                       {simData.convergence?.length > 0 && (
-                        <div className="bg-white rounded-lg border border-gray-200 p-6">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-3">Convergence: Layer 1 vs Layer 2</h3>
-                          <p className="text-xs text-gray-500 mb-3">Comparing self-reported (conversation) vs observed (simulation) skill levels. Convergence increases confidence; divergence flags for review.</p>
+                        <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                          <h3 className="text-sm font-semibold text-kaya-navy-900 mb-3">Convergence: Layer 1 vs Layer 2</h3>
+                          <p className="text-xs text-kaya-stone-600 mb-3">Comparing self-reported (conversation) vs observed (simulation) skill levels. Convergence increases confidence; divergence flags for review.</p>
                           <div className="space-y-2">
                             {simData.convergence.map((c: any, i: number) => (
                               <div key={i} className={`flex items-center justify-between p-3 rounded-lg border ${
@@ -539,9 +539,9 @@ export default function PsychologistPage() {
 
                       {/* Gaming Flags */}
                       {simData.gaming_flags?.length > 0 && (
-                        <div className="bg-white rounded-lg border border-red-200 p-6">
+                        <div className="bg-white rounded-lg border border-kaya-red-400/20 p-6">
                           <h3 className="text-sm font-semibold text-red-700 mb-3">⚠ Gaming Detection Flags</h3>
-                          <p className="text-xs text-gray-500 mb-3">These flags indicate potential gaming behavior. Review the transcript to determine if concerns are valid.</p>
+                          <p className="text-xs text-kaya-stone-600 mb-3">These flags indicate potential gaming behavior. Review the transcript to determine if concerns are valid.</p>
                           <div className="space-y-2">
                             {simData.gaming_flags.map((f: string, i: number) => (
                               <div key={i} className="p-2 rounded text-xs bg-kaya-red-50 text-kaya-red-400">
@@ -554,9 +554,9 @@ export default function PsychologistPage() {
 
                       {/* Observer Summary */}
                       {simData.observer_summary && (
-                        <div className="bg-white rounded-lg border border-gray-200 p-6">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Observer Summary</h3>
-                          <p className="text-sm text-gray-700">{simData.observer_summary}</p>
+                        <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                          <h3 className="text-sm font-semibold text-kaya-navy-900 mb-2">Observer Summary</h3>
+                          <p className="text-sm text-kaya-navy-900">{simData.observer_summary}</p>
                         </div>
                       )}
 
@@ -564,7 +564,7 @@ export default function PsychologistPage() {
                       {(selected as any)?.voice_analysis?.length > 0 && (
                         <div className="bg-white rounded-lg border border-purple-200 p-6">
                           <h3 className="text-sm font-semibold mb-3 text-kaya-navy-900">Voice Signals (Paralinguistic Analysis)</h3>
-                          <p className="text-xs text-gray-500 mb-4">
+                          <p className="text-xs text-kaya-stone-600 mb-4">
                             Emotional expression detected from voice tone, rhythm, and timbre via Hume AI Expression Measurement.
                             {(selected as any).voice_analysis.length} audio segment(s) analyzed.
                           </p>
@@ -622,8 +622,8 @@ export default function PsychologistPage() {
 
                       {/* Full Transcript */}
                       {simData.transcript && (
-                        <details className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                          <summary className="px-6 py-3 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <details className="bg-white rounded-lg border border-kaya-stone-100 overflow-hidden">
+                          <summary className="px-6 py-3 cursor-pointer text-sm font-medium text-kaya-navy-900 hover:bg-gray-50">
                             View Full Simulation Transcript
                           </summary>
                           <pre className="px-6 py-4 text-xs whitespace-pre-wrap max-h-96 overflow-y-auto bg-kaya-stone-50 text-kaya-stone-600">
@@ -647,9 +647,9 @@ export default function PsychologistPage() {
 
                   if (convergence.length === 0) {
                     return (
-                      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-                        <p className="text-sm text-gray-500">No peer/360 data available for this candidate yet.</p>
-                        <p className="text-xs text-gray-400 mt-2">Layer 3 evidence is collected when the candidate provides reference contacts and they submit their assessments.</p>
+                      <div className="bg-white rounded-lg border border-kaya-stone-100 p-8 text-center">
+                        <p className="text-sm text-kaya-stone-600">No peer/360 data available for this candidate yet.</p>
+                        <p className="text-xs text-kaya-stone-400 mt-2">Layer 3 evidence is collected when the candidate provides reference contacts and they submit their assessments.</p>
                       </div>
                     );
                   }
@@ -659,7 +659,7 @@ export default function PsychologistPage() {
                       {/* Overview */}
                       <div className="bg-white rounded-lg border border-purple-200 p-6">
                         <h2 className="text-lg font-semibold mb-2 text-kaya-navy-900">Three-Layer Convergence Analysis</h2>
-                        <p className="text-sm text-gray-500 mb-4">
+                        <p className="text-sm text-kaya-stone-600 mb-4">
                           Comparing self-report (Layer 1), behavioral observation (Layer 2), and peer assessment (Layer 3).
                           {peerCount} reference(s) submitted. Weighting: L1 (25%) + L2 (40%) + L3 (35%).
                         </p>
@@ -680,7 +680,7 @@ export default function PsychologistPage() {
                             <tbody>
                               {convergence.map((c: any, i: number) => (
                                 <tr key={i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
-                                  <td className="px-3 py-2 font-medium text-gray-700">{c.skill_name}</td>
+                                  <td className="px-3 py-2 font-medium text-kaya-navy-900">{c.skill_name}</td>
                                   <td className="text-center px-3 py-2">
                                     <span className="text-xs px-2 py-0.5 rounded bg-kaya-navy-50 text-kaya-navy-600">{c.layer1_score}</span>
                                   </td>
@@ -715,8 +715,8 @@ export default function PsychologistPage() {
                       </div>
 
                       {/* Convergence notes */}
-                      <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h3 className="text-sm font-semibold text-gray-900 mb-3">Convergence Notes</h3>
+                      <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                        <h3 className="text-sm font-semibold text-kaya-navy-900 mb-3">Convergence Notes</h3>
                         <div className="space-y-2">
                           {convergence.filter((c: any) => c.note).map((c: any, i: number) => (
                             <div key={i} className="flex items-start gap-2 text-xs">
@@ -729,8 +729,8 @@ export default function PsychologistPage() {
 
                       {/* Independence verification */}
                       {independence && (
-                        <div className="bg-white rounded-lg border border-gray-200 p-6">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-3">Reference Independence Verification</h3>
+                        <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                          <h3 className="text-sm font-semibold text-kaya-navy-900 mb-3">Reference Independence Verification</h3>
                           {independence.independent ? (
                             <div className="p-3 rounded-lg bg-kaya-green-50">
                               <p className="text-sm text-kaya-green-400">✓ All references appear to be independent. No red flags detected.</p>
@@ -748,18 +748,18 @@ export default function PsychologistPage() {
                       )}
 
                       {/* Methodology note */}
-                      <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h3 className="text-sm font-semibold text-gray-900 mb-2">Three-Layer Methodology</h3>
-                        <p className="text-sm text-gray-600">
+                      <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                        <h3 className="text-sm font-semibold text-kaya-navy-900 mb-2">Three-Layer Methodology</h3>
+                        <p className="text-sm text-kaya-stone-600">
                           Layer 3 completes the assessment triangle. A candidate can rehearse answers for Layer 1 (self-report) and may game a simulation in Layer 2 (observed behavior), but they cannot fabricate what multiple independent references say about them. When all three layers converge, confidence in the skills profile is at its highest. When they diverge, it reveals patterns — underselling (common with modest or culturally deferential candidates), overclaiming, or context-dependent performance.
                         </p>
-                        <p className="text-xs text-gray-400 mt-2">Weighting: L2 observation (40%) + L3 peer report (35%) + L1 self-report (25%). Based on multi-source assessment validity research.</p>
+                        <p className="text-xs text-kaya-stone-400 mt-2">Weighting: L2 observation (40%) + L3 peer report (35%) + L1 self-report (25%). Based on multi-source assessment validity research.</p>
                       </div>
                     </>
                   );
                 })() : (
-                  <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-                    <p className="text-sm text-gray-500">Select a candidate extraction to view Layer 3 data.</p>
+                  <div className="bg-white rounded-lg border border-kaya-stone-100 p-8 text-center">
+                    <p className="text-sm text-kaya-stone-600">Select a candidate extraction to view Layer 3 data.</p>
                   </div>
                 )}
               </div>
@@ -768,29 +768,29 @@ export default function PsychologistPage() {
             {/* METHODOLOGY TAB */}
             {activeTab === 'methodology' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Research Anchoring</h2>
-                  <p className="text-sm text-gray-500 mb-4">The LEEE methodology is grounded in the following established frameworks and research. These references support the psychologist's professional endorsement.</p>
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-lg font-semibold text-kaya-navy-900 mb-2">Research Anchoring</h2>
+                  <p className="text-sm text-kaya-stone-600 mb-4">The LEEE methodology is grounded in the following established frameworks and research. These references support the psychologist's professional endorsement.</p>
 
                   <div className="space-y-3">
                     {METHODOLOGY_REFS.map(ref => (
-                      <div key={ref.id} className="border border-gray-100 rounded-lg p-4">
+                      <div key={ref.id} className="border border-kaya-stone-100 rounded-lg p-4">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="text-sm font-semibold text-gray-900">{ref.title}</h3>
-                            <p className="text-xs text-gray-500 mt-0.5">Source: {ref.source}</p>
+                            <h3 className="text-sm font-semibold text-kaya-navy-900">{ref.title}</h3>
+                            <p className="text-xs text-kaya-stone-600 mt-0.5">Source: {ref.source}</p>
                           </div>
-                          <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">{ref.id}</span>
+                          <span className="text-xs bg-kaya-navy-50 text-kaya-navy-600 px-2 py-0.5 rounded">{ref.id}</span>
                         </div>
-                        <p className="text-xs text-gray-600 mt-2">Relevance: {ref.relevance}</p>
+                        <p className="text-xs text-kaya-stone-600 mt-2">Relevance: {ref.relevance}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Extraction Methodology</h2>
-                  <div className="text-sm text-gray-700 space-y-3">
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-lg font-semibold text-kaya-navy-900 mb-2">Extraction Methodology</h2>
+                  <div className="text-sm text-kaya-navy-900 space-y-3">
                     <p><span className="font-medium">Conversation Method:</span> Moth-structured storytelling (context → action → decision → outcome → reflection) conducted through text chat in English/Filipino/Taglish.</p>
                     <p><span className="font-medium">Evidence Framework:</span> STAR+E+R (Situation, Task, Action, Result, Emotion, Reflection) — extended behavioral evidence model.</p>
                     <p><span className="font-medium">Skill Taxonomy:</span> PSF Enabling Skills and Competencies (16 ESC), with 4 primary COMPASS domains + 4 secondary skills for MVP.</p>
@@ -806,9 +806,9 @@ export default function PsychologistPage() {
             {/* VALIDATE TAB */}
             {activeTab === 'validate' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Professional Validation</h2>
-                  <p className="text-sm text-gray-500 mb-6">
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-lg font-semibold text-kaya-navy-900 mb-4">Professional Validation</h2>
+                  <p className="text-sm text-kaya-stone-600 mb-6">
                     As a licensed psychologist, you are endorsing that the skills profile extraction methodology is sound,
                     the evidence trail is traceable, and the proficiency assessments are reasonable based on the behavioral evidence presented.
                     Your professional license is attached to this endorsement.
@@ -817,7 +817,7 @@ export default function PsychologistPage() {
                   {/* Summary of what you're signing */}
                   <div className="bg-orange-50 rounded-lg p-4 mb-6 border border-orange-200">
                     <h3 className="text-sm font-semibold text-orange-700 mb-2">Skills Profile Summary</h3>
-                    <p className="text-sm text-gray-700 mb-2">{selected.narrative_summary}</p>
+                    <p className="text-sm text-kaya-navy-900 mb-2">{selected.narrative_summary}</p>
                     <div className="flex flex-wrap gap-2">
                       {selected.skills_profile?.map((s, i) => (
                         <span key={i} className="text-xs px-2 py-1 rounded-full text-white font-medium"
@@ -827,15 +827,15 @@ export default function PsychologistPage() {
                       ))}
                     </div>
                     {selected.gaming_flags?.length > 0 && (
-                      <p className="text-xs text-orange-600 mt-2">{selected.gaming_flags.length} authenticity flag(s) noted — review audit trail before signing.</p>
+                      <p className="text-xs text-kaya-amber-400 mt-2">{selected.gaming_flags.length} authenticity flag(s) noted — review audit trail before signing.</p>
                     )}
                   </div>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Validation Decision</label>
+                      <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Validation Decision</label>
                       <select value={validationStatus} onChange={e => setValidationStatus(e.target.value as any)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none bg-white">
+                        className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none bg-white">
                         <option value="validated">Validated — methodology sound, evidence traceable</option>
                         <option value="revision_needed">Revision Needed — some claims need additional evidence</option>
                         <option value="rejected">Rejected — methodology concerns or insufficient evidence</option>
@@ -843,26 +843,26 @@ export default function PsychologistPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Professional Notes</label>
+                      <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Professional Notes</label>
                       <textarea value={validationNotes} onChange={e => setValidationNotes(e.target.value)}
                         placeholder="Any observations, concerns, or notes about the skills profile assessment..."
-                        rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none resize-none" />
+                        rows={4} className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none resize-none" />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">License Number *</label>
+                      <label className="block text-sm font-medium text-kaya-navy-900 mb-1">License Number *</label>
                       <input type="text" value={licenseNumber} onChange={e => setLicenseNumber(e.target.value)}
-                        placeholder="PRC License Number" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none" />
+                        placeholder="PRC License Number" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none" />
                     </div>
 
-                    <div className="pt-4 border-t border-gray-100">
+                    <div className="pt-4 border-t border-kaya-stone-100">
                       <button onClick={handleSign} disabled={!licenseNumber.trim() || signed}
                         className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
                           signed ? 'bg-green-500' : 'bg-orange-500 hover:bg-orange-600 shadow-md hover:shadow-lg'
                         } disabled:opacity-50`}>
                         {signed ? 'Signed and Validated' : 'Sign with Professional License'}
                       </button>
-                      <p className="text-xs text-gray-400 text-center mt-2">
+                      <p className="text-xs text-kaya-stone-400 text-center mt-2">
                         By signing, you attest that you have reviewed the audit trail and methodology,
                         and that the skills profile is a reasonable representation of the candidate's demonstrated competencies.
                       </p>

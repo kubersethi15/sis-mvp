@@ -142,7 +142,7 @@ export default function FAQPage() {
                 const key = `${section.category}-${item.q}`;
                 const isOpen = openIdx === key;
                 return (
-                  <div key={key} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div key={key} className="bg-white rounded-xl border border-kaya-stone-100 overflow-hidden">
                     <button
                       onClick={() => setOpenIdx(isOpen ? null : key)}
                       className="w-full text-left px-5 py-4 flex items-center justify-between"

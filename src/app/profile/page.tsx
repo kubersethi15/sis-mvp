@@ -251,14 +251,14 @@ export default function ProfilePage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-kaya-stone-100 p-6">
 
           {/* STEP 1: BASIC INFO */}
           {step === 1 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">About You</h2>
-                <p className="text-sm text-gray-500 mb-4">Basic information to get started. All fields are optional except your name.</p>
+                <h2 className="text-lg font-semibold text-kaya-navy-900 mb-1">About You</h2>
+                <p className="text-sm text-kaya-stone-600 mb-4">Basic information to get started. All fields are optional except your name.</p>
               </div>
 
               {/* Resume Upload — AI extraction */}
@@ -328,22 +328,22 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-                <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Full Name *</label>
+                <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
+                  <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Email</label>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Phone</label>
                   <input type="tel" value={phone} onChange={e => {
                     const val = e.target.value.replace(/[^0-9+\-\s]/g, '');
                     setPhone(val);
                   }} placeholder="+63..." maxLength={15}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
+                  className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
                   {phone && phone.length > 0 && phone.length < 10 && (
                     <p className="text-xs mt-1 text-kaya-red-400">Phone number seems too short</p>
                   )}
@@ -439,8 +439,8 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Province" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Location</label>
+                <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Province" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-300 outline-none" />
               </div>
             </div>
           )}
@@ -449,35 +449,35 @@ export default function ProfilePage() {
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Work Experience</h2>
-                <p className="text-sm text-gray-500 mb-4">Include all types of work — formal jobs, freelance, sidelines, family business, volunteer work. Everything counts.</p>
+                <h2 className="text-lg font-semibold text-kaya-navy-900 mb-1">Work Experience</h2>
+                <p className="text-sm text-kaya-stone-600 mb-4">Include all types of work — formal jobs, freelance, sidelines, family business, volunteer work. Everything counts.</p>
               </div>
 
               {workHistory.map((w, i) => (
-                <div key={i} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                <div key={i} className="border border-kaya-stone-100 rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Experience {i + 1}</span>
+                    <span className="text-sm font-medium text-kaya-navy-900">Experience {i + 1}</span>
                     {workHistory.length > 1 && (
-                      <button onClick={() => removeWorkEntry(i)} className="text-xs text-red-400 hover:text-red-600">Remove</button>
+                      <button onClick={() => removeWorkEntry(i)} className="text-xs text-kaya-red-400 hover:text-red-600">Remove</button>
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" value={w.company} onChange={e => updateWork(i, 'company', e.target.value)} placeholder="Company / Organization / Client" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                    <input type="text" value={w.role} onChange={e => updateWork(i, 'role', e.target.value)} placeholder="Your role / title" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <input type="text" value={w.company} onChange={e => updateWork(i, 'company', e.target.value)} placeholder="Company / Organization / Client" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <input type="text" value={w.role} onChange={e => updateWork(i, 'role', e.target.value)} placeholder="Your role / title" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" value={w.start_date} onChange={e => updateWork(i, 'start_date', e.target.value)} placeholder="Start (e.g. Jan 2020)" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                    <input type="text" value={w.end_date} onChange={e => updateWork(i, 'end_date', e.target.value)} placeholder="End (or 'Present')" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <input type="text" value={w.start_date} onChange={e => updateWork(i, 'start_date', e.target.value)} placeholder="Start (e.g. Jan 2020)" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <input type="text" value={w.end_date} onChange={e => updateWork(i, 'end_date', e.target.value)} placeholder="End (or 'Present')" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   </div>
-                  <textarea value={w.description} onChange={e => updateWork(i, 'description', e.target.value)} placeholder="What did you do? What were you responsible for?" rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none resize-none" />
-                  <label className="flex items-center gap-2 text-sm text-gray-600">
-                    <input type="checkbox" checked={w.is_informal} onChange={e => updateWork(i, 'is_informal', e.target.checked)} className="rounded border-gray-300 text-teal-500 focus:ring-teal-300" />
+                  <textarea value={w.description} onChange={e => updateWork(i, 'description', e.target.value)} placeholder="What did you do? What were you responsible for?" rows={2} className="w-full px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none resize-none" />
+                  <label className="flex items-center gap-2 text-sm text-kaya-stone-600">
+                    <input type="checkbox" checked={w.is_informal} onChange={e => updateWork(i, 'is_informal', e.target.checked)} className="rounded border-kaya-stone-200 text-teal-500 focus:ring-teal-300" />
                     This was informal / freelance / volunteer / family work
                   </label>
                 </div>
               ))}
 
-              <button onClick={addWorkEntry} className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-teal-300 hover:text-teal-600 transition-colors">
+              <button onClick={addWorkEntry} className="w-full py-2 border-2 border-dashed border-kaya-stone-200 rounded-lg text-sm text-kaya-stone-600 hover:border-teal-300 hover:text-teal-600 transition-colors">
                 + Add Another Experience
               </button>
             </div>
@@ -487,26 +487,26 @@ export default function ProfilePage() {
           {step === 3 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Education & Training</h2>
-                <p className="text-sm text-gray-500 mb-4">Formal education, Virtualahan training, online courses, TESDA certifications — include everything.</p>
+                <h2 className="text-lg font-semibold text-kaya-navy-900 mb-1">Education & Training</h2>
+                <p className="text-sm text-kaya-stone-600 mb-4">Formal education, Virtualahan training, online courses, TESDA certifications — include everything.</p>
               </div>
 
               {education.map((e, i) => (
-                <div key={i} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                <div key={i} className="border border-kaya-stone-100 rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Education {i + 1}</span>
+                    <span className="text-sm font-medium text-kaya-navy-900">Education {i + 1}</span>
                     {education.length > 1 && (
-                      <button onClick={() => removeEduEntry(i)} className="text-xs text-red-400 hover:text-red-600">Remove</button>
+                      <button onClick={() => removeEduEntry(i)} className="text-xs text-kaya-red-400 hover:text-red-600">Remove</button>
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" value={e.institution} onChange={ev => updateEdu(i, 'institution', ev.target.value)} placeholder="School / Institution" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                    <input type="text" value={e.degree} onChange={ev => updateEdu(i, 'degree', ev.target.value)} placeholder="Degree / Certificate" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <input type="text" value={e.institution} onChange={ev => updateEdu(i, 'institution', ev.target.value)} placeholder="School / Institution" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <input type="text" value={e.degree} onChange={ev => updateEdu(i, 'degree', ev.target.value)} placeholder="Degree / Certificate" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <input type="text" value={e.field} onChange={ev => updateEdu(i, 'field', ev.target.value)} placeholder="Field of study" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                    <input type="text" value={e.year} onChange={ev => updateEdu(i, 'year', ev.target.value)} placeholder="Year" className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                    <select value={e.status} onChange={ev => updateEdu(i, 'status', ev.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none bg-white">
+                    <input type="text" value={e.field} onChange={ev => updateEdu(i, 'field', ev.target.value)} placeholder="Field of study" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <input type="text" value={e.year} onChange={ev => updateEdu(i, 'year', ev.target.value)} placeholder="Year" className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                    <select value={e.status} onChange={ev => updateEdu(i, 'status', ev.target.value)} className="px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none bg-white">
                       <option value="completed">Completed</option>
                       <option value="ongoing">Ongoing</option>
                       <option value="incomplete">Incomplete</option>
@@ -515,18 +515,18 @@ export default function ProfilePage() {
                 </div>
               ))}
 
-              <button onClick={addEduEntry} className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-teal-300 hover:text-teal-600 transition-colors">
+              <button onClick={addEduEntry} className="w-full py-2 border-2 border-dashed border-kaya-stone-200 rounded-lg text-sm text-kaya-stone-600 hover:border-teal-300 hover:text-teal-600 transition-colors">
                 + Add Another Education Entry
               </button>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Certifications <span className="text-gray-400 font-normal">(comma-separated)</span></label>
-                <input type="text" value={certifications} onChange={e => setCertifications(e.target.value)} placeholder="e.g. TESDA NC II, Virtualahan Digital Skills, Google IT Support" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Certifications <span className="text-kaya-stone-400 font-normal">(comma-separated)</span></label>
+                <input type="text" value={certifications} onChange={e => setCertifications(e.target.value)} placeholder="e.g. TESDA NC II, Virtualahan Digital Skills, Google IT Support" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Training Programs <span className="text-gray-400 font-normal">(comma-separated)</span></label>
-                <input type="text" value={training} onChange={e => setTraining(e.target.value)} placeholder="e.g. Virtualahan Customer Service 2024, DICT SPARK VA 2.0" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Training Programs <span className="text-kaya-stone-400 font-normal">(comma-separated)</span></label>
+                <input type="text" value={training} onChange={e => setTraining(e.target.value)} placeholder="e.g. Virtualahan Customer Service 2024, DICT SPARK VA 2.0" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
               </div>
             </div>
           )}
@@ -535,23 +535,23 @@ export default function ProfilePage() {
           {step === 4 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Skills & Career Goals</h2>
-                <p className="text-sm text-gray-500 mb-4">Tell us about your skills and what you're looking for. This helps match you with the right opportunities.</p>
+                <h2 className="text-lg font-semibold text-kaya-navy-900 mb-1">Skills & Career Goals</h2>
+                <p className="text-sm text-kaya-stone-600 mb-4">Tell us about your skills and what you're looking for. This helps match you with the right opportunities.</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Skills <span className="text-gray-400 font-normal">(comma-separated)</span></label>
-                <input type="text" value={skillsInventory} onChange={e => setSkillsInventory(e.target.value)} placeholder="e.g. Microsoft Office, data entry, customer service, social media management" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Skills <span className="text-kaya-stone-400 font-normal">(comma-separated)</span></label>
+                <input type="text" value={skillsInventory} onChange={e => setSkillsInventory(e.target.value)} placeholder="e.g. Microsoft Office, data entry, customer service, social media management" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Career Goals</label>
-                <textarea value={careerGoals} onChange={e => setCareerGoals(e.target.value)} placeholder="What kind of role are you looking for? What do you want to achieve?" rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none resize-none" />
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Career Goals</label>
+                <textarea value={careerGoals} onChange={e => setCareerGoals(e.target.value)} placeholder="What kind of role are you looking for? What do you want to achieve?" rows={3} className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none resize-none" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Work Arrangement</label>
-                <select value={preferredArrangement} onChange={e => setPreferredArrangement(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none bg-white">
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Preferred Work Arrangement</label>
+                <select value={preferredArrangement} onChange={e => setPreferredArrangement(e.target.value)} className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none bg-white">
                   <option value="">No preference</option>
                   <option value="remote">Remote / Work from Home</option>
                   <option value="onsite">On-site</option>
@@ -560,21 +560,21 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Salary Expectations (PHP monthly)</label>
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Salary Expectations (PHP monthly)</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input type="text" value={salaryMin} onChange={e => setSalaryMin(e.target.value)} placeholder="Minimum" className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
-                  <input type="text" value={salaryMax} onChange={e => setSalaryMax(e.target.value)} placeholder="Maximum" className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                  <input type="text" value={salaryMin} onChange={e => setSalaryMin(e.target.value)} placeholder="Minimum" className="px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                  <input type="text" value={salaryMax} onChange={e => setSalaryMax(e.target.value)} placeholder="Maximum" className="px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                 </div>
               </div>
             </div>
           )}
 
           {/* NAVIGATION */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-kaya-stone-100">
             <button
               onClick={() => setStep(s => Math.max(1, s - 1))}
               disabled={step === 1}
-              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm text-kaya-stone-600 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               ← Previous
             </button>

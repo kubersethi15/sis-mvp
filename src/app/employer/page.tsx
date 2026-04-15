@@ -144,7 +144,7 @@ export default function EmployerDashboard() {
           <h1 className="text-xl font-bold text-kaya-navy-900">Vacancy Design & Alignment</h1>
           <p className="text-sm text-kaya-stone-600">Upload a job description → AI creates a competency blueprint → match candidates</p>
         </div>
-        <div className="flex gap-1 border-b border-gray-200">
+        <div className="flex gap-1 border-b border-kaya-stone-100">
           {[
             { id: 'upload' as const, label: 'Upload JD' },
             { id: 'pipeline' as const, label: 'Alignment Results' },
@@ -155,7 +155,7 @@ export default function EmployerDashboard() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
                 activeTab === tab.id
-                  ? 'bg-white text-blue-600 border border-gray-200 border-b-white -mb-px'
+                  ? 'bg-white text-kaya-navy-600 border border-kaya-stone-100 border-b-white -mb-px'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -171,9 +171,9 @@ export default function EmployerDashboard() {
         {/* TAB: Upload JD */}
         {activeTab === 'upload' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Upload Job Description</h2>
-              <p className="text-sm text-gray-500 mb-4">
+            <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+              <h2 className="text-lg font-semibold text-kaya-navy-900 mb-2">Upload Job Description</h2>
+              <p className="text-sm text-kaya-stone-600 mb-4">
                 Paste a job description below. The AI will parse it into a structured competency blueprint,
                 distinguishing essential vs. trainable requirements and identifying human-centric skills.
               </p>
@@ -181,10 +181,10 @@ export default function EmployerDashboard() {
               {/* Company name */}
               {!employer && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                  <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Company Name</label>
                   <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)}
                     placeholder="e.g. Cebuana Lhuillier, Jollibee, your company..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 outline-none" />
+                    className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 outline-none" />
                 </div>
               )}
               {employer && (
@@ -195,7 +195,7 @@ export default function EmployerDashboard() {
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
                 placeholder="Paste the full job description here..."
-                className="w-full h-64 p-4 border border-gray-300 rounded-lg text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-64 p-4 border border-kaya-stone-200 rounded-lg text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <div className="mt-4 flex items-center gap-4">
                 <button
@@ -210,11 +210,11 @@ export default function EmployerDashboard() {
 
             {/* Blueprint Result */}
             {blueprint && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                <h2 className="text-lg font-semibold text-kaya-navy-900 mb-4">
                   Competency Blueprint: {blueprint.title}
                 </h2>
-                <p className="text-sm text-gray-600 mb-4">{blueprint.summary}</p>
+                <p className="text-sm text-kaya-stone-600 mb-4">{blueprint.summary}</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Essential Requirements */}
@@ -225,10 +225,10 @@ export default function EmployerDashboard() {
                         <div key={i} className="flex items-start gap-2 text-sm">
                           <span className="text-red-500 mt-0.5">●</span>
                           <div>
-                            <span className="text-gray-800">{req.requirement}</span>
-                            <span className="ml-2 text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{req.type}</span>
+                            <span className="text-kaya-navy-900">{req.requirement}</span>
+                            <span className="ml-2 text-xs bg-kaya-stone-50 text-kaya-stone-600 px-1.5 py-0.5 rounded">{req.type}</span>
                             {req.psf_skill_id && (
-                              <span className="ml-1 text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">{req.psf_skill_id}</span>
+                              <span className="ml-1 text-xs bg-kaya-navy-50 text-kaya-navy-600 px-1.5 py-0.5 rounded">{req.psf_skill_id}</span>
                             )}
                           </div>
                         </div>
@@ -238,14 +238,14 @@ export default function EmployerDashboard() {
 
                   {/* Trainable Requirements */}
                   <div>
-                    <h3 className="text-sm font-semibold text-green-700 mb-2">Trainable Requirements</h3>
+                    <h3 className="text-sm font-semibold text-kaya-green-400 mb-2">Trainable Requirements</h3>
                     <div className="space-y-2">
                       {blueprint.trainable_requirements.map((req, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
                           <span className="text-green-500 mt-0.5">○</span>
                           <div>
-                            <span className="text-gray-800">{req.requirement}</span>
-                            <span className="ml-2 text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{req.type}</span>
+                            <span className="text-kaya-navy-900">{req.requirement}</span>
+                            <span className="ml-2 text-xs bg-kaya-stone-50 text-kaya-stone-600 px-1.5 py-0.5 rounded">{req.type}</span>
                           </div>
                         </div>
                       ))}
@@ -256,7 +256,7 @@ export default function EmployerDashboard() {
                 {/* Human-Centric Skills */}
                 {blueprint.competency_blueprint.human_centric_skills?.length > 0 && (
                   <div className="mt-6">
-                    <h3 className="text-sm font-semibold text-purple-700 mb-2">Human-Centric Skills Identified</h3>
+                    <h3 className="text-sm font-semibold text-kaya-navy-600 mb-2">Human-Centric Skills Identified</h3>
                     <div className="flex flex-wrap gap-2">
                       {blueprint.competency_blueprint.human_centric_skills.map((skill, i) => (
                         <span
@@ -277,9 +277,9 @@ export default function EmployerDashboard() {
 
                 {/* Inclusion Signals */}
                 {blueprint.inclusion_signals?.length > 0 && (
-                  <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                    <h3 className="text-sm font-semibold text-green-700 mb-1">Inclusion Signals</h3>
-                    <ul className="text-sm text-green-600">
+                  <div className="mt-4 p-3 bg-kaya-green-50 rounded-lg">
+                    <h3 className="text-sm font-semibold text-kaya-green-400 mb-1">Inclusion Signals</h3>
+                    <ul className="text-sm text-kaya-green-400">
                       {blueprint.inclusion_signals.map((s, i) => (
                         <li key={i}>• {s}</li>
                       ))}
@@ -296,9 +296,9 @@ export default function EmployerDashboard() {
 
             {/* AI RECOMMENDATIONS FOR JD IMPROVEMENT */}
             {recommendations.length > 0 && (
-              <div className="bg-white rounded-lg border border-amber-200 p-6">
-                <h2 className="text-lg font-semibold text-amber-700 mb-2">💡 AI Recommendations to Improve This JD</h2>
-                <p className="text-xs text-gray-500 mb-4">These suggestions help attract better-matched candidates and make the vacancy more inclusive.</p>
+              <div className="bg-white rounded-lg border border-kaya-amber-400/20 p-6">
+                <h2 className="text-lg font-semibold text-kaya-amber-400 mb-2">💡 AI Recommendations to Improve This JD</h2>
+                <p className="text-xs text-kaya-stone-600 mb-4">These suggestions help attract better-matched candidates and make the vacancy more inclusive.</p>
                 <div className="space-y-3">
                   {recommendations.map((rec: any, i: number) => (
                     <div key={i} className={`flex items-start gap-3 p-3 rounded-lg ${
@@ -312,8 +312,8 @@ export default function EmployerDashboard() {
                         {rec.priority === 'high' ? '🔴' : rec.priority === 'medium' ? '🟡' : '🔵'}
                       </span>
                       <div>
-                        <span className="text-xs font-medium text-gray-500 uppercase">{rec.type.replace(/_/g, ' ')}</span>
-                        <p className="text-sm text-gray-700 mt-0.5">{rec.recommendation}</p>
+                        <span className="text-xs font-medium text-kaya-stone-600 uppercase">{rec.type.replace(/_/g, ' ')}</span>
+                        <p className="text-sm text-kaya-navy-900 mt-0.5">{rec.recommendation}</p>
                       </div>
                     </div>
                   ))}
@@ -325,9 +325,9 @@ export default function EmployerDashboard() {
 
         {/* TAB: Alignment Results */}
         {activeTab === 'pipeline' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Alignment Pipeline</h2>
-            <p className="text-sm text-gray-500 mb-6">
+          <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+            <h2 className="text-lg font-semibold text-kaya-navy-900 mb-4">Alignment Pipeline</h2>
+            <p className="text-sm text-kaya-stone-600 mb-6">
               Once jobseekers apply and their profiles are assessed against the vacancy, alignment results will appear here.
               The Recruiter reviews each candidate and decides: proceed to Gate 2, hold, reroute, or stop.
             </p>
@@ -344,12 +344,12 @@ export default function EmployerDashboard() {
                   }`}>
                     {stage}
                   </div>
-                  {i < 3 && <span className="text-gray-300">→</span>}
+                  {i < 3 && <span className="text-kaya-stone-200">→</span>}
                 </div>
               ))}
             </div>
 
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-kaya-stone-400">
               
               <p className="text-sm">No applications yet. Upload a JD and have jobseekers apply to see alignment results.</p>
             </div>
@@ -358,14 +358,14 @@ export default function EmployerDashboard() {
 
         {/* TAB: Recruiter Review */}
         {activeTab === 'review' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Recruiter Review Queue</h2>
-            <p className="text-sm text-gray-500 mb-6">
+          <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+            <h2 className="text-lg font-semibold text-kaya-navy-900 mb-4">Recruiter Review Queue</h2>
+            <p className="text-sm text-kaya-stone-600 mb-6">
               Candidates pending your review will appear here. For each candidate, you'll see the AI-generated
               alignment assessment and can decide: proceed to Gate 2, hold, reroute to another vacancy, or stop.
             </p>
 
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-kaya-stone-400">
               
               <p className="text-sm">No candidates pending review.</p>
             </div>
@@ -427,23 +427,23 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
     setTimeout(() => win.print(), 500);
   };
 
-  if (!shareData) return <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-600">Vacancy published. Loading share options...</div>;
+  if (!shareData) return <div className="mt-4 p-3 bg-kaya-navy-50 rounded-lg text-sm text-kaya-navy-600">Vacancy published. Loading share options...</div>;
 
   return (
-    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-kaya-navy-100">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-blue-600">Published</span>
-        <span className="text-sm text-blue-700 font-semibold">Vacancy Published!</span>
+        <span className="text-kaya-navy-600">Published</span>
+        <span className="text-sm text-kaya-navy-600 font-semibold">Vacancy Published!</span>
       </div>
 
       <div className="flex items-center gap-3 mb-3">
         {/* QR Code */}
-        <img src={shareData.qr_code_url} alt="QR Code" className="w-20 h-20 rounded-lg border border-blue-200" />
+        <img src={shareData.qr_code_url} alt="QR Code" className="w-20 h-20 rounded-lg border border-kaya-navy-100" />
         <div className="flex-1">
-          <p className="text-xs text-gray-500 mb-1">Share this vacancy:</p>
+          <p className="text-xs text-kaya-stone-600 mb-1">Share this vacancy:</p>
           <div className="flex items-center gap-2">
             <input type="text" value={shareData.share_url} readOnly
-              className="flex-1 px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg text-gray-600" />
+              className="flex-1 px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 rounded-lg text-kaya-stone-600" />
             <button onClick={copyLink}
               className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               {copied ? 'Copied!' : 'Copy'}
@@ -454,15 +454,15 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
 
       <div className="flex gap-2">
         <button onClick={printVacancy}
-          className="px-3 py-1.5 text-xs bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+          className="px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 text-kaya-stone-600 rounded-lg hover:bg-gray-50 transition-colors">
           🖨️ Print / Save as PDF
         </button>
         <a href={shareData.share_url} target="_blank"
-          className="px-3 py-1.5 text-xs bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+          className="px-3 py-1.5 text-xs bg-white border border-kaya-stone-100 text-kaya-stone-600 rounded-lg hover:bg-gray-50 transition-colors">
           🔗 Open Vacancy Page
         </a>
       </div>
-      <p className="text-[10px] text-gray-400 mt-2">QR code leads jobseekers directly to the vacancy with AI Q&A and Apply button.</p>
+      <p className="text-[10px] text-kaya-stone-400 mt-2">QR code leads jobseekers directly to the vacancy with AI Q&A and Apply button.</p>
     </div>
   );
 }

@@ -162,7 +162,7 @@ export default function VacancyPage() {
           <p className="text-sm text-kaya-stone-600">Browse opportunities matched to your skills</p>
         </div>
         {vacancies.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 text-kaya-stone-400">
             
             <p>No vacancies published yet. Ask an employer to upload a JD at <a href="/employer" className="text-blue-500 underline">/employer</a></p>
           </div>
@@ -171,8 +171,8 @@ export default function VacancyPage() {
             {/* Vacancy List with Match Scores */}
             <div className="space-y-3">
               {matchData?.jobseeker && (
-                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 mb-2">
-                  <p className="text-xs font-medium text-amber-700">Matched for: {matchData.jobseeker.name}</p>
+                <div className="p-3 bg-kaya-amber-50 rounded-lg border border-kaya-amber-400/20 mb-2">
+                  <p className="text-xs font-medium text-kaya-amber-400">Matched for: {matchData.jobseeker.name}</p>
                   <p className="text-[10px] text-amber-500">{matchData.jobseeker.has_leee ? `${matchData.jobseeker.skills_count} skills evidenced` : 'Chat with Aya to improve matches'}</p>
                 </div>
               )}
@@ -181,9 +181,9 @@ export default function VacancyPage() {
                   className={`w-full text-left p-4 rounded-lg border transition-all ${selected?.id === v.id ? 'border-teal-300 bg-teal-50 shadow-sm' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-sm">{v.title}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">{(v as any).employer_profiles?.organization_name || ''}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{v.location || 'Location not specified'} • {v.work_arrangement || 'Not specified'}</p>
+                      <h3 className="font-semibold text-kaya-navy-900 text-sm">{v.title}</h3>
+                      <p className="text-xs text-kaya-stone-600 mt-0.5">{(v as any).employer_profiles?.organization_name || ''}</p>
+                      <p className="text-xs text-kaya-stone-400 mt-0.5">{v.location || 'Location not specified'} • {v.work_arrangement || 'Not specified'}</p>
                     </div>
                     {(v as any)._match_score !== undefined && (
                       <div className={`text-right flex-shrink-0 ml-2 px-2 py-1 rounded-lg text-xs font-bold ${
@@ -196,7 +196,7 @@ export default function VacancyPage() {
                     )}
                   </div>
                   {(v as any)._accessibility_friendly && (
-                    <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded mt-1 inline-block">♿ PWD-friendly</span>
+                    <span className="text-[10px] bg-kaya-navy-50 text-kaya-navy-600 px-1.5 py-0.5 rounded mt-1 inline-block">♿ PWD-friendly</span>
                   )}
                 </button>
               ))}
@@ -206,17 +206,17 @@ export default function VacancyPage() {
             {selected && (
               <div className="lg:col-span-2 space-y-4">
                 {/* Details */}
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-lg font-bold text-gray-900">{selected.title}</h2>
-                  <p className="text-sm text-gray-600 mt-2">{selected.description}</p>
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-6">
+                  <h2 className="text-lg font-bold text-kaya-navy-900">{selected.title}</h2>
+                  <p className="text-sm text-kaya-stone-600 mt-2">{selected.description}</p>
 
                   {selected.essential_requirements?.length > 0 && (
                     <div className="mt-4">
-                      <h3 className="text-xs font-semibold text-gray-500 mb-2">REQUIREMENTS</h3>
+                      <h3 className="text-xs font-semibold text-kaya-stone-600 mb-2">REQUIREMENTS</h3>
                       <div className="space-y-1">
                         {selected.essential_requirements.map((r: any, i: number) => (
-                          <div key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                            <span className="text-red-400 mt-0.5">●</span>
+                          <div key={i} className="text-sm text-kaya-navy-900 flex items-start gap-2">
+                            <span className="text-kaya-red-400 mt-0.5">●</span>
                             <span>{r.requirement || r}</span>
                           </div>
                         ))}
@@ -226,7 +226,7 @@ export default function VacancyPage() {
 
                   {selected.competency_blueprint?.human_centric_skills?.length > 0 && (
                     <div className="mt-4">
-                      <h3 className="text-xs font-semibold text-gray-500 mb-2">SKILLS WE VALUE</h3>
+                      <h3 className="text-xs font-semibold text-kaya-stone-600 mb-2">SKILLS WE VALUE</h3>
                       <div className="flex flex-wrap gap-2">
                         {selected.competency_blueprint.human_centric_skills.map((s: any, i: number) => (
                           <span key={i} className="text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded-full">{s.skill}</span>
@@ -238,7 +238,7 @@ export default function VacancyPage() {
                   {/* Action buttons */}
                   <div className="mt-6 flex gap-3">
                     <button onClick={checkAlignment} disabled={alignmentLoading}
-                      className="px-4 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50">
+                      className="px-4 py-2 text-sm bg-kaya-navy-50 text-kaya-navy-600 rounded-lg hover:bg-blue-100 border border-kaya-navy-100 transition-colors disabled:opacity-50">
                       {alignmentLoading ? 'Checking...' : 'Check My Alignment'}
                     </button>
                     {!applied ? (
@@ -248,7 +248,7 @@ export default function VacancyPage() {
                       </button>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <span className="px-4 py-2 text-sm bg-green-50 text-green-600 rounded-lg border border-green-200 font-medium">
+                        <span className="px-4 py-2 text-sm bg-kaya-green-50 text-kaya-green-400 rounded-lg border border-kaya-green-100 font-medium">
                           Applied ✓
                         </span>
                         <span className="text-xs text-kaya-stone-400">Gate 1 alignment assessment running...</span>
@@ -266,18 +266,18 @@ export default function VacancyPage() {
                         {alignment.alignment_score}/100
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600">{alignment.recommendation_rationale || alignment.recommendation}</p>
+                    <p className="text-sm text-kaya-stone-600">{alignment.recommendation_rationale || alignment.recommendation}</p>
                     {alignment.strengths?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {alignment.strengths.map((s: any, i: number) => (
-                          <span key={i} className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">✓ {s.area || s}</span>
+                          <span key={i} className="text-xs bg-kaya-green-50 text-kaya-green-400 px-2 py-0.5 rounded">✓ {s.area || s}</span>
                         ))}
                       </div>
                     )}
                     {alignment.gaps?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
                         {alignment.gaps.map((g: any, i: number) => (
-                          <span key={i} className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded">Gap: {g.area || g}</span>
+                          <span key={i} className="text-xs bg-orange-100 text-kaya-amber-400 px-2 py-0.5 rounded">Gap: {g.area || g}</span>
                         ))}
                       </div>
                     )}
@@ -285,26 +285,26 @@ export default function VacancyPage() {
                 )}
 
                 {/* AI Q&A Chatbot */}
-                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">💬 Ask About This Role</h3>
+                <div className="bg-white rounded-lg border border-kaya-stone-100 p-4">
+                  <h3 className="text-sm font-semibold text-kaya-navy-900 mb-3">💬 Ask About This Role</h3>
                   <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
                     {qaMessages.length === 0 && (
-                      <p className="text-xs text-gray-400">Ask any question about this role — compensation, schedule, requirements, team, anything.</p>
+                      <p className="text-xs text-kaya-stone-400">Ask any question about this role — compensation, schedule, requirements, team, anything.</p>
                     )}
                     {qaMessages.map((m, i) => (
-                      <div key={i} className={`text-sm p-2 rounded-lg ${m.role === 'user' ? 'bg-blue-50 text-blue-800 ml-8' : 'bg-gray-50 text-gray-700 mr-8'}`}>
+                      <div key={i} className={`text-sm p-2 rounded-lg ${m.role === 'user' ? 'bg-blue-50 text-blue-800 ml-8' : 'bg-gray-50 text-kaya-navy-900 mr-8'}`}>
                         {m.content}
                       </div>
                     ))}
                     {qaLoading && (
-                      <div className="text-sm p-2 bg-gray-50 rounded-lg mr-8 text-gray-400">Thinking...</div>
+                      <div className="text-sm p-2 bg-kaya-stone-50 rounded-lg mr-8 text-kaya-stone-400">Thinking...</div>
                     )}
                   </div>
                   <div className="flex gap-2">
                     <input type="text" value={qaInput} onChange={e => setQaInput(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && askQuestion()}
                       placeholder="Ask about the role..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
+                      className="flex-1 px-3 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-300 outline-none" />
                     <button onClick={askQuestion} disabled={!qaInput.trim() || qaLoading}
                       className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600 disabled:opacity-50 transition-colors">
                       Ask

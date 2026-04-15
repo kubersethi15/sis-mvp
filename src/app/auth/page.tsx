@@ -118,15 +118,15 @@ export default function AuthPage() {
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-stone-200 p-6 shadow-xl">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-kaya-stone-200 p-6 shadow-xl">
           {/* Toggle */}
-          <div className="flex gap-1 bg-stone-100 rounded-xl p-1 mb-6">
+          <div className="flex gap-1 bg-kaya-stone-100 rounded-xl p-1 mb-6">
             <button onClick={() => setMode('signin')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signin' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-400'}`}>
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signin' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-stone-400'}`}>
               Sign In
             </button>
             <button onClick={() => setMode('signup')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signup' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-400'}`}>
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signup' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-stone-400'}`}>
               Create Account
             </button>
           </div>
@@ -134,25 +134,25 @@ export default function AuthPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Full Name</label>
+                <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Full Name</label>
                 <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} required
                   placeholder="Juan dela Cruz"
-                  className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
+                  className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
                 placeholder="you@email.com"
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
+                className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Password</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
                 placeholder="At least 6 characters"
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
+                className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none bg-white" />
               {mode === 'signin' && (
                 <button type="button" onClick={async () => {
                   if (!email) { setError('Enter your email first'); return; }
@@ -170,7 +170,7 @@ export default function AuthPage() {
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+              <div className="p-3 bg-kaya-red-50 border border-kaya-red-400/20 rounded-xl text-sm text-kaya-red-400">
                 {error}
                 {(error.includes('not confirmed') || error.includes('Invalid') || error.includes('invalid')) && email && (
                   <button type="button" onClick={async () => {
@@ -186,7 +186,7 @@ export default function AuthPage() {
               </div>
             )}
             {success && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-600">{success}</div>
+              <div className="p-3 bg-kaya-green-50 border border-kaya-green-100 rounded-xl text-sm text-kaya-green-400">{success}</div>
             )}
 
             <button type="submit" disabled={loading}
@@ -196,7 +196,7 @@ export default function AuthPage() {
           </form>
 
           {/* Role-based entry */}
-          <div className="mt-5 pt-5 border-t border-stone-100">
+          <div className="mt-5 pt-5 border-t border-kaya-stone-100">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-center mb-3 text-kaya-stone-400">Other portals</p>
             <div className="grid grid-cols-2 gap-2">
               <a href="/employer-dashboard"
@@ -213,7 +213,7 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <p className="text-center text-[11px] text-stone-400 mt-6">
+        <p className="text-center text-[11px] text-kaya-stone-400 mt-6">
           Kaya — Hiring Intelligence by Virtualahan Inc.
         </p>
       </div>
