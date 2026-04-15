@@ -835,7 +835,7 @@ export default function PsychologistPage() {
                     <div>
                       <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Validation Decision</label>
                       <select value={validationStatus} onChange={e => setValidationStatus(e.target.value as any)}
-                        className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none bg-white">
+                        className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-kaya-navy-600/20 outline-none bg-white">
                         <option value="validated">Validated — methodology sound, evidence traceable</option>
                         <option value="revision_needed">Revision Needed — some claims need additional evidence</option>
                         <option value="rejected">Rejected — methodology concerns or insufficient evidence</option>
@@ -846,13 +846,13 @@ export default function PsychologistPage() {
                       <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Professional Notes</label>
                       <textarea value={validationNotes} onChange={e => setValidationNotes(e.target.value)}
                         placeholder="Any observations, concerns, or notes about the skills profile assessment..."
-                        rows={4} className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none resize-none" />
+                        rows={4} className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-kaya-navy-600/20 outline-none resize-none" />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-kaya-navy-900 mb-1">License Number *</label>
                       <input type="text" value={licenseNumber} onChange={e => setLicenseNumber(e.target.value)}
-                        placeholder="PRC License Number" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 outline-none" />
+                        placeholder="PRC License Number" className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-kaya-navy-600/20 outline-none" />
                     </div>
 
                     <div className="pt-4 border-t border-kaya-stone-100">

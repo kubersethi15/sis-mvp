@@ -184,7 +184,7 @@ export default function EmployerDashboard() {
                   <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Company Name</label>
                   <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)}
                     placeholder="e.g. Cebuana Lhuillier, Jollibee, your company..."
-                    className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 outline-none" />
+                    className="w-full px-4 py-2 border border-kaya-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-kaya-navy-600/20 outline-none" />
                 </div>
               )}
               {employer && (
@@ -195,7 +195,7 @@ export default function EmployerDashboard() {
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
                 placeholder="Paste the full job description here..."
-                className="w-full h-64 p-4 border border-kaya-stone-200 rounded-lg text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-64 p-4 border border-kaya-stone-200 rounded-lg text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-kaya-navy-600/20 focus:border-transparent"
               />
               <div className="mt-4 flex items-center gap-4">
                 <button
@@ -430,7 +430,7 @@ function VacancySharePanel({ vacancyId }: { vacancyId: string }) {
   if (!shareData) return <div className="mt-4 p-3 bg-kaya-navy-50 rounded-lg text-sm text-kaya-navy-600">Vacancy published. Loading share options...</div>;
 
   return (
-    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-kaya-navy-100">
+    <div className="mt-4 p-4 bg-gradient-to-r from-kaya-navy-50 to-indigo-50 rounded-lg border border-kaya-navy-100">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-kaya-navy-600">Published</span>
         <span className="text-sm text-kaya-navy-600 font-semibold">Vacancy Published!</span>

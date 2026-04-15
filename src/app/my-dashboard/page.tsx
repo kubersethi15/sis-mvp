@@ -180,7 +180,7 @@ export default function MyDashboard() {
               <div className="space-y-3">
                 {data.extraction.skills_profile?.slice(0, 4).map((skill: any, i: number) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br from-sky-400 to-blue-500">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br from-sky-400 to-kaya-navy-600">
                       {skill.skill_name?.substring(0, 2).toUpperCase() || '??'}
                     </div>
                     <div className="flex-1">
@@ -191,7 +191,7 @@ export default function MyDashboard() {
                         </span>
                       </div>
                       <div className="w-full bg-kaya-stone-100 rounded-full h-1.5">
-                        <div className="h-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-400"
+                        <div className="h-1.5 rounded-full bg-gradient-to-r from-kaya-navy-600 to-kaya-navy-400"
                           style={{ width: `${skill.confidence * 100}%` }} />
                       </div>
                     </div>
@@ -217,7 +217,7 @@ export default function MyDashboard() {
                 <p className="text-sm mb-2 text-kaya-stone-400">No skills extracted yet</p>
                 <p className="text-sm text-kaya-stone-600 mb-3">Your superpowers haven't been discovered yet</p>
                 <Link href="/chat"
-                  className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
+                  className="inline-block px-4 py-2 bg-gradient-to-r from-kaya-navy-600 to-kaya-navy-400 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
                   Talk to Aya →
                 </Link>
               </div>
@@ -241,7 +241,7 @@ export default function MyDashboard() {
                       <span className="text-xs font-bold text-kaya-amber-400">{profileCompletion}%</span>
                     </div>
                     <div className="w-full bg-kaya-stone-100 rounded-full h-2">
-                      <div className="h-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400"
+                      <div className="h-2 rounded-full bg-gradient-to-r from-kaya-navy-600 to-kaya-navy-400"
                         style={{ width: `${profileCompletion}%` }} />
                     </div>
                   </div>
@@ -271,7 +271,7 @@ export default function MyDashboard() {
                 
                 <p className="text-sm text-kaya-stone-600 mb-3">Create your profile to get started</p>
                 <Link href="/profile"
-                  className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
+                  className="inline-block px-4 py-2 bg-gradient-to-r from-kaya-navy-600 to-kaya-navy-400 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all">
                   Create Profile →
                 </Link>
               </div>

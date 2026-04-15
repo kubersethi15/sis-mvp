@@ -42,27 +42,27 @@ const SKILL_CONFIG: Record<string, { icon: string; gradient: string; color: stri
   // Interacting with Others
   'Building Inclusivity':    { icon: 'BI', gradient: 'from-emerald-400 to-green-500',   color: '#16A085', bgColor: '#E8F6F3' },
   'Collaboration':           { icon: 'CO', gradient: 'from-teal-400 to-emerald-500',    color: '#27AE60', bgColor: '#E8F8F5' },
-  'Communication':           { icon: 'CM', gradient: 'from-sky-400 to-blue-500',        color: '#2E86C1', bgColor: '#EBF5FB' },
-  'Customer Orientation':    { icon: 'CU', gradient: 'from-blue-400 to-indigo-500',     color: '#2471A3', bgColor: '#EBF5FB' },
-  'Developing People':       { icon: 'DP', gradient: 'from-amber-400 to-orange-500',    color: '#E67E22', bgColor: '#FEF3E2' },
+  'Communication':           { icon: 'CM', gradient: 'from-sky-400 to-kaya-navy-400',        color: '#2E86C1', bgColor: '#EBF5FB' },
+  'Customer Orientation':    { icon: 'CU', gradient: 'from-kaya-navy-600 to-indigo-500',     color: '#2471A3', bgColor: '#EBF5FB' },
+  'Developing People':       { icon: 'DP', gradient: 'from-kaya-navy-600 to-orange-500',    color: '#E67E22', bgColor: '#FEF3E2' },
   'Influence':               { icon: 'IN', gradient: 'from-orange-400 to-red-400',      color: '#D35400', bgColor: '#FDEBD0' },
   // Staying Relevant and Evolving
   'Adaptability':            { icon: 'AD', gradient: 'from-cyan-400 to-teal-400',       color: '#1ABC9C', bgColor: '#E8F6F3' },
   'Adaptability / Resilience': { icon: 'AD', gradient: 'from-cyan-400 to-teal-400',     color: '#1ABC9C', bgColor: '#E8F6F3' },
-  'Digital Fluency':         { icon: 'DF', gradient: 'from-indigo-400 to-blue-500',     color: '#5B2C6F', bgColor: '#F4ECF7' },
-  'Global Perspective':      { icon: 'GP', gradient: 'from-blue-400 to-cyan-400',       color: '#2980B9', bgColor: '#EBF5FB' },
+  'Digital Fluency':         { icon: 'DF', gradient: 'from-indigo-400 to-kaya-navy-400',     color: '#5B2C6F', bgColor: '#F4ECF7' },
+  'Global Perspective':      { icon: 'GP', gradient: 'from-kaya-navy-600 to-cyan-400',       color: '#2980B9', bgColor: '#EBF5FB' },
   'Learning Agility':        { icon: 'LA', gradient: 'from-rose-400 to-pink-500',       color: '#E74C3C', bgColor: '#FDEDEC' },
-  'Self-Management':         { icon: 'SM', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
-  'Self Management':         { icon: 'SM', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Self-Management':         { icon: 'SM', gradient: 'from-violet-400 to-kaya-navy-900',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Self Management':         { icon: 'SM', gradient: 'from-violet-400 to-kaya-navy-900',   color: '#8E44AD', bgColor: '#F4ECF7' },
   // Generating Results
   'Creative Thinking':       { icon: 'CT', gradient: 'from-pink-400 to-rose-500',       color: '#C0392B', bgColor: '#FDEDEC' },
   'Decision Making':         { icon: 'DM', gradient: 'from-slate-400 to-gray-600',      color: '#34495E', bgColor: '#EBEDEF' },
-  'Problem Solving':         { icon: 'PS', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
-  'Problem-Solving':         { icon: 'PS', gradient: 'from-violet-400 to-purple-500',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Problem Solving':         { icon: 'PS', gradient: 'from-violet-400 to-kaya-navy-900',   color: '#8E44AD', bgColor: '#F4ECF7' },
+  'Problem-Solving':         { icon: 'PS', gradient: 'from-violet-400 to-kaya-navy-900',   color: '#8E44AD', bgColor: '#F4ECF7' },
   'Sense Making':            { icon: 'SE', gradient: 'from-indigo-400 to-violet-500',   color: '#34495E', bgColor: '#EBEDEF' },
   'Transdisciplinary Thinking': { icon: 'TT', gradient: 'from-gray-400 to-slate-500',   color: '#566573', bgColor: '#EBEDEF' },
   // Legacy aliases
-  'Emotional Intelligence':  { icon: 'EI', gradient: 'from-amber-400 to-orange-400',    color: '#E67E22', bgColor: '#FEF3E2' },
+  'Emotional Intelligence':  { icon: 'EI', gradient: 'from-kaya-navy-600 to-kaya-navy-400',    color: '#E67E22', bgColor: '#FEF3E2' },
 };
 
 const PROFICIENCY_CONFIG = {
@@ -285,7 +285,7 @@ export default function SkillsDashboard() {
               </div>
             )}
             {skills.map((skill, i) => {
-              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-kaya-navy-600 to-kaya-navy-400', color: '#F4A261', bgColor: '#FEF3E2' };
               const profKey = (skill.proficiency || 'basic').toLowerCase() as keyof typeof PROFICIENCY_CONFIG;
               const prof = PROFICIENCY_CONFIG[profKey] || PROFICIENCY_CONFIG.basic;
               const isExpanded = expandedSkill === skill.skill_id;
@@ -377,7 +377,7 @@ export default function SkillsDashboard() {
           <div className="space-y-4">
             <p className="text-sm text-kaya-stone-600 mb-6">Every skill claim is traceable to a direct quote from your conversation — the audit trail for psychologist review.</p>
             {skills.map(skill => {
-              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+              const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-kaya-navy-600 to-kaya-navy-400', color: '#F4A261', bgColor: '#FEF3E2' };
               if (!skill.evidence?.length) return null;
               return (
                 <div key={skill.skill_id} className="bg-white rounded-2xl border border-kaya-stone-100 overflow-hidden shadow-sm">
@@ -510,7 +510,7 @@ export default function SkillsDashboard() {
                   <span className="text-center">Confidence</span>
                 </div>
                 {skills.map(skill => {
-                  const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-amber-400 to-orange-400', color: '#F4A261', bgColor: '#FEF3E2' };
+                  const cfg = SKILL_CONFIG[skill.skill_name] || { icon: '??', gradient: 'from-kaya-navy-600 to-kaya-navy-400', color: '#F4A261', bgColor: '#FEF3E2' };
                   const profKey = (skill.proficiency || 'basic').toLowerCase() as keyof typeof PROFICIENCY_CONFIG;
                   const prof = PROFICIENCY_CONFIG[profKey];
                   return (
