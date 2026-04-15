@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { PageShell, TabBar, Card, SectionHeader, Button, StatusBadge, ProficiencyBadge, ConfidenceBar, MetricCard, DataTable, TableRow, TableCell, LoadingState, EmptyState, Divider, Alert } from '@/components/KayaUI';
 
 interface AppData {
   id: string;
@@ -16,7 +17,7 @@ interface AppData {
 }
 
 export default function ReviewerDashboard() {
-  const [activeView, setActiveView] = useState<'pipeline' | 'gate1' | 'gate2' | 'gate3'>('pipeline');
+  const [activeView, setActiveView] = useState('pipeline');
   const [apps, setApps] = useState<AppData[]>([]);
   const [loading, setLoading] = useState(true);
   const [counts, setCounts] = useState({ applied: 0, gate1: 0, gate2: 0, gate3: 0, selected: 0 });
@@ -29,8 +30,6 @@ export default function ReviewerDashboard() {
         body: JSON.stringify({ action: 'get_demo_state' }),
       });
       const data = await res.json();
-
-      // Count by status
       const allApps = data.applications || [];
       const c = { applied: 0, gate1: 0, gate2: 0, gate3: 0, selected: 0 };
       allApps.forEach((a: any) => {
@@ -42,7 +41,6 @@ export default function ReviewerDashboard() {
       });
       setCounts(c);
 
-      // Fetch full details for each application
       const detailed: AppData[] = [];
       for (const app of allApps) {
         try {
@@ -51,204 +49,222 @@ export default function ReviewerDashboard() {
             body: JSON.stringify({ action: 'get_application', application_id: app.id }),
           });
           const det = await detRes.json();
-          
           const jsName = det.jobseeker?.user_profiles?.full_name || det.jobseeker?.full_name || 'Unknown';
           detailed.push({
-            id: app.id,
-            status: app.status,
-            current_gate: app.current_gate,
-            applied_at: det.application?.applied_at,
-            final_outcome: det.application?.final_outcome,
+            id: app.id, status: app.status, current_gate: app.current_gate,
+            applied_at: det.application?.applied_at, final_outcome: app.final_outcome,
             vacancy: det.vacancy ? { title: det.vacancy.title, employer_id: det.vacancy.employer_id } : null,
             jobseeker: { full_name: jsName },
-            gate1: det.gates?.gate1 || null,
-            gate2: det.gates?.gate2 || null,
-            gate3: det.gates?.gate3 || null,
+            gate1: det.gates?.gate1 || null, gate2: det.gates?.gate2 || null, gate3: det.gates?.gate3 || null,
           });
-        } catch (e) { /* skip failed fetches */ }
+        } catch {}
       }
       setApps(detailed);
-    } catch (e) {
-      console.error('Fetch error:', e);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error('Load error:', e); }
+    finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const statusColor = (status: string) => {
-    if (status === 'selected') return 'text-green-600 bg-green-50';
-    if (status === 'not_selected') return 'text-red-600 bg-red-50';
-    if (status.includes('passed')) return 'text-blue-600 bg-blue-50';
-    if (status.includes('pending')) return 'text-yellow-600 bg-yellow-50';
-    return 'text-gray-600 bg-gray-50';
+  const handleGateAction = async (appId: string, gate: number, action: string) => {
+    try {
+      await fetch('/api/demo', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'process_gate', application_id: appId, gate, decision: action }),
+      });
+      fetchData();
+    } catch {}
   };
 
+  if (loading) {
+    return (
+      <PageShell title="Three-gate hiring pipeline" subtitle="Alignment → Evidence → Predictability">
+        <LoadingState message="Loading pipeline data..." />
+      </PageShell>
+    );
+  }
+
   return (
-    <div className="min-h-screen" style={{ background: '#FAFAF9' }}>
-      <nav className="px-6 py-3 flex items-center justify-between" style={{ background: '#102A43' }}>
-        <a href="/employer-dashboard" className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#486581' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#48BB78' }} />
-          </div>
-          <span className="text-xl tracking-tight" style={{ fontFamily: 'Georgia, serif', color: '#F0F4F8' }}>kaya</span>
-        </a>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <button onClick={fetchData} className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Refresh</button>
-          <a href="/employer-dashboard" className="text-xs" style={{ color: '#9FB3C8', whiteSpace: 'nowrap' }}>Dashboard</a>
-        </div>
-      </nav>
+    <PageShell
+      title="Three-gate hiring pipeline"
+      subtitle="Human decision at every gate"
+      backHref="/employer-dashboard"
+      actions={<Button variant="ghost" size="sm" onClick={fetchData}>Refresh</Button>}
+    >
+      <TabBar
+        tabs={[
+          { id: 'pipeline', label: 'Pipeline overview' },
+          { id: 'gate1', label: 'Gate 1: Alignment' },
+          { id: 'gate2', label: 'Gate 2: Evidence' },
+          { id: 'gate3', label: 'Gate 3: Predictability' },
+        ]}
+        active={activeView}
+        onChange={setActiveView}
+      />
 
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <div className="mb-4">
-          <h1 className="text-xl font-bold" style={{ color: '#102A43' }}>Three-Gate Hiring Pipeline</h1>
-          <p className="text-sm" style={{ color: '#627D98' }}>Alignment → Evidence → Predictability — Human decision at every gate</p>
-        </div>
-        <div className="flex gap-1 border-b border-gray-200">
-          {[
-            { id: 'pipeline' as const, label: 'Pipeline Overview' },
-            { id: 'gate1' as const, label: 'Gate 1: Alignment' },
-            { id: 'gate2' as const, label: 'Gate 2: Evidence' },
-            { id: 'gate3' as const, label: 'Gate 3: Predictability' },
-          ].map(tab => (
-            <button key={tab.id} onClick={() => setActiveView(tab.id)}
-              className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                activeView === tab.id ? 'bg-white text-blue-600 border border-gray-200 border-b-white -mb-px' : 'text-gray-500 hover:text-gray-700'
-              }`}>{tab.label}</button>
-          ))}
-        </div>
-      </div>
+      {activeView === 'pipeline' && (
+        <div className="space-y-6">
+          <Card>
+            <SectionHeader title="Hiring funnel" />
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
+              <MetricCard label="Applied" value={counts.applied} />
+              <MetricCard label="Gate 1" value={counts.gate1} sublabel="Alignment" />
+              <MetricCard label="Gate 2" value={counts.gate2} sublabel="Evidence" />
+              <MetricCard label="Gate 3" value={counts.gate3} sublabel="Predictability" />
+              <MetricCard label="Selected" value={counts.selected} variant="success" />
+            </div>
+          </Card>
 
-      <div className="max-w-6xl mx-auto px-6 py-6">
-        {loading ? (
-          <div className="text-center py-12 text-gray-400">Loading pipeline data...</div>
-        ) : (
-          <>
-            {/* PIPELINE OVERVIEW */}
-            {activeView === 'pipeline' && (
-              <div className="space-y-6">
-                {/* Funnel */}
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Hiring Pipeline</h2>
-                  <div className="flex flex-wrap sm:flex-nowrap items-stretch gap-2 sm:gap-3 mb-6">
-                    {[
-                      { label: 'Applied', count: counts.applied, color: 'bg-gray-100 text-gray-700' },
-                      { label: 'Gate 1', count: counts.gate1, color: 'bg-blue-100 text-blue-700' },
-                      { label: 'Gate 2', count: counts.gate2, color: 'bg-green-100 text-green-700' },
-                      { label: 'Gate 3', count: counts.gate3, color: 'bg-purple-100 text-purple-700' },
-                      { label: 'Selected', count: counts.selected, color: 'bg-yellow-100 text-yellow-700' },
-                    ].map((s, i) => (
-                      <div key={i} className="flex items-center gap-2 flex-1 min-w-[60px]">
-                        <div className={`${s.color} rounded-lg p-2 sm:p-4 flex-1 text-center`}>
-                          <div className="text-lg sm:text-2xl font-bold">{s.count}</div>
-                          <div className="text-[10px] sm:text-xs font-medium mt-1">{s.label}</div>
-                        </div>
-                        {i < 4 && <span className="hidden sm:inline text-gray-300 text-lg">→</span>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Applications Table */}
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">All Applications ({apps.length})</h2>
-                  {apps.length === 0 ? (
-                    <p className="text-center py-8 text-gray-400 text-sm">No applications yet. Run the demo pipeline at <a href="/demo" className="text-blue-500 underline">/demo</a></p>
-                  ) : (
-                    <div className="space-y-3">
-                      {apps.map(app => (
-                        <div key={app.id} className="border border-gray-100 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <span className="font-semibold text-gray-900">{app.jobseeker?.full_name}</span>
-                              <span className="text-gray-400 mx-2">→</span>
-                              <span className="text-gray-600">{app.vacancy?.title || 'Unknown Vacancy'}</span>
-                            </div>
-                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColor(app.status)}`}>
-                              {app.status.replace(/_/g, ' ')}
-                            </span>
-                          </div>
-
-                          {/* Gate Summary Row */}
-                          <div className="flex gap-2 mt-2">
-                            {app.gate1 && (
-                              <div className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
-                                G1: {app.gate1.alignment_score}/100 — {app.gate1.reviewer_decision || 'pending'}
-                              </div>
-                            )}
-                            {app.gate2 && (
-                              <div className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded">
-                                G2: {app.gate2.evidence_rating} evidence — {app.gate2.reviewer_decision || 'pending'}
-                              </div>
-                            )}
-                            {app.gate3 && (
-                              <div className="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded">
-                                G3: Readiness {app.gate3.readiness_index}/100 — {app.gate3.reviewer_decision || 'pending'}
-                              </div>
-                            )}
-                            {app.final_outcome && (
-                              <div className={`text-xs px-2 py-1 rounded font-medium ${app.final_outcome === 'selected' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                Final: {app.final_outcome}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Gate 1 Details */}
-                          {app.gate1 && (
-                            <div className="mt-3 pt-3 border-t border-gray-100">
-                              <p className="text-xs text-gray-500 font-medium mb-1">Gate 1 — AI Recommendation:</p>
-                              <p className="text-sm text-gray-700">{app.gate1.ai_recommendation}</p>
-                              {app.gate1.strengths?.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {app.gate1.strengths.map((s: any, i: number) => (
-                                    <span key={i} className="text-xs bg-green-50 text-green-600 px-1.5 py-0.5 rounded">✓ {s.area || s}</span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Gate 3 Details */}
-                          {app.gate3 && (
-                            <div className="mt-3 pt-3 border-t border-gray-100">
-                              <p className="text-xs text-gray-500 font-medium mb-1">Gate 3 — Readiness Assessment:</p>
-                              <p className="text-sm text-gray-700">{app.gate3.ai_recommendation}</p>
-                              {app.gate3.support_needs?.length > 0 && (
-                                <div className="mt-1">
-                                  <span className="text-xs text-gray-500">Support needs: </span>
-                                  {app.gate3.support_needs.map((n: any, i: number) => (
-                                    <span key={i} className="text-xs text-orange-600">{typeof n === 'string' ? n : n.need}{i < app.gate3!.support_needs.length - 1 ? ', ' : ''}</span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+          <Card>
+            <SectionHeader title="All applications" subtitle={`${apps.length} total`} />
+            {apps.length === 0 ? (
+              <EmptyState title="No applications yet" description="Candidates will appear here when they apply to your vacancies." />
+            ) : (
+              <div className="mt-4 space-y-3">
+                {apps.map(app => (
+                  <ApplicationCard key={app.id} app={app} onAction={handleGateAction} />
+                ))}
               </div>
             )}
+          </Card>
+        </div>
+      )}
 
-            {/* GATE VIEWS */}
-            {activeView === 'gate1' && <GateView gate={1} apps={apps} />}
-            {activeView === 'gate2' && <GateView gate={2} apps={apps} />}
-            {activeView === 'gate3' && <GateView gate={3} apps={apps} />}
-          </>
-        )}
-      </div>
+      {activeView === 'gate1' && <GateView gate={1} apps={apps} onAction={handleGateAction} />}
+      {activeView === 'gate2' && <GateView gate={2} apps={apps} onAction={handleGateAction} />}
+      {activeView === 'gate3' && <GateView gate={3} apps={apps} onAction={handleGateAction} />}
+    </PageShell>
+  );
+}
+
+function ApplicationCard({ app, onAction }: { app: AppData; onAction: (id: string, gate: number, action: string) => void }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="border border-kaya-stone-200/60 rounded-kaya-lg overflow-hidden">
+      <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between px-4 py-3 hover:bg-kaya-stone-50/50 transition-colors text-left">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-kaya-navy-900 flex items-center justify-center text-white text-caption font-bold">
+            {app.jobseeker?.full_name?.charAt(0) || '?'}
+          </div>
+          <div>
+            <span className="text-body font-semibold text-kaya-navy-900">{app.jobseeker?.full_name || 'Unknown'}</span>
+            <span className="text-caption text-kaya-stone-600 ml-2">{app.vacancy?.title || 'No vacancy'}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusBadge status={app.status as any} />
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+            className={`text-kaya-stone-200 transition-transform ${expanded ? 'rotate-180' : ''}`}>
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 border-t border-kaya-stone-200/40 space-y-2 pt-3">
+          <div className="flex items-center gap-2">
+            {[1, 2, 3].map(g => {
+              const gd = g === 1 ? app.gate1 : g === 2 ? app.gate2 : app.gate3;
+              const labels: Record<number, string> = { 1: 'Alignment', 2: 'Evidence', 3: 'Predictability' };
+              return (
+                <div key={g} className="flex items-center gap-1.5">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-caption font-bold ${gd ? 'bg-kaya-navy-900 text-white' : 'bg-kaya-stone-50 text-kaya-stone-200 border border-kaya-stone-200'}`}>{g}</div>
+                  <span className="text-caption text-kaya-stone-600">{labels[g]}</span>
+                  {gd && <StatusBadge status={((gd as any).reviewer_decision || 'pending') as any} size="sm" />}
+                  {g < 3 && <span className="text-kaya-stone-200 mx-1">→</span>}
+                </div>
+              );
+            })}
+          </div>
+
+          {app.gate1 && (
+            <GateDetail gate={1} data={app.gate1} appId={app.id} onAction={onAction} skills={null} sim={null} />
+          )}
+          {app.gate2 && (
+            <GateDetail gate={2} data={app.gate2} appId={app.id} onAction={onAction} skills={app.gate2.leee_skills_profile} sim={null} />
+          )}
+          {app.gate3 && (
+            <GateDetail gate={3} data={app.gate3} appId={app.id} onAction={onAction} skills={null} sim={(app.gate3 as any).simulation_results} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
-  const config = {
-    1: { title: 'Gate 1: Alignment Review', role: 'Recruiter', color: 'blue', description: 'Does this candidate align with the role?' },
-    2: { title: 'Gate 2: Evidence Review', role: 'Hiring Manager', color: 'green', description: 'Is there sufficient evidence for this role?' },
-    3: { title: 'Gate 3: Predictability Review', role: 'Final Approver', color: 'purple', description: 'Will this candidate succeed?' },
-  }[gate]!;
+function GateDetail({ gate, data, appId, onAction, skills, sim }: {
+  gate: number; data: any; appId: string;
+  onAction: (id: string, gate: number, action: string) => void;
+  skills: any[] | null; sim: any | null;
+}) {
+  const labels: Record<number, string> = { 1: 'Alignment', 2: 'Evidence', 3: 'Predictability' };
+  return (
+    <div className="p-3 rounded-kaya bg-kaya-navy-50/50">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-caption font-semibold text-kaya-navy-900">Gate {gate} — {labels[gate]}</span>
+        {gate === 1 && <span className="text-caption font-mono text-kaya-navy-600">{data.alignment_score}%</span>}
+        {gate === 2 && <StatusBadge status={data.evidence_rating as any} size="sm" />}
+        {gate === 3 && <span className="text-caption font-mono text-kaya-navy-600">Readiness: {data.readiness_index}/100</span>}
+      </div>
+      <p className="text-caption text-kaya-stone-600 mb-2">{data.ai_recommendation}</p>
+
+      {skills && skills.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {skills.slice(0, 5).map((s: any, i: number) => (
+            <span key={i} className="inline-flex items-center gap-1 text-caption px-2 py-0.5 rounded-kaya-sm bg-white border border-kaya-stone-200/60">
+              <span className="text-kaya-navy-900 font-medium">{s.skill_name}</span>
+              <ProficiencyBadge level={s.proficiency} size="sm" />
+            </span>
+          ))}
+        </div>
+      )}
+
+      {sim?.convergence?.length > 0 && (
+        <div className="space-y-1 mb-2">
+          <span className="text-caption font-semibold text-kaya-navy-600">L1 ↔ L2 Convergence</span>
+          {sim.convergence.slice(0, 3).map((c: any, i: number) => (
+            <div key={i} className="flex items-center justify-between text-caption px-2 py-1 rounded-kaya-sm bg-white">
+              <span className="text-kaya-navy-900">{c.skill_name}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-kaya-stone-600">L1: {c.layer1_score}</span>
+                <span className={c.convergent ? 'text-kaya-green-400' : 'text-kaya-warning'}>{c.convergent ? '✓' : '⚠'}</span>
+                <span className="text-kaya-stone-600">L2: {c.layer2_score}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {sim?.gaming_flags?.length > 0 && (
+        <Alert variant="warning">
+          <span className="font-semibold block mb-0.5">Gaming flags</span>
+          {sim.gaming_flags.map((f: string, i: number) => <p key={i} className="text-caption">{f}</p>)}
+        </Alert>
+      )}
+
+      {!data.reviewer_decision && (
+        <div className="flex gap-2 mt-2">
+          <Button size="sm" variant="success" onClick={() => onAction(appId, gate, 'passed')}>
+            {gate === 3 ? 'Select' : gate === 2 ? 'Pass → Simulation' : 'Pass'}
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => onAction(appId, gate, 'held')}>Hold</Button>
+          <Button size="sm" variant="danger" onClick={() => onAction(appId, gate, gate === 3 ? 'declined' : 'stopped')}>
+            {gate === 3 ? 'Decline' : 'Stop'}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GateView({ gate, apps, onAction }: { gate: number; apps: AppData[]; onAction: (id: string, gate: number, action: string) => void }) {
+  const config: Record<number, { title: string; role: string; desc: string; guidance: string }> = {
+    1: { title: 'Gate 1: Alignment', role: 'Recruiter', desc: 'Does this candidate align with the role requirements?', guidance: 'Check whether the candidate\'s profile and skills match what the role needs. Look at the alignment score, strengths, and gaps. Pass candidates who show potential alignment even if not perfect.' },
+    2: { title: 'Gate 2: Evidence', role: 'Hiring Manager', desc: 'Is there sufficient behavioral evidence?', guidance: 'Review the extracted skills evidence from the Aya conversation. Look at specific stories and behavioral indicators, not just scores. Check evidence quality and watch for gaming flags.' },
+    3: { title: 'Gate 3: Predictability', role: 'Final Approver', desc: 'Will this candidate succeed in the role?', guidance: 'Review the simulation performance, peer validation, and three-layer convergence. Look for consistency across all evidence sources. Check gaming flags and support needs.' },
+  };
+  const cfg = config[gate];
 
   const gateApps = apps.filter(a => {
     if (gate === 1) return a.gate1 !== null;
@@ -257,282 +273,136 @@ function GateView({ gate, apps }: { gate: number; apps: AppData[] }) {
   });
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-          style={{ background: gate === 1 ? '#2E86C1' : gate === 2 ? '#27AE60' : '#8E44AD' }}>
-          G{gate}
+    <div className="space-y-6">
+      <Card>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-body font-bold bg-kaya-navy-900 text-white">G{gate}</div>
+          <div>
+            <h2 className="text-h1 text-kaya-navy-900">{cfg.title}</h2>
+            <p className="text-caption text-kaya-stone-600">{cfg.role} — {cfg.desc}</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">{config.title}</h2>
-          <p className="text-sm text-gray-500">{config.role} — {config.description}</p>
+        <div className="px-4 py-3 rounded-kaya bg-kaya-navy-50 border-l-2 border-kaya-navy-600">
+          <p className="text-caption text-kaya-navy-900">{cfg.guidance}</p>
         </div>
-      </div>
+      </Card>
 
       {gateApps.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          <p className="text-4xl mb-2">{gate === 1 ? '' : gate === 2 ? '' : ''}</p>
-          <p className="text-sm">No candidates have reached this gate yet.</p>
-        </div>
+        <EmptyState title={`No candidates at ${cfg.title}`} description="Candidates will appear here as they progress through the pipeline." />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {gateApps.map(app => {
             const gateData = gate === 1 ? app.gate1 : gate === 2 ? app.gate2 : app.gate3;
-            const isPending = !gateData?.reviewer_decision || gateData?.reviewer_decision === 'pending';
-            const gateTable = gate === 1 ? 'gate1_results' : gate === 2 ? 'gate2_results' : 'gate3_results';
-
-            const handleDecision = async (decision: string) => {
-              try {
-                const res = await fetch('/api/demo', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    action: 'gate_decision',
-                    application_id: app.id,
-                    gate: gate,
-                    decision: decision,
-                  }),
-                });
-                if (res.ok) {
-                  // Reload data
-                  window.location.reload();
-                }
-              } catch (e) { console.error('Decision error:', e); }
-            };
-
+            if (!gateData) return null;
             return (
-              <div key={app.id} className="border rounded-xl p-5 bg-white" style={{ borderColor: '#E2E8F0' }}>
-                {/* Candidate header */}
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <span className="font-semibold text-base" style={{ color: '#102A43' }}>{app.jobseeker?.full_name || 'Candidate'}</span>
-                    <span className="text-xs ml-2" style={{ color: '#829AB1' }}>→ {app.vacancy?.title || 'Branch Staff'}</span>
+              <Card key={app.id}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-kaya-navy-900 flex items-center justify-center text-white font-bold text-body">
+                      {app.jobseeker?.full_name?.charAt(0) || '?'}
+                    </div>
+                    <div>
+                      <h3 className="text-h2 text-kaya-navy-900">{app.jobseeker?.full_name}</h3>
+                      <span className="text-caption text-kaya-stone-600">{app.vacancy?.title}</span>
+                    </div>
                   </div>
-                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                    gateData?.reviewer_decision === 'passed' ? 'bg-green-50 text-green-700' :
-                    gateData?.reviewer_decision === 'held' ? 'bg-amber-50 text-amber-700' :
-                    gateData?.reviewer_decision === 'stopped' ? 'bg-red-50 text-red-700' :
-                    'bg-gray-100 text-gray-500'
-                  }`}>
-                    {gateData?.reviewer_decision || 'Pending Review'}
-                  </span>
+                  <StatusBadge status={(gateData.reviewer_decision || 'pending') as any} />
                 </div>
 
-                {/* AI Recommendation */}
-                <div className="p-3 rounded-lg mb-3" style={{ background: '#F0F4F8' }}>
-                  <p className="text-xs font-medium mb-1" style={{ color: '#486581' }}>AI Recommendation</p>
-                  <p className="text-sm" style={{ color: '#334E68' }}>{gateData?.ai_recommendation || 'No recommendation yet'}</p>
+                <div className="p-3 rounded-kaya bg-kaya-stone-50 mb-4">
+                  <span className="text-caption font-semibold text-kaya-navy-900 block mb-1">AI recommendation</span>
+                  <p className="text-body text-kaya-stone-600">{gateData.ai_recommendation}</p>
                 </div>
 
-                {/* Gate-specific data */}
                 {gate === 1 && app.gate1 && (
-                  <div className="flex items-center gap-4 mb-3 text-sm">
-                    <span style={{ color: '#486581' }}>Alignment Score: <strong style={{ color: '#102A43' }}>{app.gate1.alignment_score}/100</strong></span>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-caption font-semibold text-kaya-navy-900">Alignment</span>
+                      <div className="flex-1 h-2 rounded-full bg-kaya-stone-50">
+                        <div className="h-full rounded-full bg-kaya-navy-600 transition-all" style={{ width: `${app.gate1.alignment_score}%` }} />
+                      </div>
+                      <span className="text-body font-mono font-bold text-kaya-navy-900">{app.gate1.alignment_score}%</span>
+                    </div>
                     {app.gate1.strengths?.length > 0 && (
-                      <div className="flex gap-1">
-                        {app.gate1.strengths.slice(0, 3).map((s: any, i: number) => (
-                          <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#E8F8F5', color: '#27AE60' }}>{typeof s === 'string' ? s : s.skill || s.name}</span>
-                        ))}
+                      <div>
+                        <span className="text-caption font-semibold text-kaya-green-400">Strengths</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {app.gate1.strengths.map((s: any, i: number) => (
+                            <span key={i} className="text-caption px-2 py-0.5 rounded-kaya-sm bg-kaya-green-50 text-kaya-green-400">{typeof s === 'string' ? s : s.skill || s.strength}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {app.gate1.gaps?.length > 0 && (
+                      <div>
+                        <span className="text-caption font-semibold text-kaya-warning">Gaps</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {app.gate1.gaps.map((g: any, i: number) => (
+                            <span key={i} className="text-caption px-2 py-0.5 rounded-kaya-sm bg-kaya-warning-bg text-kaya-warning">{typeof g === 'string' ? g : g.skill || g.gap}</span>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
                 )}
-                {gate === 2 && app.gate2 && (
-                  <div className="flex items-center gap-4 mb-3 text-sm">
-                    <span style={{ color: '#486581' }}>Evidence Rating: <strong style={{ color: '#102A43' }}>{app.gate2.evidence_rating}</strong></span>
+
+                {gate === 2 && app.gate2?.leee_skills_profile?.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="text-caption font-semibold text-kaya-navy-900 block mb-2">Extracted skills</span>
+                    {app.gate2!.leee_skills_profile.map((s: any, i: number) => (
+                      <div key={i} className="flex items-center gap-3 py-1.5">
+                        <span className="text-body font-medium text-kaya-navy-900 w-36 flex-none">{s.skill_name}</span>
+                        <ConfidenceBar value={s.confidence || 0.5} />
+                        <ProficiencyBadge level={s.proficiency} />
+                      </div>
+                    ))}
                   </div>
                 )}
+
                 {gate === 3 && app.gate3 && (
-                  <div className="mb-3 space-y-3">
-                    <div className="flex items-center gap-4 text-sm">
-                      <span style={{ color: '#486581' }}>Readiness Index: <strong style={{ color: '#102A43' }}>{app.gate3.readiness_index}/100</strong></span>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-caption font-semibold text-kaya-navy-900">Readiness</span>
+                      <div className="flex-1 h-2 rounded-full bg-kaya-stone-50">
+                        <div className="h-full rounded-full bg-kaya-green-400" style={{ width: `${app.gate3.readiness_index}%` }} />
+                      </div>
+                      <span className="text-body font-mono font-bold text-kaya-navy-900">{app.gate3.readiness_index}/100</span>
                     </div>
-
-                    {/* Simulation Results (Layer 2) */}
-                    {app.gate3.simulation_results && (
-                      <>
-                        <div className="p-3 rounded-lg" style={{ background: '#EBF5FB' }}>
-                          <p className="text-xs font-semibold mb-2" style={{ color: '#1A5276' }}>Layer 2: Simulation Results</p>
-                          <p className="text-xs mb-2" style={{ color: '#2C3E50' }}>
-                            Scenario: <strong>{(app.gate3 as any).simulation_results?.scenario_title || 'Workplace Simulation'}</strong>
-                            {' · '}{(app.gate3 as any).simulation_results?.rounds_completed || '?'} rounds completed
-                          </p>
-
-                          {/* Skill Scores */}
-                          {(app.gate3 as any).simulation_results?.skill_scores?.length > 0 && (
-                            <div className="space-y-1.5 mb-3">
-                              <p className="text-[10px] font-semibold uppercase" style={{ color: '#5DADE2' }}>Skills Observed in Simulation</p>
-                              {(app.gate3 as any).simulation_results.skill_scores.map((s: any, j: number) => (
-                                <div key={j} className="flex items-center justify-between text-xs">
-                                  <span style={{ color: '#334E68' }}>{s.skill_name}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{
-                                      background: s.proficiency === 'Advanced' ? '#D4EFDF' : s.proficiency === 'Intermediate' ? '#D4E6F1' : '#FADBD8',
-                                      color: s.proficiency === 'Advanced' ? '#1E8449' : s.proficiency === 'Intermediate' ? '#2471A3' : '#C0392B',
-                                    }}>{s.proficiency}</span>
-                                    <div className="w-12 h-1.5 rounded-full" style={{ background: '#EBF5FB' }}>
-                                      <div className="h-full rounded-full" style={{
-                                        width: `${Math.round((s.confidence || 0.5) * 100)}%`,
-                                        background: s.proficiency === 'Advanced' ? '#27AE60' : s.proficiency === 'Intermediate' ? '#2E86C1' : '#E74C3C',
-                                      }} />
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Convergence */}
-                          {(app.gate3 as any).simulation_results?.convergence?.length > 0 && (
-                            <div className="space-y-1.5 mb-3">
-                              <p className="text-[10px] font-semibold uppercase" style={{ color: '#5DADE2' }}>Layer 1 ↔ Layer 2 Convergence</p>
-                              {(app.gate3 as any).simulation_results.convergence.map((c: any, j: number) => (
-                                <div key={j} className="flex items-center justify-between text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,255,255,0.5)' }}>
-                                  <span style={{ color: '#334E68' }}>{c.skill_name}</span>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px]" style={{ color: '#627D98' }}>Conversation: {c.layer1_score}</span>
-                                    <span style={{ color: c.convergent ? '#27AE60' : '#E67E22', fontSize: '11px' }}>{c.convergent ? '✓' : '⚠'}</span>
-                                    <span className="text-[10px]" style={{ color: '#627D98' }}>Simulation: {c.layer2_score}</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Observer Summary */}
-                          {(app.gate3 as any).simulation_results?.observer_summary && (
-                            <div className="p-2 rounded" style={{ background: 'rgba(255,255,255,0.5)' }}>
-                              <p className="text-[10px] font-semibold mb-1" style={{ color: '#5DADE2' }}>Observer Summary</p>
-                              <p className="text-xs" style={{ color: '#486581' }}>{(app.gate3 as any).simulation_results.observer_summary}</p>
-                            </div>
-                          )}
-
-                          {/* Gaming Flags */}
-                          {(app.gate3 as any).simulation_results?.gaming_flags?.length > 0 && (
-                            <div className="p-2 rounded mt-2" style={{ background: '#FDEDEC' }}>
-                              <p className="text-[10px] font-semibold mb-1" style={{ color: '#C0392B' }}>⚠ Gaming Flags</p>
-                              {(app.gate3 as any).simulation_results.gaming_flags.map((f: string, j: number) => (
-                                <p key={j} className="text-[10px]" style={{ color: '#922B21' }}>{f}</p>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* L3.11: Layer 3 — Peer/360 Assessment */}
-                        {(app as any).layer3_convergence?.length > 0 && (
-                          <div className="mt-3 p-3 rounded-lg" style={{ background: 'rgba(142,68,173,0.05)', border: '1px solid rgba(142,68,173,0.15)' }}>
-                            <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#8E44AD' }}>Layer 3 — Peer/360 Assessment ({(app as any).layer3_peer_count || '?'} references)</p>
-                            <div className="space-y-1.5">
-                              {(app as any).layer3_convergence.map((c: any, j: number) => (
-                                <div key={j} className="flex items-center justify-between text-xs px-2 py-1.5 rounded" style={{ background: 'rgba(255,255,255,0.7)' }}>
-                                  <span className="font-medium" style={{ color: '#334E68' }}>{c.skill_name}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: '#EBF5FB', color: '#2471A3' }}>L1: {c.layer1_score}</span>
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: '#E8F8F5', color: '#1E8449' }}>L2: {c.layer2_score}</span>
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: '#F4ECF7', color: '#8E44AD' }}>L3: {c.layer3_score}</span>
-                                    <span className="text-[9px] font-semibold" style={{
-                                      color: c.convergence_type === 'full_agreement' ? '#1E8449' :
-                                             c.convergence_type === 'overclaim' ? '#C0392B' :
-                                             c.convergence_type === 'undersell' ? '#2E86C1' : '#E67E22'
-                                    }}>
-                                      → {c.combined_score}
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                            {(app as any).layer3_independence && !(app as any).layer3_independence.independent && (
-                              <div className="mt-2 p-2 rounded" style={{ background: '#FDEDEC' }}>
-                                <p className="text-[10px] font-semibold" style={{ color: '#C0392B' }}>⚠ Independence Flags</p>
-                                {(app as any).layer3_independence.flags.map((f: string, k: number) => (
-                                  <p key={k} className="text-[10px]" style={{ color: '#922B21' }}>{f}</p>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Simulation Transcript (collapsible) */}
-                        {(app.gate3 as any).simulation_results?.transcript && (
-                          <details className="rounded-lg overflow-hidden" style={{ border: '1px solid #D4E6F1' }}>
-                            <summary className="px-3 py-2 cursor-pointer text-xs font-medium" style={{ background: '#EBF5FB', color: '#1A5276' }}>
-                              View Full Simulation Transcript
-                            </summary>
-                            <pre className="p-3 text-[10px] whitespace-pre-wrap max-h-64 overflow-y-auto" style={{ background: '#FAFAF9', color: '#486581' }}>
-                              {(app.gate3 as any).simulation_results.transcript}
-                            </pre>
-                          </details>
-                        )}
-                      </>
+                    {(app.gate3 as any).simulation_results?.convergence?.length > 0 && (
+                      <DataTable headers={['Skill', 'Conversation', '', 'Simulation']}>
+                        {(app.gate3 as any).simulation_results.convergence.map((c: any, i: number) => (
+                          <TableRow key={i}>
+                            <TableCell><span className="font-medium text-kaya-navy-900">{c.skill_name}</span></TableCell>
+                            <TableCell>{c.layer1_score}</TableCell>
+                            <TableCell><span className={c.convergent ? 'text-kaya-green-400' : 'text-kaya-warning'}>{c.convergent ? '✓ Match' : '⚠ Divergent'}</span></TableCell>
+                            <TableCell>{c.layer2_score}</TableCell>
+                          </TableRow>
+                        ))}
+                      </DataTable>
                     )}
+                    {(app.gate3 as any).simulation_results?.gaming_flags?.length > 0 && (
+                      <Alert variant="warning">
+                        <span className="font-semibold">Gaming flags</span>
+                        {(app.gate3 as any).simulation_results.gaming_flags.map((f: string, i: number) => <p key={i}>{f}</p>)}
+                      </Alert>
+                    )}
+                  </div>
+                )}
 
-                    {/* Success conditions */}
-                    {app.gate3.success_conditions?.length > 0 && (
-                      <div className="p-3 rounded-lg" style={{ background: '#F0FFF4' }}>
-                        <p className="text-xs font-semibold mb-2" style={{ color: '#276749' }}>Success Conditions</p>
-                        <div className="space-y-1">
-                          {app.gate3.success_conditions.map((c: any, j: number) => (
-                            <p key={j} className="text-xs" style={{ color: '#486581' }}>{typeof c === 'string' ? c : c.condition || JSON.stringify(c)}</p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {/* Support needs */}
-                    {app.gate3.support_needs?.length > 0 && (
-                      <div className="p-3 rounded-lg" style={{ background: '#FFF7ED' }}>
-                        <p className="text-xs font-semibold mb-2" style={{ color: '#92400E' }}>Support Needs for Success</p>
-                        <div className="space-y-1">
-                          {app.gate3.support_needs.map((n: any, j: number) => (
-                            <p key={j} className="text-xs" style={{ color: '#486581' }}>{typeof n === 'string' ? n : n.need || JSON.stringify(n)}</p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {/* Structured interview prompts */}
-                    <div className="p-3 rounded-lg" style={{ background: '#F5F3FF' }}>
-                      <p className="text-xs font-semibold mb-2" style={{ color: '#5B21B6' }}>Suggested Interview Questions</p>
-                      <p className="text-[10px] mb-2" style={{ color: '#7C3AED' }}>Based on skill gaps identified in Gate 2</p>
-                      <div className="space-y-1.5 text-xs" style={{ color: '#486581' }}>
-                        <p>1. Tell me about a time you had to learn something completely new under time pressure. What did you do?</p>
-                        <p>2. Describe a situation where you disagreed with a colleague or supervisor. How did you handle it?</p>
-                        <p>3. What does a typical day look like for you when things get stressful? How do you manage?</p>
+                {!gateData.reviewer_decision && (
+                  <>
+                    <Divider />
+                    <div className="flex items-center justify-between">
+                      <span className="text-caption text-kaya-stone-600">Your decision</span>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="success" onClick={() => onAction(app.id, gate, 'passed')}>{gate === 3 ? 'Select' : 'Pass'}</Button>
+                        <Button size="sm" variant="secondary" onClick={() => onAction(app.id, gate, 'held')}>Hold</Button>
+                        <Button size="sm" variant="danger" onClick={() => onAction(app.id, gate, gate === 3 ? 'declined' : 'stopped')}>{gate === 3 ? 'Decline' : 'Stop'}</Button>
                       </div>
                     </div>
-                  </div>
+                  </>
                 )}
-
-                {/* APPROVAL BUTTONS — Human in the loop */}
-                {isPending && (
-                  <div className="flex items-center gap-2 pt-3" style={{ borderTop: '1px solid #E2E8F0' }}>
-                    <button
-                      onClick={() => handleDecision('passed')}
-                      className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
-                      style={{ background: '#48BB78' }}
-                    >
-                      {gate === 2 ? 'Approve — Send to Simulation (Gate 3)' : gate < 3 ? `Approve — Pass to Gate ${gate + 1}` : 'Select for Hiring → Onboarding'}
-                    </button>
-                    <button
-                      onClick={() => handleDecision('held')}
-                      className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                      style={{ background: '#FEF3E2', color: '#E67E22' }}
-                    >
-                      Hold
-                    </button>
-                    <button
-                      onClick={() => handleDecision('stopped')}
-                      className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                      style={{ background: '#FDEDEC', color: '#E74C3C' }}
-                    >
-                      {gate < 3 ? 'Stop' : 'Decline — Send Feedback'}
-                    </button>
-                  </div>
-                )}
-                {!isPending && (
-                  <div className="text-xs pt-2" style={{ color: '#829AB1', borderTop: '1px solid #F0F4F8' }}>
-                    Decision recorded: {gateData?.reviewer_decision}
-                  </div>
-                )}
-              </div>
+              </Card>
             );
           })}
         </div>
