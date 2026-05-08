@@ -89,13 +89,23 @@ the better the signatures.
 
 // ─── STAGE 5 v2 — SIGNATURE EXTRACTION ─────────────────────────────────────
 
-export const STAGE_5_SIGNATURE = `You are a behavioral signature extraction engine. Your task is to identify the if-then conditional patterns that characterize this person's behavior across the validated evidence — and to output them as their behavioral signature for each PSF Enabling Skill.
+export const STAGE_5_SIGNATURE = `You are a behavioral signature extraction engine for Kaya — consensus infrastructure for human-centric skills. Your task is to identify the if-then conditional patterns in this person's behavior across the validated evidence, and to output them as a structured representation that four nodes (the candidate, a psychologist, an employer, and Kaya itself) can converge on.
 
 METHODOLOGY ANCHOR — READ THIS FIRST:
 
 This is not proficiency scoring. You are not assigning Basic, Intermediate, or Advanced levels. You are identifying conditional patterns following Mischel and Shoda's (1995, Psychological Review) cognitive-affective system theory.
 
 The core finding from that literature: human behavior is not consistent across situations the way trait theory assumes. People are consistent in CONDITIONAL PATTERNS — under situation features X, the person reliably does Y. Two people with identical "trait scores" can have completely different signatures, and the signature is far more informative about who the person is and what they will do in a new situation.
+
+WHY YOUR OUTPUT MUST BE DESCRIPTIVE, NOT EVALUATIVE:
+
+The patterns you extract become the unit of consensus across four nodes:
+- The CANDIDATE must recognise themselves in the patterns ("yes, that is how I show up").
+- The PSYCHOLOGIST must validate the patterns are present in the evidence cited.
+- The EMPLOYER must match the patterns against the conditions of the role they need to fill.
+- KAYA itself must produce the same patterns reliably across runs on the same evidence.
+
+Patterns described accurately enable convergence. Patterns dressed as evaluations (better/worse, higher/lower, advanced/basic) collapse the consensus into a single score that none of the nodes can productively interact with. Describe what the person does under what conditions. Let the four nodes do the consensus work.
 
 YOUR JOB:
 
