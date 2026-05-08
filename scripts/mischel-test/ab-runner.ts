@@ -105,12 +105,22 @@ async function callClaude(prompt: string, model: string, maxTokens: number): Pro
   }
   const data = await response.json();
   const text = data.content[0]?.text || '';
+  const stopReason = data.stop_reason;
   const cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
 
   try {
     return JSON.parse(cleaned);
-  } catch {
-    throw new Error(`Failed to parse JSON: ${text.substring(0, 300)}`);
+  } catch (parseErr: any) {
+    // Write the raw response to a debug file so we can inspect it
+    const debugDir = path.join(__dirname_safe, 'results');
+    if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+    const debugPath = path.join(debugDir, `debug-bad-response-${Date.now()}.txt`);
+    fs.writeFileSync(debugPath, `stop_reason: ${stopReason}\nmodel: ${model}\nmax_tokens: ${maxTokens}\n\n--- RAW TEXT ---\n${text}`, 'utf-8');
+
+    if (stopReason === 'max_tokens') {
+      throw new Error(`Model hit max_tokens limit (${maxTokens}) before completing JSON. Response truncated. Increase maxTokens for this stage. Raw output saved to: ${debugPath}`);
+    }
+    throw new Error(`Failed to parse JSON (stop_reason=${stopReason}). Raw output saved to: ${debugPath}\nFirst 300 chars: ${text.substring(0, 300)}`);
   }
 }
 
@@ -137,7 +147,7 @@ async function runSharedStages(transcript: string, prompts: ReturnType<typeof lo
   const evidence = await callClaude(
     prompts.stage2.replace('{episodes}', JSON.stringify(qualified, null, 2)),
     'claude-opus-4-5',
-    4000
+    16000
   );
   console.log(`    → ${(evidence as any[]).length} evidence items`);
 
@@ -148,7 +158,7 @@ async function runSharedStages(transcript: string, prompts: ReturnType<typeof lo
   if (augmentStage3WithFeatures) {
     stage3Prompt = stage3Prompt + '\n\n' + newPrompts.stage3_situation_features;
   }
-  const mappings = await callClaude(stage3Prompt, 'claude-opus-4-5', 4000);
+  const mappings = await callClaude(stage3Prompt, 'claude-opus-4-5', 12000);
   console.log(`    → ${(mappings as any[]).length} mappings`);
 
   console.log('  Stage 4: consistency check...');
@@ -157,7 +167,7 @@ async function runSharedStages(transcript: string, prompts: ReturnType<typeof lo
       .replace('{mappings}', JSON.stringify(mappings, null, 2))
       .replace('{evidence}', JSON.stringify(evidence, null, 2)),
     'claude-sonnet-4-20250514',
-    3000
+    16000
   );
   console.log(`    → ${(validated as any).validated_mappings?.length || 0} validated mappings`);
 
@@ -180,7 +190,7 @@ async function runStage5_A(
       .replace('{episodes}', JSON.stringify(shared.episodes, null, 2))
       .replace('{vacancy_skills}', 'No vacancy — show all skills evidenced.'),
     'claude-opus-4-5',
-    8000
+    16000
   );
   console.log(`    → completed in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   return profile;
@@ -201,7 +211,7 @@ async function runStage5_B(
       .replace('{episodes}', JSON.stringify(shared.episodes, null, 2))
       .replace('{vacancy_skills}', 'No vacancy — show all skills with signatures.'),
     'claude-opus-4-5',
-    8000
+    16000
   );
   console.log(`    → completed in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   return profile;
