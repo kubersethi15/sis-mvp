@@ -26,6 +26,11 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM equivalent of __dirname.
+const __filename_safe = fileURLToPath(import.meta.url);
+const __dirname_safe = path.dirname(__filename_safe);
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!ANTHROPIC_API_KEY) {
@@ -38,7 +43,7 @@ if (!ANTHROPIC_API_KEY) {
 // against current state, not stale copies.
 
 function loadProductionPrompts() {
-  const pipelinePath = path.join(__dirname, '../../src/lib/extraction-pipeline.ts');
+  const pipelinePath = path.join(__dirname_safe, '../../src/lib/extraction-pipeline.ts');
   if (!fs.existsSync(pipelinePath)) {
     throw new Error(`extraction-pipeline.ts not found at ${pipelinePath}`);
   }
@@ -61,7 +66,7 @@ function loadProductionPrompts() {
 }
 
 function loadNewPrompts() {
-  const newPath = path.join(__dirname, '../../src/lib/mischel/stage5-signature.ts');
+  const newPath = path.join(__dirname_safe, '../../src/lib/mischel/stage5-signature.ts');
   const source = fs.readFileSync(newPath, 'utf-8');
 
   function extract(varName: string): string {
@@ -437,7 +442,7 @@ async function main() {
 
   // Save results
   const ts = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-  const resultsDir = path.join(__dirname, 'results');
+  const resultsDir = path.join(__dirname_safe, 'results');
   if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir, { recursive: true });
 
   const jsonPath = path.join(resultsDir, `comparison-${ts}.json`);
