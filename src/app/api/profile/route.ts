@@ -34,9 +34,46 @@ export async function POST(req: NextRequest) {
 async function createProfile(body: any) {
   const supabase = db();
 
-  // Ensure user exists
+  // Bug fix (2026-05-12): the previous logic split into two paths:
+  //   - If body.user_id was provided, jump straight to creating a jobseeker_profile
+  //     pointing to that ID — without ever creating a user_profiles row.
+  //   - If body.user_id was NOT provided, create a new user_profiles row with a
+  //     random UUID from gen_random_uuid(), then use that as user_id.
+  // Result: signups never created user_profiles rows (because user_id was always passed),
+  // and orphan code paths created user_profiles with IDs unrelated to auth.users.
+  // Over months this produced 45 user_profiles where only 8 had IDs matching auth.users.
+  //
+  // The fix: always upsert a user_profiles row first, with id = the authenticated user's ID.
+  // This guarantees every jobseeker_profile.user_id points to a user_profiles row whose
+  // id IS the auth.users.id — the precondition for RLS to work correctly.
+
   let userId = body.user_id;
-  if (!userId) {
+
+  if (userId) {
+    // Proper signup path: ensure user_profiles row exists with id = auth.users.id.
+    // Using upsert with onConflict='id' so this is idempotent — safe to call repeatedly
+    // for the same auth user without creating duplicates or overwriting existing data.
+    const { error: upsertErr } = await supabase
+      .from('user_profiles')
+      .upsert({
+        id: userId,
+        full_name: body.full_name || 'Unknown',
+        role: body.role || 'jobseeker',
+        email: body.email || null,
+        phone: body.phone || null,
+        language_preference: body.language_preference || 'en',
+        accessibility_needs: body.accessibility_needs || {},
+      }, { onConflict: 'id', ignoreDuplicates: false });
+
+    if (upsertErr) {
+      console.error('user_profiles upsert error:', upsertErr.message);
+      return NextResponse.json({ error: upsertErr.message }, { status: 500 });
+    }
+  } else {
+    // Fallback path: no auth user_id provided (legacy callers, anonymous flows).
+    // Create a user_profiles row with a fresh ID. This row is NOT linked to auth.users
+    // and the resulting jobseeker_profile is effectively unreachable via Supabase Auth
+    // once RLS is enabled. Callers should pass user_id whenever possible.
     const { data: user, error: userErr } = await supabase
       .from('user_profiles')
       .insert({
@@ -51,6 +88,11 @@ async function createProfile(body: any) {
       .single();
     if (userErr) return NextResponse.json({ error: userErr.message }, { status: 500 });
     userId = user.id;
+    console.warn(
+      'createProfile called without user_id — created orphan user_profiles row',
+      userId,
+      '. This row will not be accessible to any Supabase Auth user once RLS is enabled.'
+    );
   }
 
   const { data, error } = await supabase.from('jobseeker_profiles').insert({
