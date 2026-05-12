@@ -134,4 +134,29 @@ src/lib/prompts.ts                — Aya system prompt + SP grounding
 src/lib/llm.ts                    — Claude primary + Gemini fallback (15s timeout)
 ```
 
-*Last updated: April 9, 2026 — All bugs fixed, full E2E pipeline verified, mobile polish done*
+---
+
+## Post-Jakarta — Production Readiness Phase
+
+### Ryan May 2026 round
+
+| # | Issue | Reported by | Severity | Status | Notes |
+|---|-------|------------|----------|--------|-------|
+| BUG-101 | Ryan locked out of his own account, password reset email leads to a page that doesn't allow setting a new password | Ryan | P0 Blocker | ✅ Fixed (code) — Ryan manual unblock via Supabase dashboard pending | **Root cause:** `/auth` page had no handler for the recovery flow. Supabase recovery email redirects to `/auth#type=recovery&access_token=...` but the page only showed the normal Sign In / Create Account form. User could not set new password. **Fix:** added recovery mode detection (URL hash check + `PASSWORD_RECOVERY` auth event listener) and a "Set new password" form. Tested compile clean. **Manual unblock for Ryan:** use Supabase dashboard → Authentication → Users → send magic link, or set password directly. |
+| BUG-102 | Rate limit exceeded on signup (Supabase default SMTP) | Ryan, multiple testers | P0 Blocker | ✅ Fixed | Swapped to Resend custom SMTP in Supabase dashboard. Rate limit now 30/hour, can scale further on Resend tier. |
+| BUG-103 | System breaks under load (more than ~10 concurrent users) | Ryan | P0 Blocker | ⬜ Phase 3 | Concurrency audit pending. Likely Anthropic rate limits + Vercel function timeouts + Supabase connection pool. Needs load test harness. |
+| BUG-104 | Errors not surfaced to users meaningfully — they see raw error messages or blank states | Multiple testers | P1 Critical | ⬜ Phase 2 | Audit every error path in auth, chat, profile, simulation. Map to user-friendly messages. |
+| BUG-105 | No observability — when something breaks for a user we cannot reproduce or diagnose | Kuber/Ryan | P1 Critical | ⬜ Phase 4 | Need pipeline_telemetry table + Sentry. See Production Readiness Roadmap Phase 4. |
+
+### Action items for Ryan
+- Send full list of every other error he or testers have seen, with screenshots if possible
+- Confirm he can log in after manual unblock
+- Confirm BUG-101 fix works end-to-end once deployed: forgot password → click email link → set new password → land on dashboard
+
+### See also
+- `Kaya_Production_Readiness_Roadmap.docx` — five-phase plan for the next four weeks
+
+---
+
+*Last updated: May 12, 2026 — Phase 1 of production readiness in progress*
+

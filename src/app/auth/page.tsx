@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -9,13 +9,73 @@ const supabase = createClient(
 );
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'recovery'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+
+  // Detect password recovery flow.
+  // Supabase redirects users from the recovery email to /auth with either:
+  //   - hash: #access_token=...&type=recovery (older flow)
+  //   - search params: ?code=... (newer PKCE flow)
+  // Either way we listen for the PASSWORD_RECOVERY auth event and switch into recovery mode.
+  useEffect(() => {
+    // Check URL hash on mount (legacy recovery flow)
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      if (hash.includes('type=recovery') || hash.includes('access_token')) {
+        setMode('recovery');
+      }
+    }
+
+    // Listen for Supabase auth events — PASSWORD_RECOVERY fires when the user
+    // arrives via a recovery link, regardless of which flow type
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setMode('recovery');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+    const { error: updateErr } = await supabase.auth.updateUser({ password: newPassword });
+    setLoading(false);
+
+    if (updateErr) {
+      // Common case: the recovery link has expired
+      if (updateErr.message?.toLowerCase().includes('expired') || updateErr.message?.toLowerCase().includes('invalid')) {
+        setError('This password reset link has expired or is invalid. Please request a new one by clicking "Forgot password?" below.');
+        setMode('signin');
+      } else {
+        setError(updateErr.message);
+      }
+      return;
+    }
+
+    setSuccess('Password updated. Signing you in...');
+    setTimeout(() => window.location.href = '/my-dashboard', 1200);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,17 +179,60 @@ export default function AuthPage() {
 
         {/* Auth Card */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-kaya-stone-200 p-6 shadow-xl">
-          {/* Toggle */}
-          <div className="flex gap-1 bg-kaya-stone-100 rounded-xl p-1 mb-6">
-            <button onClick={() => setMode('signin')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signin' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-kaya-stone-400'}`}>
-              Sign In
-            </button>
-            <button onClick={() => setMode('signup')}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signup' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-kaya-stone-400'}`}>
-              Create Account
-            </button>
-          </div>
+
+          {mode === 'recovery' ? (
+            // ── Password recovery flow — user arrived via reset-password email ──
+            <>
+              <div className="mb-5">
+                <h2 className="text-lg font-semibold text-kaya-navy-900">Set a new password</h2>
+                <p className="text-sm text-kaya-stone-600 mt-1">Choose a new password to access your account. You'll be signed in automatically once it's saved.</p>
+              </div>
+              <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-kaya-navy-900 mb-1">New password</label>
+                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required
+                    placeholder="At least 6 characters" autoFocus
+                    className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-kaya-amber-400/30 outline-none bg-white" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-kaya-navy-900 mb-1">Confirm new password</label>
+                  <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
+                    placeholder="Repeat your password"
+                    className="w-full px-4 py-2.5 border border-kaya-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-200 focus:border-kaya-amber-400/30 outline-none bg-white" />
+                </div>
+
+                {error && (
+                  <div className="p-3 bg-kaya-red-50 border border-kaya-red-400/20 rounded-xl text-sm text-kaya-red-400">{error}</div>
+                )}
+                {success && (
+                  <div className="p-3 bg-kaya-green-50 border border-kaya-green-100 rounded-xl text-sm text-kaya-green-400">{success}</div>
+                )}
+
+                <button type="submit" disabled={loading}
+                  className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 font-sans">
+                  {loading ? 'Saving...' : 'Save new password'}
+                </button>
+
+                <button type="button" onClick={() => { setMode('signin'); setError(''); setSuccess(''); }}
+                  className="block w-full text-center text-xs text-kaya-stone-600 hover:underline">
+                  Cancel and return to sign in
+                </button>
+              </form>
+            </>
+          ) : (
+            // ── Normal signin / signup flow ──
+            <>
+              {/* Toggle */}
+              <div className="flex gap-1 bg-kaya-stone-100 rounded-xl p-1 mb-6">
+                <button onClick={() => setMode('signin')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signin' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-kaya-stone-400'}`}>
+                  Sign In
+                </button>
+                <button onClick={() => setMode('signup')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signup' ? 'bg-white text-kaya-navy-900 shadow-sm' : 'text-kaya-stone-400'}`}>
+                  Create Account
+                </button>
+              </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
@@ -194,8 +297,10 @@ export default function AuthPage() {
               {loading ? 'Please wait...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
             </button>
           </form>
+            </>
+          )}
 
-          {/* Role-based entry */}
+          {/* Role-based entry — visible in all modes */}
           <div className="mt-5 pt-5 border-t border-kaya-stone-100">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-center mb-3 text-kaya-stone-400">Other portals</p>
             <div className="grid grid-cols-2 gap-2">
