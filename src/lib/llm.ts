@@ -15,6 +15,12 @@ interface LLMResponse {
   text: string;
   provider: 'anthropic' | 'gemini';
   model: string;
+  // Telemetry fields — surface what Anthropic/Gemini return for monitoring.
+  // Optional because the fallback path may not provide all of them; telemetry
+  // writers must tolerate undefined.
+  inputTokens?: number;
+  outputTokens?: number;
+  stopReason?: string;
 }
 
 // Call Claude (Anthropic)
@@ -56,7 +62,14 @@ async function callAnthropic(req: LLMRequest): Promise<LLMResponse> {
     const data = await res.json();
     const text = data.content?.find((b: any) => b.type === 'text')?.text || '';
 
-    return { text, provider: 'anthropic', model };
+    return {
+      text,
+      provider: 'anthropic',
+      model,
+      inputTokens: data.usage?.input_tokens,
+      outputTokens: data.usage?.output_tokens,
+      stopReason: data.stop_reason,
+    };
   } catch (e) {
     clearTimeout(timeout);
     throw e;
@@ -121,7 +134,14 @@ async function callGemini(req: LLMRequest): Promise<LLMResponse> {
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-    return { text, provider: 'gemini', model };
+    return {
+      text,
+      provider: 'gemini',
+      model,
+      inputTokens: data.usageMetadata?.promptTokenCount,
+      outputTokens: data.usageMetadata?.candidatesTokenCount,
+      stopReason: data.candidates?.[0]?.finishReason,
+    };
   } catch (e) {
     clearTimeout(timeout);
     throw e;
@@ -156,12 +176,26 @@ export async function callLLM(req: LLMRequest): Promise<LLMResponse> {
 }
 
 // Convenience: call for JSON extraction (strips markdown fences, parses)
-export async function callLLMForJSON(req: LLMRequest): Promise<{ data: any; provider: string; model: string }> {
+export async function callLLMForJSON(req: LLMRequest): Promise<{
+  data: any;
+  provider: string;
+  model: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  stopReason?: string;
+}> {
   const result = await callLLM(req);
   const cleaned = result.text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+  const telemetryFields = {
+    provider: result.provider,
+    model: result.model,
+    inputTokens: result.inputTokens,
+    outputTokens: result.outputTokens,
+    stopReason: result.stopReason,
+  };
 
   try {
-    return { data: JSON.parse(cleaned), provider: result.provider, model: result.model };
+    return { data: JSON.parse(cleaned), ...telemetryFields };
   } catch (e) {
     // Try to repair truncated JSON
     let repaired = cleaned;
@@ -181,6 +215,6 @@ export async function callLLMForJSON(req: LLMRequest): Promise<{ data: any; prov
     }
     repaired += ']'.repeat(Math.max(0, openBrackets)) + '}'.repeat(Math.max(0, openBraces));
 
-    return { data: JSON.parse(repaired), provider: result.provider, model: result.model };
+    return { data: JSON.parse(repaired), ...telemetryFields };
   }
 }
