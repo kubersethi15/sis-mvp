@@ -466,7 +466,14 @@ async function handleExtract(sessionId: string) {
       transcript,
       vacancySkills,
       sessionMinutes,
-      voiceAnalysis.length > 0 ? voiceAnalysis : undefined
+      voiceAnalysis.length > 0 ? voiceAnalysis : undefined,
+      // Telemetry context — links each Stage 1-5 telemetry row back to the
+      // user and session that triggered the pipeline. Fire-and-forget inside.
+      {
+        userId: session?.user_id ?? null,
+        sessionId: sessionId,
+        promptVersion: 'v1',
+      }
     );
 
     if (!result.success) {

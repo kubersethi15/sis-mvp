@@ -545,34 +545,119 @@ const STAGE_MODELS: Record<string, string> = {
   'Lightweight S3': 'claude-sonnet-4-20250514',
 };
 
+// Context passed from runExtractionPipeline down to each stage call so
+// telemetry rows can be linked to the user/session that triggered them.
+// All fields are optional — telemetry still writes with whatever it has.
+export interface PipelineContext {
+  runId?: string;
+  userId?: string | null;
+  sessionId?: string | null;
+  promptVersion?: string | null;
+}
+
 async function callClaudeForStage(
   prompt: string,
   stageName: string,
-  maxTokens: number = 4000
+  maxTokens: number = 4000,
+  context?: PipelineContext,
+  summarizer?: (output: any) => Record<string, any>
 ): Promise<any> {
   const { callLLMForJSON } = await import('@/lib/llm');
+  const { writeTelemetry, classifyTelemetryError } = await import('@/lib/telemetry');
 
   const model = STAGE_MODELS[stageName] || 'claude-sonnet-4-20250514';
+  const runId = context?.runId ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+  const t0 = Date.now();
 
-  const result = await callLLMForJSON({
-    messages: [{ role: 'user', content: prompt }],
-    maxTokens,
-    model,
-  });
+  try {
+    const result = await callLLMForJSON({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens,
+      model,
+    });
 
-  if (result.provider === 'gemini') {
-    console.log(`[Extraction ${stageName}] Used Gemini fallback`);
+    if (result.provider === 'gemini') {
+      console.log(`[Extraction ${stageName}] Used Gemini fallback`);
+    }
+
+    // Fire-and-forget telemetry write on success.
+    writeTelemetry({
+      runId,
+      userId: context?.userId ?? null,
+      sessionId: context?.sessionId ?? null,
+      stage: stageName,
+      promptVersion: context?.promptVersion ?? null,
+      model: result.model,
+      provider: result.provider as 'anthropic' | 'gemini',
+      latencyMs: Date.now() - t0,
+      inputTokens: result.inputTokens ?? null,
+      outputTokens: result.outputTokens ?? null,
+      success: true,
+      stopReason: result.stopReason ?? null,
+      outputSummary: summarizer ? safeSummarize(summarizer, result.data) : null,
+    });
+
+    return result.data;
+  } catch (err: any) {
+    // Failure telemetry — capture what we know
+    writeTelemetry({
+      runId,
+      userId: context?.userId ?? null,
+      sessionId: context?.sessionId ?? null,
+      stage: stageName,
+      promptVersion: context?.promptVersion ?? null,
+      model,
+      // We don't always know which provider failed (could be either) —
+      // default to anthropic since that's tried first. Refine if needed later.
+      provider: 'anthropic',
+      latencyMs: Date.now() - t0,
+      success: false,
+      errorClass: classifyTelemetryError(err),
+      errorMessage: String(err?.message || err),
+    });
+    throw err;
   }
+}
 
-  return result.data;
+/**
+ * Run a summarizer with a try/catch — a buggy summarizer should never break
+ * the pipeline or leave telemetry with garbage.
+ */
+function safeSummarize(
+  summarizer: (output: any) => Record<string, any>,
+  output: any
+): Record<string, any> | null {
+  try {
+    return summarizer(output);
+  } catch (e: any) {
+    return { summarizer_error: e?.message || 'unknown' };
+  }
 }
 
 export async function runExtractionPipeline(
   transcript: string,
   vacancySkills: string[] = [],
   sessionDurationMinutes: number = 15,
-  voiceAnalysis?: any[] // Paralinguistic data from Hume — array of per-message analyses
+  voiceAnalysis?: any[], // Paralinguistic data from Hume — array of per-message analyses
+  telemetryContext?: { userId?: string | null; sessionId?: string | null; promptVersion?: string | null }
 ): Promise<PipelineResult> {
+  const { summarizeStage1, summarizeStage2, summarizeStage3, summarizeStage4, summarizeStage5 } =
+    await import('@/lib/telemetry');
+
+  // One run_id groups all 5 stages of this pipeline execution.
+  // Generated here so each stage call gets the same id.
+  const runId =
+    typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  const ctx: PipelineContext = {
+    runId,
+    userId: telemetryContext?.userId ?? null,
+    sessionId: telemetryContext?.sessionId ?? null,
+    promptVersion: telemetryContext?.promptVersion ?? null,
+  };
+
   const timing: { [key: string]: number } = {};
   const stages: PipelineResult['stages'] = {
     stage1_episodes: null,
@@ -586,7 +671,7 @@ export async function runExtractionPipeline(
     // ── STAGE 1: Segmentation ──
     let t0 = Date.now();
     const s1Prompt = STAGE_1_SEGMENTATION.replace('{transcript}', transcript);
-    const episodes: any[] = await callClaudeForStage(s1Prompt, 'Stage 1: Segmentation', 3000);
+    const episodes: any[] = await callClaudeForStage(s1Prompt, 'Stage 1: Segmentation', 3000, ctx, summarizeStage1);
     stages.stage1_episodes = episodes;
     timing.stage1_ms = Date.now() - t0;
 
@@ -608,7 +693,7 @@ export async function runExtractionPipeline(
     // ── STAGE 2: STAR+E+R Extraction ──
     t0 = Date.now();
     const s2Prompt = STAGE_2_STAR_ER.replace('{episodes}', JSON.stringify(qualifiedEpisodes, null, 2));
-    const evidence: any[] = await callClaudeForStage(s2Prompt, 'Stage 2: STAR+E+R', 4000);
+    const evidence: any[] = await callClaudeForStage(s2Prompt, 'Stage 2: STAR+E+R', 4000, ctx, summarizeStage2);
     stages.stage2_evidence = evidence;
     timing.stage2_ms = Date.now() - t0;
 
@@ -620,7 +705,7 @@ export async function runExtractionPipeline(
     const s3Prompt = STAGE_3_SKILL_MAPPING
       .replace('{evidence}', JSON.stringify(evidence, null, 2))
       .replace('{vacancy_skills}', vacancyStr);
-    const mappings: any[] = await callClaudeForStage(s3Prompt, 'Stage 3: Skill Mapping', 4000);
+    const mappings: any[] = await callClaudeForStage(s3Prompt, 'Stage 3: Skill Mapping', 4000, ctx, summarizeStage3);
     stages.stage3_mappings = mappings;
     timing.stage3_ms = Date.now() - t0;
 
@@ -629,7 +714,7 @@ export async function runExtractionPipeline(
     const s4Prompt = STAGE_4_CONSISTENCY
       .replace('{mappings}', JSON.stringify(mappings, null, 2))
       .replace('{evidence}', JSON.stringify(evidence, null, 2));
-    const validated: any = await callClaudeForStage(s4Prompt, 'Stage 4: Consistency', 3000);
+    const validated: any = await callClaudeForStage(s4Prompt, 'Stage 4: Consistency', 3000, ctx, summarizeStage4);
     stages.stage4_validated = validated;
     timing.stage4_ms = Date.now() - t0;
 
@@ -641,7 +726,7 @@ export async function runExtractionPipeline(
       .replace('{evidence}', JSON.stringify(evidence, null, 2))
       .replace('{episodes}', JSON.stringify(qualifiedEpisodes, null, 2))
       .replace('{vacancy_skills}', vacancyStr);
-    const profile: any = await callClaudeForStage(s5Prompt, 'Stage 5: Proficiency', 8000);
+    const profile: any = await callClaudeForStage(s5Prompt, 'Stage 5: Proficiency', 8000, ctx, summarizeStage5);
 
     // Inject session metadata
     profile.session_metadata = {
